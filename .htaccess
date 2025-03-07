@@ -9,11 +9,12 @@ RewriteBase /bhl-light/
 
 #-----------------------------------------------------------------------------------------
 # bibliography
-
 RewriteRule bibliography/(.*)$ ?bibliography=$1 [NC,L]
+
+# item
+RewriteRule item/(.*)$ ?item=$1 [NC,L]
 
 # list of titles
 RewriteRule containers$ ?containers[NC,L]
-
 RewriteRule containers/(.*)$ ?containers&letter=$1 [NC,L]
 

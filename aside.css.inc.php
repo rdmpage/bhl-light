@@ -36,6 +36,7 @@ main {
   /* on small screens we show the <summary> element so we can toggle aside on and off */
   aside #aside-details > summary:first-of-type {
 	display:block;
+	
   }  
  
   main { margin-left: 0; }

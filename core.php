@@ -6,6 +6,39 @@ require_once (dirname(__FILE__) . '/couchsimple.php');
 
 //----------------------------------------------------------------------------------------
 // Return an array comprising the title and a list of its items 
+function get_item($id)
+{
+	global $config;
+	global $couch;
+	
+	$graph = array();
+	
+	// item	
+	$key = '"' . 'item/' . $id . '"';
+
+	$url = '_design/item/_view/about?key=' . urlencode($key);
+		
+	if ($config['stale'])
+	{
+		$url .= '&stale=ok';
+	}			
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+		
+	$work = $resp_obj->rows[0]->value;
+	$work->{'@type'} = array('CreativeWork');
+	
+	$graph[] = $work;
+	
+	// maybe other things here...?
+	
+	return $graph;
+}
+
+//----------------------------------------------------------------------------------------
+// Return an array comprising the title and a list of its items 
 function get_title($id)
 {
 	global $config;

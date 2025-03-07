@@ -117,6 +117,132 @@ function default_display($error_msg = '')
 }
 
 //----------------------------------------------------------------------------------------
+function display_item($id)
+{
+	$doc = get_item($id);
+	
+	if ($doc)
+	{
+		$work = null;
+	
+		// Unpack JSON-LD
+		foreach ($doc as $graph)
+		{
+			if (in_array('CreativeWork', $graph->{'@type'}))
+			{
+				$work = $graph;
+			}
+		
+			/*
+			if (in_array('DataFeed', $graph->{'@type'}))
+			{
+				$list = $graph;
+			}	
+			*/	
+		}
+		
+		$title = $work->name;
+	
+		html_start($title, $doc);
+		
+		// create a side bar for information on this work
+		echo '<div>';
+		echo '  <aside>';
+		echo '    <details id="aside-details">';
+		echo '      <summary>Details</summary>';
+		echo '     	<div>';
+		
+		$isPartOf = array();
+		if (is_array($work->isPartOf))
+		{
+			$isPartOf = $work->isPartOf;
+		}
+		else
+		{
+			$isPartOf[] = $work->isPartOf;
+		}
+		
+		foreach ($isPartOf as $back)
+		{
+			echo '<p><a href="' . $back . '">← back to title</a></p>';		
+		}
+		
+		echo '<h1>' . $work->name . '</h1>';
+		
+		$image_base_url = 'http://www.biodiversitylibrary.org/';
+
+		if (isset($work->thumbnailUrl))
+		{
+			echo '<div>';
+			echo '<img width="180" src="' . $image_base_url . $work->thumbnailUrl . '">';
+			echo '</div>';
+		}
+		
+		$keys = array('provider', 'copyrightNotice');
+		
+		echo '<dl>';
+		
+		foreach ($keys as $k)
+		{
+			if (isset($work->{$k}))
+			{
+				echo '<dt>';
+				echo $k;
+				echo '</dt>';
+				
+				echo '<dd>';
+				echo $work->{$k};
+				echo '</dd>';
+			}
+		}
+		echo '</dl>';
+
+
+		
+		/*
+		// details
+		if (isset($work->identifier))
+		{			
+			echo '<dl>';
+			foreach ($work->identifier as $identifier)
+			{
+				echo '<dt>';
+				echo $identifier->propertyID;
+				echo '</dt>';
+				
+				echo '<dd>';
+				echo $identifier->value;
+				echo '</dd>';
+				
+			}
+			echo '</dl>';
+			
+		}
+		*/
+		
+		echo '		</div>';
+		echo '    </details>';
+		echo '  </aside>';
+		
+		// main display
+		echo '  <main>';
+      	
+		echo '<p>To do:</p>';
+		
+echo '  </main>
+</div>';
+		
+		require_once ('aside.js.inc.php');
+
+		html_end();
+	}
+	else
+	{
+		default_display("$id not found");
+	}
+}
+
+//----------------------------------------------------------------------------------------
 function display_title($id)
 {
 	$doc = get_title($id);
@@ -172,7 +298,6 @@ function display_title($id)
 			
 		}
 		
-		
 		echo '		</div>';
 		echo '    </details>';
 		echo '  </aside>';
@@ -188,8 +313,10 @@ function display_title($id)
 		foreach ($list->dataFeedElement as $item)
 		{
 			echo '<li>';
+			echo '<a href="' . $item->{'@id'} . '">';
 			echo '<img src="' . $image_base_url . $item->thumbnailUrl . '">';
 			echo '<div>' . $item->name . '</div>';
+			echo '</a>';
 			echo '</li>';
 		}
 		echo '</ul>';
@@ -301,8 +428,26 @@ function main()
 				$handled = true;
 			}			
 		}
-
 	}	
+	
+	if (!$handled)
+	{		
+		$item = '';
+		if (isset($_GET['item']))
+		{	
+			$item = $_GET['item']; 
+		} 
+		
+		if ($item != '')	
+		{			
+			if (!$handled)
+			{
+				display_item($item);
+				$handled = true;
+			}			
+		}
+	}	
+	
 	
 	if (!$handled)
 	{		
