@@ -6,6 +6,10 @@ body {
   background-color: var(--bg);
 }
 
+img {
+	border:var(--image-border);
+}
+
 /* based on https://bloycey.medium.com/how-to-style-dl-dt-and-dd-html-tags-ced1229deda0 */
 dl {
   display: grid;
@@ -16,10 +20,12 @@ dl {
   /* handle long strings */
   word-break: break-word;
 }
+
 dt {
   text-align:right;
   color:#444;
 }
+
 dd {
   margin: 0;
   grid-column-start: 2;

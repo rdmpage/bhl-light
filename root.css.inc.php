@@ -9,6 +9,8 @@
   	
   	--aside-width:240px;
   	
+  	--image-border: 1px solid #DDD;
+  	
   	--grid-width: 160px;
   	--grid-image-border: #DDD;
 }

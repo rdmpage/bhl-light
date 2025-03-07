@@ -174,7 +174,7 @@ function display_item($id)
 		if (isset($work->thumbnailUrl))
 		{
 			echo '<div>';
-			echo '<img width="180" src="' . $image_base_url . $work->thumbnailUrl . '">';
+			echo '<img width="180" src="image_proxy.php?url=' . urlencode($image_base_url . $work->thumbnailUrl) . '">';
 			echo '</div>';
 		}
 		
@@ -314,7 +314,7 @@ function display_title($id)
 		{
 			echo '<li>';
 			echo '<a href="' . $item->{'@id'} . '">';
-			echo '<img src="' . $image_base_url . $item->thumbnailUrl . '">';
+			echo '<img loading="lazy" src="image_proxy.php?url=' . urlencode($image_base_url . $item->thumbnailUrl) . '">';
 			echo '<div>' . $item->name . '</div>';
 			echo '</a>';
 			echo '</li>';

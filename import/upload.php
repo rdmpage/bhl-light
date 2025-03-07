@@ -58,7 +58,7 @@ function get_title($TitleID)
 {
 	// list of items for a title
 	$sql = 'SELECT * FROM title 
-	INNER JOIN titleidentifier USING(TitleID)
+	LEFT OUTER JOIN titleidentifier USING(TitleID)
 	WHERE TitleID='. $TitleID;
 	
 	$data = db_get($sql);
@@ -141,8 +141,15 @@ function get_items_for_title($TitleID)
 		// integer order in list (based on SQL query)
 		$obj->position = $position++;
 		
-		$obj->name = $row->VolumeInfo;
-		
+		if (isset($row->VolumeInfo))
+		{		
+			$obj->name = $row->VolumeInfo;
+		}
+		else
+		{
+			$obj->name = '[Untitled]';
+		}
+			
 		$obj->isPartOf = 'bibliography/' . $row->TitleID;
 		
 		if (isset($row->ThumbnailPageID))
@@ -324,6 +331,7 @@ function upload_title($TitleID, $force = false)
 	global $couch;
 	
 	$doc = get_title($TitleID);
+	
 	$exists = $couch->exists($doc->_id);
 	
 	if ($exists && !$force)
@@ -386,6 +394,20 @@ $TitleID = 211788;
 $TitleID = 169356; // Austrobaileya: A Journal of Plant Systematics
 
 $TitleID = 119522;
+
+$TitleID = 139317; // Biodiversity journal
+$TitleID = 48608; // Deutsche entomologische Zeitschrift
+$TitleID = 2804;// Asiatic herpetological research
+$TitleID = 204608; // Alytes: International Journal of Batrachology
+$TitleID = 62642; // Bulletin of the Natural History Museum. Zoology series
+$TitleID = 119879; // Flora of Southern Africa
+$TitleID = 38931; // American Museum novitates
+$TitleID = 95451; // Brasil 1979, 0
+//$TitleID = 44792; // Anales de la Sociedad Científica Argentina
+
+$TitleID = 730; // Biologia Centrali-Americana
+$TitleID = 150137; // Biodiversity, biogeography and nature conservation in Wallacea and New Guinea
+$TitleID = 49914; // Iberus : revista de la Sociedad Española de Malacología
 
 upload_title($TitleID, true);
 
