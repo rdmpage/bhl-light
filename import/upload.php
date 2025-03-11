@@ -272,7 +272,16 @@ function get_part($PartID)
 		{
 			$obj->provider = $row->ContributorName;
 		}		
+
+		if (isset($row->SequenceOrder))
+		{
+			$obj->position = (Integer)$row->SequenceOrder;
+		}
 		
+		if (isset($row->StartPageID))
+		{
+			$obj->thumbnailUrl = 'pagethumb/' . $row->StartPageID;
+		}	
 
 		if (!isset($obj->identifier))
 		{
@@ -317,11 +326,112 @@ function get_part($PartID)
 		
 	}
 	
-	print_r($obj);
+	//print_r($obj);
+	
+	//echo json_encode($obj);
 	
 	return $obj;
 }
 
+//----------------------------------------------------------------------------------------
+// Get list of parts for an item
+function get_parts_for_item($ItemID)
+{
+	// list of items for a title
+	$sql = 'SELECT PartID FROM part 
+	WHERE ItemID='. $ItemID . '
+	ORDER BY CAST(part.SequenceOrder AS INTEGER)';
+	
+	$data = db_get($sql);
+	
+	// print_r($data);
+	
+	$parts = array();
+	
+	foreach ($data as $row)
+	{
+		$parts[] = get_part($row->PartID);
+	}
+	
+	return $parts;
+}
+
+
+//----------------------------------------------------------------------------------------
+// Upload list of items for a title
+function upload($doc, $force = false)
+{
+	global $config;
+	global $couch;
+
+	$exists = $couch->exists($doc->_id);
+	
+	if ($exists && !$force)
+	{
+		echo "Have " . $doc->_id . " already!\n";
+	}
+	else
+	{
+		if ($exists && $force)
+		{
+			$couch->add_update_or_delete_document(null, $doc->_id, 'delete');
+		}
+
+		$resp = $couch->send("PUT", "/" . $config['couchdb_options']['database'] . "/" . urlencode($doc->_id), json_encode($doc));
+		var_dump($resp);	
+	}
+}
+
+//----------------------------------------------------------------------------------------
+// Upload list of items for a title
+function upload_part($PartID, $force = false)
+{
+	global $config;
+	global $couch;
+	
+	$doc = get_part($PartID);
+	
+	$exists = $couch->exists($doc->_id);
+	
+	if ($exists && !$force)
+	{
+		echo "Have $PartID " . $doc->_id . " already!\n";
+	}
+	else
+	{
+		if ($exists && $force)
+		{
+			$couch->add_update_or_delete_document(null, $doc->_id, 'delete');
+		}
+
+		$resp = $couch->send("PUT", "/" . $config['couchdb_options']['database'] . "/" . urlencode($doc->_id), json_encode($doc));
+		var_dump($resp);	
+	}
+}
+
+//----------------------------------------------------------------------------------------
+function upload_parts_for_item($ItemID, $force = false)
+{
+	$parts = get_parts_for_item($ItemID);
+	
+	foreach ($parts as $part)
+	{
+		upload($part, $force);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+function upload_parts_for_title($TitleID)
+{
+	// list of items for a title
+	$sql = 'SELECT ItemID FROM item 
+	WHERE TitleID='. $TitleID ;
+
+	foreach ($data as $row)
+	{
+		upload_parts_for_item($row->ItemID);
+	}
+}
 
 //----------------------------------------------------------------------------------------
 // Upload list of items for a title
@@ -409,15 +519,52 @@ $TitleID = 730; // Biologia Centrali-Americana
 $TitleID = 150137; // Biodiversity, biogeography and nature conservation in Wallacea and New Guinea
 $TitleID = 49914; // Iberus : revista de la Sociedad Española de Malacología
 
-upload_title($TitleID, true);
+$TitleID = 144642; // European Journal of Taxonomy
 
-upload_items_for_title($TitleID, true);
+$TitleID = 158870; //Forktail
+$TitleID = 57881;// Amphibian & reptile conservation
+$TitleID = 85187;
+$TitleID = 82521;
+$TitleID = 190323;
+$TitleID = 162187;
+
+//upload_title($TitleID, true);
+
+//upload_items_for_title($TitleID, true);
 
 //$PartID = 313402;
-//$PartID = 153428;
+$PartID = 153428;
 
-//get_part($PartID);
+/*
 
+-- parts in item (so we can display a list)
+SELECT * FROM part 
+WHERE ItemID=333950
+ORDER BY CAST(SequenceOrder AS INTEGER);
+
+-- pages in parts (so we can display a part)
+SELECT part.PartID, partpage.PageID, partpage.SequenceOrder FROM part 
+INNER JOIN partpage USING(PartID)
+WHERE part.ItemID=333950
+ORDER BY PartID, CAST(partpage.SequenceOrder AS INTEGER);
+*/
+
+
+
+// 
+
+// get_part($PartID);
+
+//$PartID = 385872;
+//upload_part($PartID , true);
+
+// 329874
+// 328428
+
+$parts = upload_parts_for_item(328428, true);
+//print_r($parts);
+
+//upload_parts_for_item(186987, true);
 
 
 

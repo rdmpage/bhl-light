@@ -15,6 +15,7 @@
 .image-grid img {
 	width:100%;
 	border:1px solid var(--grid-image-border);
+	border-radius:4px;
 }
 
 .image-grid div {

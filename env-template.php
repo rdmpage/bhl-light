@@ -12,4 +12,7 @@ putenv('COUCHDB_PASSWORD=');
 
 putenv('BHL_APIKEY=');
 
+putenv('IMGPROXY_KEY=');
+putenv('IMGPROXY_SALT=');
+
 ?>

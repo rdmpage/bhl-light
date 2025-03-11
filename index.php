@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 
 require_once (dirname(__FILE__) . '/config.inc.php');
 require_once (dirname(__FILE__) . '/core.php');
+require_once (dirname(__FILE__) . '/imgproxy.php');
 
 //----------------------------------------------------------------------------------------
 function html_start($title = '', $thing = null)
@@ -15,7 +16,7 @@ function html_start($title = '', $thing = null)
 	echo '<head>';
 	
 	echo '<meta charset="utf-8" />';
-  	echo '<meta name="theme-color" content="orange">';
+  	//echo '<meta name="theme-color" content="orange">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>';
 	
 	echo '<!-- base -->
@@ -37,6 +38,8 @@ function html_start($title = '', $thing = null)
 
 	/* specific views */	
 	require_once (dirname(__FILE__) . '/grid.css.inc.php');
+	require_once (dirname(__FILE__) . '/media.css.inc.php');
+	require_once (dirname(__FILE__) . '/viewer.css.inc.php');
 
 
 	echo '</style>' . "\n";
@@ -103,11 +106,15 @@ function default_display($error_msg = '')
 		echo '<h2>Examples</h2>';
 		
 		echo '<ul>';
-		echo '<li><a href="?title=152899">Anales del Museo de Historia Natural de Valparaiso</a></li>';
-		echo '<li><a href="?title=68619">Insects of Samoa</a></li>';
-		echo '<li><a href="?title=206514">Contributions of the American Entomologicval Institute</a></li>';
-		echo '<li><a href="?title=105698">The birds of Australia</a></li>';
-		echo '<li><a href="?title=212146">The Zoogoer</a></li>';
+		echo '<li><a href="bibliography/152899">Anales del Museo de Historia Natural de Valparaiso</a></li>';
+		echo '<li><a href="bibliography/68619">Insects of Samoa</a></li>';
+		echo '<li><a href="bibliography/206514">Contributions of the American Entomologicval Institute</a></li>';
+		echo '<li><a href="bibliography/105698">The birds of Australia</a></li>';
+		echo '<li><a href="bibliography/212146">The Zoogoer</a></li>';
+
+		echo '<li><a href="bibliography/2804">Asiatic herpetological research</a></li>';
+		
+		
 		echo '</ul>';
 	}
 	
@@ -119,11 +126,15 @@ function default_display($error_msg = '')
 //----------------------------------------------------------------------------------------
 function display_item($id)
 {
+	global $config;
+	
 	$doc = get_item($id);
 	
 	if ($doc)
 	{
 		$work = null;
+		
+		$list = null;
 	
 		// Unpack JSON-LD
 		foreach ($doc as $graph)
@@ -133,12 +144,12 @@ function display_item($id)
 				$work = $graph;
 			}
 		
-			/*
+			
 			if (in_array('DataFeed', $graph->{'@type'}))
 			{
 				$list = $graph;
 			}	
-			*/	
+			
 		}
 		
 		$title = $work->name;
@@ -174,7 +185,12 @@ function display_item($id)
 		if (isset($work->thumbnailUrl))
 		{
 			echo '<div>';
-			echo '<img width="180" src="image_proxy.php?url=' . urlencode($image_base_url . $work->thumbnailUrl) . '">';
+			// echo '<img width="180" src="image_proxy.php?url=' . urlencode($image_base_url . $work->thumbnailUrl) . '">';
+			
+			$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $work->thumbnailUrl, 0, $config['thumbnail_height']);
+			
+			echo '<img loading="lazy" src="' . $image_url . '">';
+			
 			echo '</div>';
 		}
 		
@@ -197,28 +213,26 @@ function display_item($id)
 		}
 		echo '</dl>';
 
-
+		$internet_archive = '';
 		
-		/*
+		if (preg_match('/archive.org\/details\/(.*)/', $work->sameAs, $m))
+		{		
+			$internet_archive = $m[1];
+		}
+
 		// details
-		if (isset($work->identifier))
+		if ($internet_archive != '')
 		{			
 			echo '<dl>';
-			foreach ($work->identifier as $identifier)
-			{
-				echo '<dt>';
-				echo $identifier->propertyID;
-				echo '</dt>';
-				
-				echo '<dd>';
-				echo $identifier->value;
-				echo '</dd>';
-				
-			}
-			echo '</dl>';
+			echo '<dt>';
+			echo 'internet archive';
+			echo '</dt>';
 			
+			echo '<dd>';
+			echo $internet_archive;
+			echo '</dd>';
+			echo '</dl>';
 		}
-		*/
 		
 		echo '		</div>';
 		echo '    </details>';
@@ -226,13 +240,47 @@ function display_item($id)
 		
 		// main display
 		echo '  <main>';
-      	
-		echo '<p>To do:</p>';
+ 		
+ 		/*
+		// Display list of parts?		
+		if ($list)
+		{
+			echo '<ul class="media-list">';
+			foreach ($list->dataFeedElement as $part)
+			{
+				echo '<li class="media-item">';
+				
+				$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $part->thumbnailUrl, 0, $config['thumbnail_height']);
+								
+				echo '<img class="media-figure" src="' . $image_url . '">';				
+				echo '<div class="media-body">';
+				echo '<h3 class="media-title">' . $part->name . '</h3>';
+				echo '</div>';
+				echo '</li>';			
+			}
+			echo '</ul>';
+		
+		}
+		*/
+		
+		// Display item as thumbnails?
+		
+		// Display item as scrollable view?		
+		echo '<div class="footer">';
+		echo '	<div id="pagenumber" class="pagenumber"></div>';
+		echo '</div>';
+    	echo '<iframe src="viewer.php?id=' . $internet_archive . '"></iframe>';
+		
+
+		// Display item as coverage?
+		
+		
 		
 echo '  </main>
 </div>';
 		
 		require_once ('aside.js.inc.php');
+		require_once ('viewer.js.inc.php');
 
 		html_end();
 	}
@@ -245,6 +293,8 @@ echo '  </main>
 //----------------------------------------------------------------------------------------
 function display_title($id)
 {
+	global $config;
+	
 	$doc = get_title($id);
 	
 	if ($doc)
@@ -314,7 +364,12 @@ function display_title($id)
 		{
 			echo '<li>';
 			echo '<a href="' . $item->{'@id'} . '">';
-			echo '<img loading="lazy" src="image_proxy.php?url=' . urlencode($image_base_url . $item->thumbnailUrl) . '">';
+			//echo '<img loading="lazy" src="image_proxy.php?url=' . urlencode($image_base_url . $item->thumbnailUrl) . '">';
+			
+			$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $item->thumbnailUrl, 0, $config['thumbnail_height']);
+			
+			echo '<img loading="lazy" src="' . $image_url . '" onerror="retry(this)">';
+			
 			echo '<div>' . $item->name . '</div>';
 			echo '</a>';
 			echo '</li>';
@@ -327,6 +382,17 @@ echo '  </main>
 </div>';
 		
 		require_once ('aside.js.inc.php');
+		
+		echo '<script>
+		function retry(img) {	
+	console.log ("image not loaded: " + img.src);
+	
+	// removing .src means we will try again next time image is in view
+	img.src = img.src;
+	
+	// set backgrund colour for page to indicate things failed but we are working on it
+	//img.parentElement.style.background = "red";
+}</script>';
 
 		html_end();
 	}

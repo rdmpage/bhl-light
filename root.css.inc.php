@@ -5,7 +5,7 @@
   	--bg: #FEFEFE;
   	
   	--nav-height: 3em;
-  	--nav-bg: orange;
+  	--nav-bg: white;
   	
   	--aside-width:240px;
   	
@@ -13,4 +13,9 @@
   	
   	--grid-width: 160px;
   	--grid-image-border: #DDD;
+  	
+  	--viewer-bg: rgb(225,225,225);
+  	--viewer-text-color: transparent;
+  	--viewer-footer-bg: rgba(0,0,0,0.7);
+  	--viewer-footer-text: white;
 }

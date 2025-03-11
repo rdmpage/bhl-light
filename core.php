@@ -5,7 +5,67 @@
 require_once (dirname(__FILE__) . '/couchsimple.php');
 
 //----------------------------------------------------------------------------------------
-// Return an array comprising the title and a list of its items 
+// 
+function get_layout($id)
+{
+	global $config;
+	global $couch;
+	
+	$layout = null;
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . urlencode($id));
+
+	$resp_obj = json_decode($resp);	
+	
+	if (!isset($resp_obj->error))
+	{
+		$layout = $resp_obj;
+	}
+		
+	return $layout;
+}
+
+//----------------------------------------------------------------------------------------
+// 
+function get_parts_for_item($id)
+{
+	global $config;
+	global $couch;
+	
+    $datafeed = new stdclass;
+    $datafeed->{'@type'} = ['DataFeed'];
+    $datafeed->dataFeedElement = array(); 
+		
+	$key = '"' . 'item/' . $id . '"';
+
+	$url = '_design/item/_view/parts?key=' . urlencode($key);
+		
+	if ($config['stale'])
+	{
+		$url .= '&stale=ok';
+	}			
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	// print_r($resp_obj);
+	
+	foreach ($resp_obj->rows as $row)
+	{
+		$datafeed->dataFeedElement[] = $row->value;
+	}
+	
+	// sort by position
+	usort($datafeed->dataFeedElement, function($a, $b) {
+      return $a->position - $b->position;
+    });
+	
+	return $datafeed;
+}
+
+//----------------------------------------------------------------------------------------
+// Return an array comprising the item and a list of its items 
 function get_item($id)
 {
 	global $config;
@@ -28,11 +88,21 @@ function get_item($id)
 	$resp_obj = json_decode($resp);	
 		
 	$work = $resp_obj->rows[0]->value;
+	
+	// clean
+	if (isset($work->_rev))
+	{
+		unset($work->_rev);
+	}
+	
+	// add type
 	$work->{'@type'} = array('CreativeWork');
 	
 	$graph[] = $work;
 	
 	// maybe other things here...?
+	
+	$graph[] = get_parts_for_item($id);
 	
 	return $graph;
 }
@@ -61,6 +131,14 @@ function get_title($id)
 	$resp_obj = json_decode($resp);	
 		
 	$work = $resp_obj->rows[0]->value;
+	
+	// clean
+	if (isset($work->_rev))
+	{
+		unset($work->_rev);
+	}
+	
+	// add type	
 	$work->{'@type'} = array('CreativeWork');
 	
 	$graph[] = $work;
@@ -73,7 +151,7 @@ function get_title($id)
 		
 	$key = '"' . 'bibliography/' . $id . '"';
 
-	$url = '_design/title/_view/item-list?key=' . urlencode($key);
+	$url = '_design/title/_view/items?key=' . urlencode($key);
 		
 	if ($config['stale'])
 	{

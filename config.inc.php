@@ -67,5 +67,9 @@ if ($config['platform'] == 'cloud')
 
 $config['stale'] = false;
 
+// Image server---------------------------------------------------------------------------
+$config['image_server'] = 'https://images.bionames.org';
+
+$config['thumbnail_height'] = 200;
 
 ?>
