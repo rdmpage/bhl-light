@@ -29,11 +29,10 @@ switch ($config['site'])
 		break;
 }
 
-
 // Default language is English
 $config['lang'] = 'en';
 
-// SQLite database
+// SQLite database (for importing data into CouchDB)
 $config['pdo'] = 'sqlite:/Users/rpage/Sites/bhl-data-new-ideas-o/bhl.db';
 
 // Environment----------------------------------------------------------------------------
@@ -71,5 +70,8 @@ $config['stale'] = false;
 $config['image_server'] = 'https://images.bionames.org';
 
 $config['thumbnail_height'] = 200;
+
+// Extras---------------------------------------------------------------------------------
+$config['use_hypothesis'] = false; // true enables hypothes.is to annotate IFRAME content
 
 ?>

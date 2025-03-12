@@ -54,6 +54,19 @@ function layout_to_viewer_html($layout, $image_width = 700)
 		object-fit: fill;	
 	}	
 	
+	.page div {
+		position:absolute;
+		
+		text-align:justify;
+		text-align-last:justify;
+		overflow:hidden;
+		color:var(--viewer-text-color);
+				
+		-webkit-user-select:text;
+		-moz-user-select:text;
+		user-select:text;
+	}
+	
 /* small screen for viewer (which may be included as an iframe) */
 /* for main window we have 800, here we have 700 */
 @media screen and (max-width: 700px) {
@@ -77,9 +90,26 @@ function layout_to_viewer_html($layout, $image_width = 700)
 		$html .= 'aspect-ratio:' . $ratio . ';';
 
 		$html .= '"';
-		$html .= ' data-page="' . $i  . '"';
+		
+		// zero-based index of page
+		$html .= ' data-pageindex="' . $i . '"';		
+		
+		// if we have an informative name for this page use it, otherwise just use leaf number
+		if (isset($layout->pages[$i]->label))
+		{
+			$html .= ' data-page="' . $layout->pages[$i]->label  . '"';		
+		}
+		else
+		{
+			$html .= ' data-page="[' . $i  . ']"';
+		}
+		
 		$html .= '>' . "\n";
-			
+		
+		// https://www.rfc-editor.org/rfc/rfc3778
+		// #page= in PDF is the physical page, i.e., 1,2,...,n 
+		$html .= '<a name="page=' .  ($i + 1) . '"></a>' . "\n";
+					
 		// Fetch images direct from IA
 		$image_url = 'https://archive.org/download/' . $layout->internetarchive . '/page/n' . $i . '_w' . $image_width . '.jpg';
 
@@ -88,10 +118,13 @@ function layout_to_viewer_html($layout, $image_width = 700)
 
 		$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_url, $image_width);
 
+		if (1)
+		{
 		$html .= '<img class="lazy"'
 			. ' data-src="' . $image_url  . '"'
 			. ' draggable="false"'
 			. '>' . "\n";
+		}
 		
 		// text lines		
 		foreach ($layout->pages[$i]->text_lines as $line)
@@ -100,26 +133,11 @@ function layout_to_viewer_html($layout, $image_width = 700)
 			$height = $line->bbox[3] - $line->bbox[1];
 		
 			$html .= '<div style="'
-				. 'position:absolute;'
-				//. 'border:1px solid black;'
-				;
-
 				// percentage coordinates so text scales with image
-				$html .= 'left:' . $line->bbox[0] / $page_width * 100 . '%;'
+				. 'left:' . $line->bbox[0] / $page_width * 100 . '%;'
 				. 'top:' .  $line->bbox[1] / $page_height  * 100 . '%;'
 				. 'width:' . $width / $page_width  * 100 . '%;'
 				. 'height:' . $height / $page_height  * 100 . '%;'
-				. 'font-size:1em;' 
-				;
-				
-				$html .= 'text-align-last:justify;'
-				. 'overflow:hidden;'
-				
-				. 'color:var(--viewer-text-color);'
-
-				. '-webkit-user-select:text;'
-				. '-moz-user-select:text;'
-				. 'user-select:text;'
 				. '">' . "\n";
 				
 			$html .= htmlentities($line->text, ENT_HTML5)  . "\n";

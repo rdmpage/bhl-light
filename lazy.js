@@ -140,9 +140,16 @@ if (window.IntersectionObserver) {
           
           	 var msg = {};
           	 
+          	 if (item.hasAttribute('data-pageindex')) {
+          	 	msg['page'] = decodeURIComponent(item.dataset.pageindex);
+          	 }          	 
+          	 
+          	 /*
+          	 // Send nicely formated page number
           	 if (item.hasAttribute('data-page')) {
-          	 	msg['page'] = JSON.parse(decodeURIComponent(item.dataset.page));
+          	 	msg['page'] = decodeURIComponent(item.dataset.page);
           	 }
+          	 */
  
            	 if (item.hasAttribute('data-annotations')) {
           	 	msg['annotations'] = JSON.parse(decodeURIComponent(item.dataset.annotations));
@@ -151,15 +158,12 @@ if (window.IntersectionObserver) {
           	 console.log(JSON.stringify(msg));
           	 
           	 if (Object.keys(msg).length > 0) {
-  listener.postMessage(msg, "*");
+  				listener.postMessage(msg, "*");
 			  } else {
 				listener.postMessage(null, "*");
 			  }
 
           }, 100);
-          
-          
-          
         }
       }
     },

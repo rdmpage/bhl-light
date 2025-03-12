@@ -5,7 +5,7 @@
   	--bg: #FEFEFE;
   	
   	--nav-height: 3em;
-  	--nav-bg: white;
+  	--nav-bg: White;
   	
   	--aside-width:240px;
   	
@@ -13,6 +13,7 @@
   	
   	--grid-width: 160px;
   	--grid-image-border: #DDD;
+  	--grid-image-maxwidth: 200px;
   	
   	--viewer-bg: rgb(225,225,225);
   	--viewer-text-color: transparent;

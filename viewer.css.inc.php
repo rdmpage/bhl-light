@@ -26,6 +26,12 @@ iframe {
     justify-content:center;
 }  
 
+.footer select {
+	background: var(--viewer-footer-bg);
+	color: var(--viewer-footer-text);
+	border:none;
+}
+
  /* small */
 @media screen and (max-width: 800px) {
   .footer { 

@@ -16,7 +16,7 @@ function html_start($title = '', $thing = null)
 	echo '<head>';
 	
 	echo '<meta charset="utf-8" />';
-  	//echo '<meta name="theme-color" content="orange">';
+  	//echo '<meta name="theme-color" content="Moccasin">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>';
 	
 	echo '<!-- base -->
@@ -41,7 +41,6 @@ function html_start($title = '', $thing = null)
 	require_once (dirname(__FILE__) . '/media.css.inc.php');
 	require_once (dirname(__FILE__) . '/viewer.css.inc.php');
 
-
 	echo '</style>' . "\n";
 
 	// Global Javascript
@@ -51,17 +50,13 @@ function html_start($title = '', $thing = null)
 	// Thing this page is about
 	if ($thing)
 	{
-		echo '<script type="application/ld+json">' . "\n";
-		
-		echo json_encode($thing, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
+		echo '<!-- JSON-LD for SEO -->' . "\n";
+		echo '<script type="application/ld+json">' . "\n";		
+		echo json_encode($thing, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 		echo '</script>' . "\n";
-	
 	}
-
 	
-	echo '</head>';
-	
+	echo '</head>';	
 	echo '<body>';
 	
 
@@ -114,6 +109,8 @@ function default_display($error_msg = '')
 
 		echo '<li><a href="bibliography/2804">Asiatic herpetological research</a></li>';
 		
+		echo '<li><a href="item/252491">Revision of the Malagasy lanternfly genus Belbina Stal, 1863, with two new species (Hemiptera: Fulgoromorpha: Fulgoridae</a></li>';
+		
 		
 		echo '</ul>';
 	}
@@ -142,8 +139,7 @@ function display_item($id)
 			if (in_array('CreativeWork', $graph->{'@type'}))
 			{
 				$work = $graph;
-			}
-		
+			}		
 			
 			if (in_array('DataFeed', $graph->{'@type'}))
 			{
@@ -163,6 +159,7 @@ function display_item($id)
 		echo '      <summary>Details</summary>';
 		echo '     	<div>';
 		
+		// title(s) that contain this item
 		$isPartOf = array();
 		if (is_array($work->isPartOf))
 		{
@@ -178,8 +175,10 @@ function display_item($id)
 			echo '<p><a href="' . $back . '">← back to title</a></p>';		
 		}
 		
+		// name of item
 		echo '<h1>' . $work->name . '</h1>';
 		
+		// thumbnail
 		$image_base_url = 'http://www.biodiversitylibrary.org/';
 
 		if (isset($work->thumbnailUrl))
@@ -187,17 +186,15 @@ function display_item($id)
 			echo '<div>';
 			// echo '<img width="180" src="image_proxy.php?url=' . urlencode($image_base_url . $work->thumbnailUrl) . '">';
 			
-			$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $work->thumbnailUrl, 0, $config['thumbnail_height']);
-			
-			echo '<img loading="lazy" src="' . $image_url . '">';
-			
+			$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $work->thumbnailUrl, 0, $config['thumbnail_height']);			
+			echo '<img loading="lazy" src="' . $image_url . '">';			
 			echo '</div>';
 		}
 		
+		// metadata
 		$keys = array('provider', 'copyrightNotice');
 		
-		echo '<dl>';
-		
+		echo '<dl>';		
 		foreach ($keys as $k)
 		{
 			if (isset($work->{$k}))
@@ -212,7 +209,8 @@ function display_item($id)
 			}
 		}
 		echo '</dl>';
-
+		
+		// Internet Archive id (barcode)
 		$internet_archive = '';
 		
 		if (preg_match('/archive.org\/details\/(.*)/', $work->sameAs, $m))
@@ -220,7 +218,6 @@ function display_item($id)
 			$internet_archive = $m[1];
 		}
 
-		// details
 		if ($internet_archive != '')
 		{			
 			echo '<dl>';
@@ -234,6 +231,8 @@ function display_item($id)
 			echo '</dl>';
 		}
 		
+		// do we want a BHL-style page link here?
+		
 		echo '		</div>';
 		echo '    </details>';
 		echo '  </aside>';
@@ -241,36 +240,121 @@ function display_item($id)
 		// main display
 		echo '  <main>';
  		
- 		/*
-		// Display list of parts?		
-		if ($list)
-		{
-			echo '<ul class="media-list">';
-			foreach ($list->dataFeedElement as $part)
+ 		//--------------------------------------------------------------------------------
+ 		if (0)
+ 		{
+			// Display list of parts?		
+			if ($list)
 			{
-				echo '<li class="media-item">';
-				
-				$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $part->thumbnailUrl, 0, $config['thumbnail_height']);
-								
-				echo '<img class="media-figure" src="' . $image_url . '">';				
-				echo '<div class="media-body">';
-				echo '<h3 class="media-title">' . $part->name . '</h3>';
-				echo '</div>';
-				echo '</li>';			
+				echo '<ul class="media-list">';
+				foreach ($list->dataFeedElement as $part)
+				{
+					echo '<li class="media-item">';
+					
+					$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $part->thumbnailUrl, 0, $config['thumbnail_height']);
+									
+					echo '<img class="media-figure" src="' . $image_url . '">';				
+					echo '<div class="media-body">';
+					echo '<h3 class="media-title">' . $part->name . '</h3>';
+					echo '</div>';
+					echo '</li>';			
+				}
+				echo '</ul>';
+			
 			}
-			echo '</ul>';
+		}
+		
+ 		//--------------------------------------------------------------------------------
+		// Display item as thumbnails?
+		if (0)
+		{
+			if (isset($work->hasPart))
+			{
+				echo '<ul class="image-grid">';
+				foreach ($work->hasPart as $page)
+				{
+					echo '<li>';
+					// echo '<a href="' . $item->{'@id'} . '">';
+					//echo '<img loading="lazy" src="image_proxy.php?url=' . urlencode($image_base_url . $item->thumbnailUrl) . '">';
+					
+					$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $page->thumbnailUrl, 0, $config['thumbnail_height']);
+					
+					echo '<img loading="lazy" src="' . $image_url . '" onerror="retry(this)">';
+					
+					if (isset($page->name))
+					{
+						echo '<div>' . $page->name . '</div>';
+					}
+					//echo '</a>';
+					echo '</li>';
+				}
+				echo '</ul>';
+			}
+		
 		
 		}
-		*/
 		
-		// Display item as thumbnails?
-		
-		// Display item as scrollable view?		
-		echo '<div class="footer">';
-		echo '	<div id="pagenumber" class="pagenumber"></div>';
-		echo '</div>';
-    	echo '<iframe src="viewer.php?id=' . $internet_archive . '"></iframe>';
-		
+ 		//--------------------------------------------------------------------------------
+		if (1)
+		{
+			// Display item as scrollable view?	
+			
+			// page list
+			
+			// list of pages
+			$pages = array();
+			if (isset($work->hasPart))
+			{
+				$pages = array();
+				
+				foreach ($work->hasPart as $part)
+				{
+					if ($part->additionalType == 'Page')
+					{
+						$pages[$part->position] = $part;
+					}
+				}
+				ksort($pages, SORT_NUMERIC);
+			}
+				
+			echo '<div class="footer">';
+			
+			// echo '	<div id="pagenumber" class="pagenumber"></div>';
+			
+			if (count($pages) > 0)
+			{
+				echo '<select id="pagenumber" onchange="gotopage(event)">' . "\n";
+				foreach ($pages as $page)
+				{
+					$label = '[' . $page->position . ']';
+					if (isset($page->name))
+					{
+						$label = $page->name;
+					}
+					
+					if (isset($page->keywords))
+					{
+						$label .= ' (' . join(",", $page->keywords) . ')';
+					}					
+					// zero-based index of page
+					echo '<option value="' . ($page->position - 1) . '">' . $label . '</option>' . "\n";
+				}
+			
+				echo '</select>' . "\n";
+			}			
+			
+			echo '</div>';
+						
+			if ($config['use_hypothesis'])
+			{
+				echo '<iframe id="viewer" enable-annotation src="viewer.php?id=' . $internet_archive . '"></iframe>';
+				echo '<script src="https://hypothes.is/embed.js" async></script>';			
+			}
+			else
+			{
+				echo '<iframe id="viewer" src="viewer.php?id=' . $internet_archive . '"></iframe>';			
+			}
+		}	
 
 		// Display item as coverage?
 		
@@ -279,8 +363,10 @@ function display_item($id)
 echo '  </main>
 </div>';
 		
+		echo '<script>';
 		require_once ('aside.js.inc.php');
 		require_once ('viewer.js.inc.php');
+		echo '</script>';
 
 		html_end();
 	}
@@ -381,10 +467,10 @@ function display_title($id)
 echo '  </main>
 </div>';
 		
+		echo '<script>';
 		require_once ('aside.js.inc.php');
 		
-		echo '<script>
-		function retry(img) {	
+		echo 'function retry(img) {	
 	console.log ("image not loaded: " + img.src);
 	
 	// removing .src means we will try again next time image is in view
@@ -392,7 +478,9 @@ echo '  </main>
 	
 	// set backgrund colour for page to indicate things failed but we are working on it
 	//img.parentElement.style.background = "red";
-}</script>';
+}';
+
+		echo '</script>' . "\n";
 
 		html_end();
 	}
