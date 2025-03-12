@@ -200,12 +200,12 @@ function djvu_sanity_check($document)
 	$data = db_get($sql);
 	
 	$num_db_pages   = $data[0]->numpages;
-	$num_hocr_pages = count($document->pages);
-	
-	if ($num_db_pages != $num_hocr_pages)
+	$num_djvu_pages = count($document->pages);
+		
+	if ($num_db_pages != $num_djvu_pages)
 	{
 		$result->ok = false;
-		$result-> message = "Page numbers in database $num_db_pages and hOCR file $num_hocr_pages don't match\n";
+		$result-> message = "Page numbers in database $num_db_pages and DjVu file $num_djvu_pages don't match\n";
 	}
 
 	return $result;
