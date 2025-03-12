@@ -491,6 +491,7 @@ echo '  </main>
 }
 
 //----------------------------------------------------------------------------------------
+// Display list of first letters of titles and titles for current letter
 function display_container_list($letter = 'A')
 {
 	$doc = get_titles_for_letter($letter);
@@ -500,13 +501,13 @@ function display_container_list($letter = 'A')
 		html_start();
 		
 		// header with row of letters
-		$letters = range('A', 'Z');
+		$letters = get_title_letters();
 		
 		// add any extra letters here...
 		
 		echo '<ul style="list-style-type: none;display: block;overflow:auto;">';
 		
-		foreach ($letters as $one_letter)
+		foreach ($letters as $one_letter => $count)
 		{
 			echo '<li style="float: left;padding:0.3em">';
 			echo '<a href="containers/' . $one_letter . '">' . $one_letter . '</a>';
@@ -515,8 +516,7 @@ function display_container_list($letter = 'A')
 		
 		echo '</ul>';
 		
-		// list of titles...
-		
+		// list of titles...		
 		echo '<div class="multicolumn">';
 		echo '<ul>';
 		
@@ -524,8 +524,7 @@ function display_container_list($letter = 'A')
 		{
 			echo '<li>';
 			echo '<a href="' . $work->{'@id'} . '">' . $work->name . '</a>';
-			echo '</li>';
-			
+			echo '</li>';			
 		}
 				
 		echo '</ul>';

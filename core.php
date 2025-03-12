@@ -180,18 +180,20 @@ function get_title($id)
 }
 
 //----------------------------------------------------------------------------------------
-// Return an array comprising the title and a list of its items 
-function get_titles_for_letter($letter = 'A')
+// Get array of starting letters for titles
+function get_title_letters()
 {
 	global $config;
 	global $couch;
 	
-	$graph = array();
+	$letters = array();
 	
-	// title	
-	$key = '"' . $letter . '"';
+	$parameters = array(
+		'reduce' 		=> 'true',
+		'group_level' 	=> 1,
+	);	
 
-	$url = '_design/title/_view/letter?key=' . urlencode($key);
+	$url = '_design/title/_view/letter?' . http_build_query($parameters);
 		
 	if ($config['stale'])
 	{
@@ -201,6 +203,48 @@ function get_titles_for_letter($letter = 'A')
 	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
 
 	$resp_obj = json_decode($resp);	
+	
+	//print_r($resp_obj);
+	
+	foreach ($resp_obj->rows as $row)
+	{
+		$letters[$row->key[0]] = $row->value;
+	}
+	
+	return $letters;
+}
+
+//----------------------------------------------------------------------------------------
+// Return an array comprising list of titles that start with this letter
+function get_titles_for_letter($letter = 'A')
+{
+	global $config;
+	global $couch;
+	
+	get_title_letters();
+	
+	$startkey = array($letter);
+	$endkey = array($letter, new stdclass);
+	
+	$parameters = array(
+		'startkey' 		=> json_encode($startkey),
+		'endkey'		=> json_encode($endkey),
+		'reduce' 		=> 'true',
+		'group_level' 	=> 3,
+	);	
+
+	$url = '_design/title/_view/letter?' . http_build_query($parameters);
+		
+	if ($config['stale'])
+	{
+		$url .= '&stale=ok';
+	}			
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	// print_r($resp_obj);
 		
     $datafeed = new stdclass;
     $datafeed->{'@type'} = ['DataFeed'];
@@ -209,8 +253,8 @@ function get_titles_for_letter($letter = 'A')
 	foreach ($resp_obj->rows as $row)
 	{
 		$item = new stdclass;
-		$item->{'@id'} = $row->id;
-		$item->name = $row->value;
+		$item->{'@id'} = $row->key[2];
+		$item->name = $row->key[1];
 	
 		$datafeed->dataFeedElement[] = $item;
 	}
