@@ -3,362 +3,11 @@
 // Extract data from SQLite and import into CouchDB
 
 require_once (dirname(dirname(__FILE__)) . '/couchsimple.php');
-require_once (dirname(__FILE__) . '/sqlite.php');
-
-
-if (0)
-{
-// get title object and identifiers
-
-$sql = 'SELECT * FROM title 
-INNER JOIN titleidentifier USING(TitleID)
-WHERE TitleID=7414';
-
-$data = db_get($sql);
-
-print_r($data);
-
-
-// api 
-
-// title and its identifiers
-$obj = new stdclass;
-foreach ($data as $row)
-{
-	$obj->id = 'title/' . $row->TitleID;
-	$obj->name = $row->FullTitle;
-	
-	if (isset($row->ShortTitle))
-	{
-		$obj->alternateName = $row->ShortTitle;
-	}
-
-	if (!isset($obj->identifier))
-	{
-		$obj->identifier = array();
-	}
-	
-	if (isset($row->IdentifierName))
-	{
-		if (!isset($obj->identifier[$row->IdentifierName]))
-		{
-			$obj->identifier[$row->IdentifierName] = array();
-		}
-		$obj->identifier[$row->IdentifierName][] = $row->IdentifierValue;
-	}
-}
-
-print_r($obj);
-}
+require_once (dirname(__FILE__) . '/sqltojson.php');
 
 
 //----------------------------------------------------------------------------------------
-// Get details of a title
-function get_title($TitleID)
-{
-	// list of items for a title
-	$sql = 'SELECT * FROM title 
-	LEFT OUTER JOIN titleidentifier USING(TitleID)
-	WHERE TitleID='. $TitleID;
-	
-	$data = db_get($sql);
-	
-	print_r($data);
-	
-	$obj = new stdclass;
-	
-	foreach ($data as $row)
-	{
-		$obj->_id = 'bibliography/' . $row->TitleID;
-		$obj->name = $row->FullTitle;
-		
-		if (isset($row->ShortTitle))
-		{
-			$obj->alternateName = $row->ShortTitle;
-		}
-	
-		if (!isset($obj->identifier))
-		{
-			$obj->identifier = array();
-		}
-		
-		if (isset($row->IdentifierName))
-		{		
-			$identifier = new stdclass;
-			$identifier->{'@type'} = 'PropertyValue';
-			$identifier->propertyID = $row->IdentifierName;
-			$identifier->value = $row->IdentifierValue;
-			
-			$obj->identifier[] = $identifier;
-		}
-	}
-	
-	// DOI?
-	$sql = 'SELECT * FROM doi WHERE EntityID='. $TitleID . ' AND EntityType="Title"';
-
-	$data = db_get($sql);
-	
-	foreach ($data as $row)
-	{
-		$identifier = new stdclass;
-		$identifier->{'@type'} = 'PropertyValue';
-		$identifier->propertyID = 'doi';
-		$identifier->value = $row->DOI;
-		
-		$obj->identifier[] = $identifier;
-		
-	}
-	
-	//print_r($obj);
-	
-	
-	return $obj;
-}
-
-//----------------------------------------------------------------------------------------
-// Get list of items for a title
-function get_items_for_title($TitleID)
-{
-	// list of items for a title
-	$sql = 'SELECT * FROM item 
-	WHERE TitleID='. $TitleID . '
-	ORDER BY item.year, item.VolumeInfo';
-	
-	$data = db_get($sql);
-	
-	// print_r($data);
-	
-	$items = array();
-	
-	$position = 1;
-	
-	foreach ($data as $row)
-	{
-		$obj = new stdclass;
-	
-		$obj->_id = 'item/' . $row->ItemID;
-		
-		// integer order in list (based on SQL query)
-		$obj->position = $position++;
-		
-		if (isset($row->VolumeInfo))
-		{		
-			$obj->name = $row->VolumeInfo;
-		}
-		else
-		{
-			$obj->name = '[Untitled]';
-		}
-			
-		$obj->isPartOf = 'bibliography/' . $row->TitleID;
-		
-		if (isset($row->ThumbnailPageID))
-		{
-			$obj->thumbnailUrl = 'pagethumb/' . $row->ThumbnailPageID;
-		}
-		
-		if (isset($row->Year))
-		{
-			$obj->datePublished = $row->Year;
-		}
-	
-		if (isset($row->InstitutionName))
-		{
-			$obj->provider = $row->InstitutionName;
-		}
-		
-		if (isset($row->CopyrightStatus))
-		{
-			$obj->copyrightNotice = $row->CopyrightStatus;
-		}
-	
-		// to do, maybe change this?
-		if (isset($row->BarCode))
-		{
-			$obj->sameAs = 'https://archive.org/details/' . $row->BarCode;
-		}
-			
-		$items[] = $obj;
-	
-	}
-	
-	return $items;
-}
-
-//----------------------------------------------------------------------------------------
-// Get details of a title
-function get_part($PartID)
-{
-	$sql = 'SELECT * FROM part 
-	INNER JOIN partidentifier USING(PartID)
-	INNER JOIN item USING(ItemID)
-	WHERE part.PartID='. $PartID;
-	
-	$data = db_get($sql);
-	
-	$obj = new stdclass;
-	
-	foreach ($data as $row)
-	{
-		$obj->_id = 'part/' . $row->PartID;
-		$obj->{'@type'} = 'CreativeWork';
-		
-		$obj->csl = new stdclass;
-		
-		$obj->name = $row->Title;
-		
-		$obj->csl->title = $row->Title;
-			
-		$obj->isPartOf = array();
-		
-		if (isset($row->TitleID))
-		{
-			$obj->isPartOf[] = 'bibliography/' . $row->TitleID;
-		}
-
-		if (isset($row->ItemID))
-		{
-			$obj->isPartOf[] = 'item/' . $row->ItemID;
-		}
-		
-		if (isset($row->ContainerTitle))
-		{
-			$container = new stdclass;
-			$container->{'@type'} = 'Periodical';
-			$container->name = $row->ContainerTitle;
-
-			$obj->csl->{'container-title'} = $row->ContainerTitle;
-		}		
-		
-		if (isset($row->Volume))
-		{
-			$volume = new stdclass;
-			$volume->{'@type'} = 'PublicationVolume';
-			$volume->volumeNumber = $row->Volume;
-		
-			$obj->isPartOf[] = $volume;
-			
-			$obj->csl->volume = $row->Volume;
-		}
-		
-		if (isset($row->PageRange) && !preg_match('/^--$/', $row->PageRange))
-		{
-			$obj->pagination = str_replace('--', '-', $row->PageRange);
-
-			$obj->csl->page = $obj->pagination ;
-		}
-		
-		if (isset($row->Date))
-		{
-			$obj->pagindatePublishedation = $row->Date;
-			
-			$obj->csl->issued = new stdclass;			
-			$obj->csl->issued->{'date-parts'} = array();
-			
-			$parts = explode('-', $row->Date);
-			
-			foreach ($parts as $part)
-			{
-				$obj->csl->issued->{'date-parts'}[0][] = (Integer)$part;
-			}
-		}		
-		
-		if (isset($row->StartPageID))
-		{
-			$obj->thumbnailUrl = 'pagethumb/' . $row->StartPageID;
-		}
-		
-		if (isset($row->ContributorName))
-		{
-			$obj->provider = $row->ContributorName;
-		}		
-
-		if (isset($row->SequenceOrder))
-		{
-			$obj->position = (Integer)$row->SequenceOrder;
-		}
-		
-		if (isset($row->StartPageID))
-		{
-			$obj->thumbnailUrl = 'pagethumb/' . $row->StartPageID;
-		}	
-
-		if (!isset($obj->identifier))
-		{
-			$obj->identifier = array();
-		}
-		
-		if (isset($row->IdentifierName))
-		{
-			switch ($row->IdentifierName)
-			{
-				case 'BioStor':				
-					$obj->sameAs = 'https://biostor.org/reference/' . $row->IdentifierValue;
-
-				default:
-					$identifier = new stdclass;
-					$identifier->{'@type'} = 'PropertyValue';
-					$identifier->propertyID = $row->IdentifierName;
-					$identifier->value = $row->IdentifierValue;
-					
-					$obj->identifier[] = $identifier;
-					break;								
-			}
-		}
-		
-	}
-	
-	// DOI?
-	$sql = 'SELECT * FROM doi WHERE EntityID='. $PartID . ' AND EntityType="Part"';
-
-	$data = db_get($sql);
-	
-	foreach ($data as $row)
-	{
-		$obj->csl->DOI = $row->DOI;
-		
-		$identifier = new stdclass;
-		$identifier->{'@type'} = 'PropertyValue';
-		$identifier->propertyID = 'doi';
-		$identifier->value = $row->DOI;
-		
-		$obj->identifier[] = $identifier;
-		
-	}
-	
-	//print_r($obj);
-	
-	//echo json_encode($obj);
-	
-	return $obj;
-}
-
-//----------------------------------------------------------------------------------------
-// Get list of parts for an item
-function get_parts_for_item($ItemID)
-{
-	// list of items for a title
-	$sql = 'SELECT PartID FROM part 
-	WHERE ItemID='. $ItemID . '
-	ORDER BY CAST(part.SequenceOrder AS INTEGER)';
-	
-	$data = db_get($sql);
-	
-	// print_r($data);
-	
-	$parts = array();
-	
-	foreach ($data as $row)
-	{
-		$parts[] = get_part($row->PartID);
-	}
-	
-	return $parts;
-}
-
-
-//----------------------------------------------------------------------------------------
-// Upload list of items for a title
+// Upload an object
 function upload($doc, $force = false)
 {
 	global $config;
@@ -528,9 +177,28 @@ $TitleID = 82521;
 $TitleID = 190323;
 $TitleID = 162187;
 
-//upload_title($TitleID, true);
+http://localhost/bhl-light/bibliography/206514
 
-//upload_items_for_title($TitleID, true);
+$TitleID = 206514; // Contributions of the American Entomological Institute
+
+//$TitleID = 209695; // Sibling species of Trigona from Angola (Hymenoptera, Apinae)
+//$TitleID = 10088; // Tijdschrift voor entomologie
+
+//$TitleID = 152899; // Anales del Museo de Historia Natural de Valparaiso
+
+$TitleID = 57881;// Amphibian & reptile conservation
+
+$TitleID = 82521; // Bonn zoological bulletin
+
+if (1)
+{
+	upload_title($TitleID, true);
+	upload_items_for_title($TitleID, true);
+}
+
+
+
+exit();
 
 //$PartID = 313402;
 $PartID = 153428;
@@ -561,10 +229,12 @@ ORDER BY PartID, CAST(partpage.SequenceOrder AS INTEGER);
 // 329874
 // 328428
 
-$parts = upload_parts_for_item(328428, true);
+//$parts = upload_parts_for_item(328428, true);
 //print_r($parts);
 
 //upload_parts_for_item(186987, true);
+
+//get_pages_for_item(328428);
 
 
 

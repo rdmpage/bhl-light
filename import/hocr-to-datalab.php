@@ -1,6 +1,7 @@
 <?php
 
 // HOCR to SURYA 
+require_once (dirname(__FILE__) . '/shared.php');
 require_once (dirname(__FILE__) . '/sqlite.php');
 
 //----------------------------------------------------------------------------------------
@@ -31,15 +32,6 @@ function extract_image($text)
 	}
 
 	return $image;
-}
-
-//----------------------------------------------------------------------------------------
-function scale_bbox(&$bbox, $scale)
-{
-	$bbox[0] *= $scale;
-	$bbox[1] *= $scale;
-	$bbox[2] *= $scale;
-	$bbox[3] *= $scale;
 }
 
 //----------------------------------------------------------------------------------------
@@ -268,6 +260,12 @@ function hocr_sanity_check($document)
 function hocr_to_datalab($ia)
 {
 	$filename = $ia . '/' . $ia . '_hocr.html';
+	
+	if (!file_exists($filename))
+	{
+		echo "hOCR file $filename not found!\n";
+		return null;
+	}
 	$xml = file_get_contents($filename);
 	
 	$document = parse_hocr($ia, $xml, 0);

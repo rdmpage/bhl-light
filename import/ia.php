@@ -1,10 +1,14 @@
 <?php
 
-// Code to process IA files
+// Code to process IA files and upload a layout document to CouchDB
+
+require_once (dirname(__FILE__) . '/djvu-to-datalab.php');
 require_once (dirname(__FILE__) . '/hocr-to-datalab.php');
-require_once (dirname(dirname(__FILE__)) . '/imgproxy.php');
+require_once (dirname(__FILE__) . '/sqltojson.php');
 
 require_once (dirname(dirname(__FILE__)) . '/couchsimple.php');
+require_once (dirname(dirname(__FILE__)) . '/imgproxy.php');
+
 
 //----------------------------------------------------------------------------------------
 // Parse BHL mets to get BHL page numbers
@@ -247,7 +251,6 @@ function layout_to_html($layout, $image_width = 700)
 	return $html;
 }
 
-
 //----------------------------------------------------------------------------------------
 
 $identifiers = array(
@@ -305,14 +308,20 @@ $identifiers = array(
 );
 
 
-$identifiers = array(
-
-);
 
 
 $identifiers = array(
 'bonnzoologicalb71zoola',
 'europeanjournal102muse', // djvu...
+);
+
+$identifiers = array(
+//'contributionsam1amer',
+//'siblingspeciest1956mich',
+//'europeanjournal102muse',
+//'bonnzoologicalb71zoola',
+//'analesdelmuseod34muse',
+'tijdschriftvoore1997nede',
 );
 
 
@@ -324,15 +333,37 @@ foreach ($identifiers as $ia)
 	echo "Converting hOCR to layout $ia\n";
 	$doc = hocr_to_datalab($ia);
 	
-	if ($doc)
+	if (!$doc)
 	{
+		echo "Converting DjVu to layout $ia\n";
+		$doc = djvu_to_datalab($ia);	
+	}
+	
+	if ($doc)
+	{	
+		$ItemID = get_item_from_barcode($ia);
+	
+		if ($ItemID != 0)
+		{
+			$pages = get_pages_for_item($ItemID);
+			
+			for ($i = 0; $i < $doc->page_count; $i++)
+			{
+				//print_r($pages[$i]);
+				if (isset($pages[$i]->name))
+				{
+					$doc->pages[$i]->label = $pages[$i]->name;
+				}
+			}
+		}
+	
 		echo "Uploading $ia\n";
 	
 		// upload to CouchDB
 		if (1)
 		{
-			//$force_upload = true;
-			$force_upload = false;
+			$force_upload = true;
+			//$force_upload = false;
 		
 			$doc->_id = 'layout/' . $doc->internetarchive;
 			
