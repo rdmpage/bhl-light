@@ -3,6 +3,7 @@
 aside {
     width:var(--aside-width);
 	position: fixed;
+	background-color:white;
 }
 
 /* by default (desktop) we hide the <summary> element */
@@ -30,7 +31,7 @@ main {
   aside {
     width: 100%;
     height: auto;
-    position: relative;
+    position: fixed;
   }
   
   /* on small screens we show the <summary> element so we can toggle aside on and off */

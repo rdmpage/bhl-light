@@ -57,6 +57,8 @@ function layout_to_viewer_html($layout, $image_width = 700)
 	.page div {
 		position:absolute;
 		
+		/* border:1px solid black; */
+		
 		text-align:justify;
 		text-align-last:justify;
 		overflow:hidden;
@@ -65,6 +67,8 @@ function layout_to_viewer_html($layout, $image_width = 700)
 		-webkit-user-select:text;
 		-moz-user-select:text;
 		user-select:text;
+		
+		
 	}
 	
 /* small screen for viewer (which may be included as an iframe) */
@@ -88,6 +92,8 @@ function layout_to_viewer_html($layout, $image_width = 700)
 			
 		$ratio = $page_width  / $page_height;
 		$html .= 'aspect-ratio:' . $ratio . ';';
+		
+		// $html .= 'font-size:1em;';
 
 		$html .= '"';
 		
@@ -138,9 +144,16 @@ function layout_to_viewer_html($layout, $image_width = 700)
 				. 'top:' .  $line->bbox[1] / $page_height  * 100 . '%;'
 				. 'width:' . $width / $page_width  * 100 . '%;'
 				. 'height:' . $height / $page_height  * 100 . '%;'
+				
+				/* font size in terms of viewport units */
+				. 'font-size:' . round($height / $page_height * 100, 3) . 'vh;'
 				. '">' . "\n";
 				
-			$html .= htmlentities($line->text, ENT_HTML5)  . "\n";
+			$text = htmlentities($line->text, ENT_HTML5);
+			
+			// $text = str_replace('Apteronemobius', '<mark style="color:transparent;opacity:0.5;">Apteronemobius</mark>', $text);
+				
+			$html .= $text . "\n";
 				
 			$html .= '</div>'  . "\n";		
 		}
