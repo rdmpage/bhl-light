@@ -1,11 +1,14 @@
 <?php
 
-// Code to process IA files and upload a layout document to CouchDB
+// Code to fetch and process IA files
+
+ini_set('memory_limit', '-1');
 
 require_once (dirname(__FILE__) . '/djvu-to-datalab.php');
 require_once (dirname(__FILE__) . '/hocr-to-datalab.php');
 require_once (dirname(__FILE__) . '/sqltojson.php');
 
+require_once (dirname(dirname(__FILE__)) . '/config.inc.php');
 require_once (dirname(dirname(__FILE__)) . '/couchsimple.php');
 require_once (dirname(dirname(__FILE__)) . '/imgproxy.php');
 
@@ -58,7 +61,8 @@ function mets($xml)
 //----------------------------------------------------------------------------------------
 function get_ia($ia, $filename, $force = false)
 {
-	$dir = dirname(__FILE__)  . "/" . $ia;
+	global $config;
+	$dir = $config['cache'] . "/" . $ia;
 	
 	$file_path = $dir . '/' . $filename;
 
@@ -94,8 +98,10 @@ function get_ia($ia, $filename, $force = false)
 //----------------------------------------------------------------------------------------
 function fetch_ia($ia)
 {
+	global $config;
+	
 	// put everything in a folder
-	$dir = dirname(__FILE__)  . "/" . $ia;
+	$dir = $config['cache'] . "/" . $ia;
 	if (!file_exists($dir))
 	{
 		$oldumask = umask(0); 
@@ -119,6 +125,25 @@ function fetch_ia($ia)
 	// scan data
 	get_ia($ia, $ia . '_scandata.xml');
 	*/
+}
+
+//----------------------------------------------------------------------------------------
+function fetch_ia_images($ia)
+{
+	global $config;
+	
+	// put everything in a folder
+	$dir = $config['cache'] . "/" . $ia;
+	if (!file_exists($dir))
+	{
+		$oldumask = umask(0); 
+		mkdir($dir, 0777);
+		umask($oldumask);
+	}	
+
+	// get images
+	get_ia($ia, $ia . '_jp2.zip');
+	
 }
 
 //----------------------------------------------------------------------------------------
@@ -252,140 +277,17 @@ function layout_to_html($layout, $image_width = 700)
 }
 
 //----------------------------------------------------------------------------------------
-
-$identifiers = array(
-'insectsofsamoaot01natu',
-'insectsofsamoaot01unse',
-//'asiaticherpetolo05asia', // failed
-//'asiaticherpetolov112asia', // failed to match
-'australianentom22ento',
-'amphibianreptil17',
-'contributionsam1amer',
-);
-
-$identifiers = array(
-//'contributionsam1amer',
-
-
-'Amphibianreptil5',
-'Amphibianreptil5B',
-'amphibianreptil212000prov',
-'amphibianreptil222000prov',
-'amphibianreptil111996prov',
-'Amphibianreptil6',
-'Amphibianreptil6A',
-'Amphibianreptil6B',
-'Amphibianreptil8',
-'Amphibianreptil5C',
-'Amphibianreptil7',
-'Amphibianreptil5A',
-'Amphibianreptil8A',
-'Amphibianreptil9A',
-'Amphibianreptil9',
-'Amphibianreptil4',
-'amphibianreptil11',
-'amphibianreptil10a',
-'amphibianreptil10',
-'amphibianreptil11a',
-'amphibianreptil12',
-'amphibianreptil12a',
-'amphibianreptil312004prov',
-'amphibianreptil14a',
-'amphibianreptil13a',
-'amphibianreptil14b',
-'amphibianreptil17',
-'amphibianreptil16a',
-'amphibianreptil14',
-'amphibianreptil16',
-'amphibianreptil15',
-'amphibianreptil13',
-'amphibianreptil15a',
-);
-
-$identifiers = array(
-'bonnzoological6412015zool', // don't match
-'bonnzoologicalb61zool', // djvu
-);
-
-
-
-
-$identifiers = array(
-'bonnzoologicalb71zoola',
-'europeanjournal102muse', // djvu...
-);
-
-$identifiers = array(
-//'contributionsam1amer',
-//'siblingspeciest1956mich',
-//'europeanjournal102muse',
-//'bonnzoologicalb71zoola',
-//'analesdelmuseod34muse',
-'tijdschriftvoore1997nede',
-);
-
-
-foreach ($identifiers as $ia)
+// list of ia for a title
+function get_ia_for_title($TitleID)
 {
-	echo "Fetching $ia\n";
-	fetch_ia($ia);
+	$items = get_items_for_title($TitleID);
 	
-	echo "Converting hOCR to layout $ia\n";
-	$doc = hocr_to_datalab($ia);
-	
-	if (!$doc)
+	foreach ($items as $item)
 	{
-		echo "Converting DjVu to layout $ia\n";
-		$doc = djvu_to_datalab($ia);	
+		$ia[] = str_replace('https://archive.org/details/', '', $item->sameAs);
 	}
 	
-	if ($doc)
-	{	
-		$ItemID = get_item_from_barcode($ia);
-	
-		if ($ItemID != 0)
-		{
-			$pages = get_pages_for_item($ItemID);
-			
-			for ($i = 0; $i < $doc->page_count; $i++)
-			{
-				//print_r($pages[$i]);
-				if (isset($pages[$i]->name))
-				{
-					$doc->pages[$i]->label = $pages[$i]->name;
-				}
-			}
-		}
-	
-		echo "Uploading $ia\n";
-	
-		// upload to CouchDB
-		if (1)
-		{
-			$force_upload = true;
-			//$force_upload = false;
-		
-			$doc->_id = 'layout/' . $doc->internetarchive;
-			
-			$exists = $couch->exists($doc->_id);
-			
-			if ($exists && !$force_upload)
-			{
-				echo "Have " . $doc->_id . " already!\n";
-			}
-			else
-			{
-				if ($exists && $force_upload)
-				{
-					$couch->add_update_or_delete_document(null, $doc->_id, 'delete');
-				}
-		
-				$resp = $couch->send("PUT", "/" . $config['couchdb_options']['database'] . "/" . urlencode($doc->_id), json_encode($doc));
-				var_dump($resp);	
-			}
-		}		
-		
-	}
+	return $ia;
 }
 
 ?>

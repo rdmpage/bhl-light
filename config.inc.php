@@ -29,6 +29,10 @@ switch ($config['site'])
 		break;
 }
 
+// Cache----------------------------------------------------------------------------------
+// Cache for file downloads
+$config['cache'] = dirname(__FILE__) . '/import/cache';
+
 // Default language is English
 $config['lang'] = 'en';
 

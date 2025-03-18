@@ -40,7 +40,7 @@ var lastTimeout = null;
 var lastMessageTimeout = null;
 
 // Create a Circular buffer to store the most intersecting elements
-var buffer_size = 3;
+var buffer_size = 5;
 var buffer = new Array(buffer_size);
 var buffer_index = 0;
 

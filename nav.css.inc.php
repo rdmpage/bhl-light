@@ -2,7 +2,7 @@
 /* navigation bar */
 nav {
 	height:var(--nav-height);
-	/* border-bottom: 1px solid #ccc; */
+	border-bottom: var(--nav-border);
  	background-color: var(--nav-bg);
  	color: var(--text);
 

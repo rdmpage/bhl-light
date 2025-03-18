@@ -15,12 +15,17 @@ function html_start($title = '', $thing = null)
 	
 	echo '<head>';
 	
-	echo '<meta charset="utf-8" />';
+	echo '<meta charset="utf-8" />' . "\n";
   	//echo '<meta name="theme-color" content="Moccasin">';
-    echo '<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>';
+    echo '<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>' . "\n";
+    echo '<!-- stop Safari on iOS interpreting numbers as phone numbers -->' . "\n";
+    echo '<meta name="format-detection" content="telephone=no">' . "\n";
 	
 	echo '<!-- base -->
     	<base href="' . $config['web_root'] . '" /><!--[if IE]></base><![endif]-->';
+    	
+    echo '<script src="https://cdn.jsdelivr.net/npm/seamless-scroll-polyfill@latest"></script>';
+    echo '<script>seamless.polyfill();</script>';
     	
     if ($title == '')
     {
@@ -98,6 +103,9 @@ function default_display($error_msg = '')
 	{
 		echo '<h1>BHL Lite</h1>';
 		
+		echo '<p>This is an experimental interface to the Biodiversity Heritage Library.</p>';
+		
+		/*
 		echo '<h2>Examples</h2>';
 		
 		echo '<ul>';
@@ -113,11 +121,24 @@ function default_display($error_msg = '')
 		
 		
 		echo '</ul>';
+		*/
 	}
 	
 	echo '</div>';
 
 	html_end();	
+}
+
+//----------------------------------------------------------------------------------------
+function truncate_text($text, $length = 60)
+{
+	if (mb_strlen($text) > $length - 1)
+	{
+		$text = mb_substr($text, 0, $length - 1);
+		$text .= "…";
+	}
+
+	return $text;
 }
 
 //----------------------------------------------------------------------------------------
@@ -303,7 +324,7 @@ function display_item($id)
 			
 			// list of pages
 			$pages = array();
-			if (isset($work->hasPart))
+			if (isset($work->hasPart)) // "part" in schema.org sense
 			{
 				$pages = array();
 				
@@ -316,7 +337,30 @@ function display_item($id)
 				}
 				ksort($pages, SORT_NUMERIC);
 			}
+			
+			// list of pages where a part starts
+			$part_start = array();
+			foreach ($list->dataFeedElement as $part)
+			{
+				if (isset($part->thumbnailUrl))
+				{
+					if (preg_match('/pagethumb\/(\d+)/', $part->thumbnailUrl, $m))
+					{
+						$PageID = $m[1];
+						if (!isset($part_start[$PageID]))
+						{
+							$part_start[$PageID] = array();
+						}
+						if (isset($part->name))
+						{
+							$part_start[$PageID][] = truncate_text($part->name, 60);
+						}
+					}
+				}
+			} 
 				
+			// This is where we display the current page information, and enable users 
+			// to jump to a given page.
 			echo '<div class="footer">';
 			
 			// echo '	<div id="pagenumber" class="pagenumber"></div>';
@@ -326,6 +370,8 @@ function display_item($id)
 				echo '<select id="pagenumber" onchange="gotopage(event)">' . "\n";
 				foreach ($pages as $page)
 				{
+					$id = str_replace('page/', '', $page->{'@id'});
+				
 					$label = '[' . $page->position . ']';
 					if (isset($page->name))
 					{
@@ -336,6 +382,16 @@ function display_item($id)
 					{
 						$label .= ' (' . join(",", $page->keywords) . ')';
 					}					
+					
+					// segments?
+					if (isset($part_start[$id]))
+					{
+						foreach ($part_start[$id] as $name)
+						{
+							echo '<optgroup label="' .  truncate_text($name, 60) . '"></optgroup>';
+						}						
+					}
+					
 					// zero-based index of page
 					echo '<option value="' . ($page->position - 1) . '">' . $label . '</option>' . "\n";
 				}

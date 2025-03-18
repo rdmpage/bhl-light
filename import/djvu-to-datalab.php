@@ -74,6 +74,9 @@ function parse_djvu($ia, $xml, $threshold = 0, $scale = 1)
 			}
 		}
 		
+		$image = $attributes['usemap'];
+		$page->internetarchive = $image;
+				
 		$page->image_bbox = array(0, 0, $attributes['width'], $attributes['height']);
 		scale_bbox($page->image_bbox, $scale);
 
@@ -213,8 +216,10 @@ function djvu_sanity_check($document)
 
 //----------------------------------------------------------------------------------------
 function djvu_to_datalab($ia)
-{
-	$filename = $ia . '/' . $ia . '_djvu.xml';
+{	
+	global $config;
+
+	$filename = $config['cache'] . '/' . $ia . '/' . $ia . '_djvu.xml';
 	
 	if (!file_exists($filename))
 	{

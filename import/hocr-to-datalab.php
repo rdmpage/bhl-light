@@ -259,7 +259,9 @@ function hocr_sanity_check($document)
 //----------------------------------------------------------------------------------------
 function hocr_to_datalab($ia)
 {
-	$filename = $ia . '/' . $ia . '_hocr.html';
+	global $config;
+
+	$filename = $config['cache'] . '/' . $ia . '/' . $ia . '_hocr.html';
 	
 	if (!file_exists($filename))
 	{

@@ -12,6 +12,13 @@ function upload($doc, $force = false)
 {
 	global $config;
 	global $couch;
+	
+	// debug
+	if (!isset($doc->_id))
+	{
+		print_r($doc);
+		exit();
+	}
 
 	$exists = $couch->exists($doc->_id);
 	
@@ -70,15 +77,16 @@ function upload_parts_for_item($ItemID, $force = false)
 }
 
 //----------------------------------------------------------------------------------------
-function upload_parts_for_title($TitleID)
+function upload_parts_for_title($TitleID, $force = false)
 {
 	// list of items for a title
-	$sql = 'SELECT ItemID FROM item 
-	WHERE TitleID='. $TitleID ;
-
-	foreach ($data as $row)
+	$items = get_items_for_title($TitleID);
+	
+	foreach ($items as $item)
 	{
-		upload_parts_for_item($row->ItemID);
+		$ItemID = str_replace('item/', '', $item->_id);
+		echo $ItemID . "\n";
+		upload_parts_for_item($ItemID, $force);
 	}
 }
 
@@ -177,8 +185,6 @@ $TitleID = 82521;
 $TitleID = 190323;
 $TitleID = 162187;
 
-http://localhost/bhl-light/bibliography/206514
-
 $TitleID = 206514; // Contributions of the American Entomological Institute
 
 //$TitleID = 209695; // Sibling species of Trigona from Angola (Hymenoptera, Apinae)
@@ -189,11 +195,29 @@ $TitleID = 206514; // Contributions of the American Entomological Institute
 $TitleID = 57881;// Amphibian & reptile conservation
 
 $TitleID = 82521; // Bonn zoological bulletin
+$TitleID = 2804;// Asiatic herpetological research
+
+$TitleID = 68619; // insectsofsamoa
+
+$TitleID = 211788;
+
+$TitleID = 10229;
+
+$TitleID = 5943; // Bulletin du Muséum national d'histoire naturelle
+
+$TitleID = 206514; // Contributions of the American Entomological Institute
+
+$TitleID = 211788; // Metamorphosis Australia (no parts?)
+
+$TitleID = 5943; // Bulletin du Muséum national d'histoire naturelle
+
+$TitleID = 57881;
 
 if (1)
 {
-	upload_title($TitleID, true);
-	upload_items_for_title($TitleID, true);
+	//upload_title($TitleID, false);
+	//upload_items_for_title($TitleID, true);
+	upload_parts_for_title($TitleID, false);
 }
 
 

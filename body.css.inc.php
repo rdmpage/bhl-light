@@ -53,5 +53,4 @@ a {
 /* If we want an underline when we mouse over the link */
 a:hover {
 	text-decoration:underline;
-}	
-
+}

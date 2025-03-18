@@ -6,6 +6,7 @@
   	
   	--nav-height: 3em;
   	--nav-bg: White;
+  	--nav-border: 1px solid #EEE; 
   	
   	--aside-width:240px;
   	

@@ -63,6 +63,13 @@ function gotopage(event) {
     // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
     // Note that we need block: "nearest" for Chrome to work, otherwise it seems to scroll
     // past the target page(!)
-    anchors[0].scrollIntoView({ block: "start", behavior: "smooth"});
+    
+    if (window.chrome) {
+    	anchors[0].scrollIntoView({ block: "nearest", behavior: "smooth"}); // seems different in Chrome and Safari
+    
+    } else {
+    	anchors[0].scrollIntoView({ block: "start", behavior: "smooth"}); // seems different in Chrome and Safari
+    }
+    
    }
 }
