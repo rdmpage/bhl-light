@@ -10,6 +10,8 @@ require_once (dirname(__FILE__) . '/imgproxy.php');
 //----------------------------------------------------------------------------------------
 function layout_to_viewer_html($layout, $image_width = 700)
 {
+	global $config;
+
 	$annotation_experiment = false;
 	// $annotation_experiment = true;
 
@@ -135,24 +137,36 @@ function layout_to_viewer_html($layout, $image_width = 700)
 		// #page= in PDF is the physical page, i.e., 1,2,...,n 
 		$html .= '<a name="page=' .  ($i + 1) . '"></a>' . "\n";
 					
-		// Fetch images direct from IA
-		$image_url = 'https://archive.org/download/' . $layout->internetarchive . '/page/n' . $i . '_w' . $image_width . '.jpg';
+		// Where do our images come from?			
 
-		// AWS is JPEG2000 which image proxy doesn't support :(
-		// $image_url = 'https://bhl-open-data.s3.amazonaws.com/images/' . $layout->internetarchive . '/' . $layout->pages[$i]->internetarchive;
-		
-		// Fetch from Hetzner S3
-		if (1)
+		switch ($config['image_source'])
 		{
-			// .djvu is DjVu
-			// .jp2 is hOCR
-			$image_url = 'https://hel1.your-objectstorage.com/bhl/' . $layout->internetarchive . '_jp2/' . preg_replace('/\.(djvu|jp2)/', '.webp', $layout->pages[$i]->internetarchive);
+			case 'AWS':
+				// AWS is JPEG2000 which image proxy doesn't support :(
+				// $image_url = 'https://bhl-open-data.s3.amazonaws.com/images/' . $layout->internetarchive . '/' . $layout->pages[$i]->internetarchive;
+				break;
+				
+			case 'Hetzner':
+				// S3 compatible with processed images, use Internet Archive property which is either
+				// a .djvu filename or a JP2 filename depending on whether layout generated from DjVu
+				// or hOCR file.
+				$image_url = 'https://hel1.your-objectstorage.com/bhl/' . $layout->internetarchive . '_jp2/' . preg_replace('/\.(djvu|jp2)/', '.webp', $layout->pages[$i]->internetarchive);
+				break;
+				
+			case 'IA':
+			default:
+				// Fetch images direct from IA
+				$image_url = 'https://archive.org/download/' . $layout->internetarchive . '/page/n' . $i . '_w' . $image_width . '.jpg';
+				break;
+		}
+
+		if ($config['use_imgproxy'])
+		{
+			$image_url = $config['image_server'] . sign_imgproxy_path($image_url, $image_width);
 		}
 		
-		$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_url, $image_width);
-		
 
-		if (1)
+		if (1) // 0 if we are just messing about with text layouts
 		{
 			$html .= '<img class="lazy"'
 				. ' data-src="' . $image_url  . '"'

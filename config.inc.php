@@ -33,9 +33,11 @@ switch ($config['site'])
 // Cache for file downloads
 $config['cache'] = dirname(__FILE__) . '/import/cache';
 
+// Language-------------------------------------------------------------------------------
 // Default language is English
 $config['lang'] = 'en';
 
+// Other databases------------------------------------------------------------------------
 // SQLite database (for importing data into CouchDB)
 $config['pdo'] = 'sqlite:/Users/rpage/Sites/bhl-data-new-ideas-o/bhl.db';
 
@@ -70,7 +72,10 @@ if ($config['platform'] == 'cloud')
 
 $config['stale'] = false;
 
-// Image server---------------------------------------------------------------------------
+// Images---------------------------------------------------------------------------------
+
+$config['image_source'] = 'Hetzner';
+$config['use_imgproxy'] = true;
 $config['image_server'] = 'https://images.bionames.org';
 
 $config['thumbnail_height'] = 200;
