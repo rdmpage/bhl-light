@@ -33,6 +33,9 @@ switch ($config['site'])
 // Cache for file downloads
 $config['cache'] = dirname(__FILE__) . '/import/cache';
 
+// External drive
+$config['cache'] = '/Volumes/Expansion/internetarchive';
+
 // Language-------------------------------------------------------------------------------
 // Default language is English
 $config['lang'] = 'en';

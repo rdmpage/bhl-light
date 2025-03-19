@@ -213,10 +213,17 @@ $TitleID = 5943; // Bulletin du Muséum national d'histoire naturelle
 
 $TitleID = 57881;
 
+$TitleID = 144642; // European Journal of Taxonomy
+
+$TitleID = 212146;
+
+$TitleID = 204608;
+
+
 if (1)
 {
-	//upload_title($TitleID, false);
-	//upload_items_for_title($TitleID, true);
+	upload_title($TitleID, false);
+	upload_items_for_title($TitleID, true);
 	upload_parts_for_title($TitleID, false);
 }
 

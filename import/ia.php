@@ -128,6 +128,42 @@ function fetch_ia($ia)
 }
 
 //----------------------------------------------------------------------------------------
+function fetch_ia_hocr($ia)
+{
+	global $config;
+	
+	// put everything in a folder
+	$dir = $config['cache'] . "/" . $ia;
+	if (!file_exists($dir))
+	{
+		$oldumask = umask(0); 
+		mkdir($dir, 0777);
+		umask($oldumask);
+	}	
+	
+	// hOCR
+	get_ia($ia, $ia . '_hocr.html');
+}
+
+//----------------------------------------------------------------------------------------
+function fetch_ia_djvu($ia)
+{
+	global $config;
+	
+	// put everything in a folder
+	$dir = $config['cache'] . "/" . $ia;
+	if (!file_exists($dir))
+	{
+		$oldumask = umask(0); 
+		mkdir($dir, 0777);
+		umask($oldumask);
+	}	
+	
+	// DjVu
+	get_ia($ia, $ia . '_djvu.xml');
+}
+
+//----------------------------------------------------------------------------------------
 function fetch_ia_images($ia)
 {
 	global $config;

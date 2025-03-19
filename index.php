@@ -74,7 +74,7 @@ function html_start($title = '', $thing = null)
 		</li>
 		-->
 		<li><a href="containers">Titles</a></li>
-		<li>Stuff</li>
+		<li><a href="https://github.com/rdmpage/bhl-light/issues" target="_new">Feedback</a></li>
 	</ul>
 	</nav>';
 	
@@ -205,9 +205,7 @@ function display_item($id)
 		if (isset($work->thumbnailUrl))
 		{
 			echo '<div>';
-			// echo '<img width="180" src="image_proxy.php?url=' . urlencode($image_base_url . $work->thumbnailUrl) . '">';
-			
-			$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $work->thumbnailUrl, 0, $config['thumbnail_height']);			
+			$image_url = get_page_image_url(str_replace('pagethumb/', '', $work->thumbnailUrl));
 			echo '<img loading="lazy" src="' . $image_url . '">';			
 			echo '</div>';
 		}
@@ -311,16 +309,12 @@ function display_item($id)
 				}
 				echo '</ul>';
 			}
-		
-		
 		}
 		
  		//--------------------------------------------------------------------------------
 		if (1)
 		{
 			// Display item as scrollable view?	
-			
-			// page list
 			
 			// list of pages
 			$pages = array();
@@ -363,8 +357,11 @@ function display_item($id)
 			// to jump to a given page.
 			echo '<div class="footer">';
 			
-			// echo '	<div id="pagenumber" class="pagenumber"></div>';
+			// Display current BHL Page ID
+			echo '	<div id="bhlpageid"></div>';
 			
+			
+			// Display list of all pages in item
 			if (count($pages) > 0)
 			{
 				echo '<select id="pagenumber" onchange="gotopage(event)">' . "\n";
@@ -401,6 +398,7 @@ function display_item($id)
 			
 			echo '</div>';
 						
+			// Are we going to display hypothes.is?
 			if ($config['use_hypothesis'])
 			{
 				echo '<iframe id="viewer" enable-annotation src="viewer.php?id=' . $internet_archive . '"></iframe>';
@@ -430,6 +428,30 @@ echo '  </main>
 	{
 		default_display("$id not found");
 	}
+}
+
+//----------------------------------------------------------------------------------------
+// Given a BHL PageID return a URL to the thumbnail of the page image. Uses S3 storage,
+// falls back to BHL API if Internet Archive id not found.
+function get_page_image_url($PageID)
+{
+	global $config;
+	
+	$image_url = get_page_image_url_ia($PageID);
+	
+	if ($image_url != '')
+	{
+		$image_url = 'https://hel1.your-objectstorage.com/bhl/' . $image_url;
+	}
+	else
+	{
+		// fallback to BHL
+		$image_url = 'http://www.biodiversitylibrary.org/pagethumb/' . $PageID;
+	}
+	
+	$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_url, 0, $config['thumbnail_height']);
+	
+	return $image_url;
 }
 
 //----------------------------------------------------------------------------------------
@@ -486,8 +508,7 @@ function display_title($id)
 				echo '</dd>';
 				
 			}
-			echo '</dl>';
-			
+			echo '</dl>';			
 		}
 		
 		echo '		</div>';
@@ -496,9 +517,7 @@ function display_title($id)
 		
 		// main display
 		echo '  <main>';
-      	
-		$image_base_url = 'http://www.biodiversitylibrary.org/';
-		
+
 		echo '<div>';
 
 		echo '<ul class="image-grid">';
@@ -506,9 +525,8 @@ function display_title($id)
 		{
 			echo '<li>';
 			echo '<a href="' . $item->{'@id'} . '">';
-			//echo '<img loading="lazy" src="image_proxy.php?url=' . urlencode($image_base_url . $item->thumbnailUrl) . '">';
 			
-			$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $item->thumbnailUrl, 0, $config['thumbnail_height']);
+			$image_url = get_page_image_url(str_replace('pagethumb/', '', $item->thumbnailUrl));
 			
 			echo '<img loading="lazy" src="' . $image_url . '" onerror="retry(this)">';
 			
@@ -532,10 +550,9 @@ echo '  </main>
 	// removing .src means we will try again next time image is in view
 	img.src = img.src;
 	
-	// set backgrund colour for page to indicate things failed but we are working on it
+	// set background colour for page to indicate things failed but we are working on it
 	//img.parentElement.style.background = "red";
 }';
-
 		echo '</script>' . "\n";
 
 		html_end();

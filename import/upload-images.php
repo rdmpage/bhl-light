@@ -5,7 +5,6 @@
 ini_set('memory_limit', '-1');
 
 require_once (dirname(dirname(__FILE__)) . '/config.inc.php');
-require_once (dirname(dirname(__FILE__)) . '/couchsimple.php');
 
 require_once (dirname(__FILE__) . '/ia.php');
 require_once (dirname(__FILE__) . '/sqltojson.php');
@@ -39,6 +38,7 @@ function jp2towebp($basedir, $resize_width = 800)
 	}
 }
 
+/*
 $identifiers = get_ia_for_title(68619);
 
 $identifiers = get_ia_for_title(211788);
@@ -54,8 +54,21 @@ $identifiers = get_ia_for_title(57881);
 //print_r($identifiers);
 
 //$identifiers = array('amphibianreptil111996prov');
+*/
 
-$config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/Amazon S3.localized/bhl';
+$TitleID = 144642; // European Journal of Taxonomy
+$TitleID = 211788;
+$TitleID = 10229;
+
+$TitleID = 10088; // 209695; // 10088; // 85187;
+
+$TitleID = 10229; // Spolia zeylanica
+$TitleID = 204608; // Alytes
+$TitleID = 206514;
+
+$identifiers = get_ia_for_title($TitleID);
+
+$config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/Hetzner.localized/bhl';
 
 foreach ($identifiers as $ia)
 {
