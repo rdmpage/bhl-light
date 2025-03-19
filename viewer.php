@@ -131,6 +131,12 @@ function layout_to_viewer_html($layout, $image_width = 700)
 			$html .= ' data-page="[' . $i  . ']"';
 		}
 		
+		// if we have BHL PageID use it
+		if (isset($layout->pages[$i]->bhl_pageid))
+		{
+			$html .= ' data-bhl="' . $layout->pages[$i]->bhl_pageid  . '"';		
+		}		
+		
 		$html .= '>' . "\n";
 		
 		// https://www.rfc-editor.org/rfc/rfc3778

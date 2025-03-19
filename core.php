@@ -262,9 +262,42 @@ function get_titles_for_letter($letter = 'A')
 	return $datafeed;
 }
 
+//----------------------------------------------------------------------------------------
+// For a given BHL PageID return relative URL to image in Internet Archive so we can
+// retrieve image from S3 store
+function get_page_image_url_ia($PageID, $extension = 'webp')
+{
+	global $config;
+	global $couch;
+	
+	$image_url = '';
+
+	$url = '_design/page/_view/internetarchive?key=' . $PageID;
+		
+	if ($config['stale'])
+	{
+		$url .= '&stale=ok';
+	}			
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	if (count($resp_obj->rows) == 1)
+	{
+		$image_url = $resp_obj->rows[0]->value;
+		
+		$image_url = preg_replace('/_\d+$/', '', $image_url) . '_jp2/' . $image_url . '.' . $extension;
+	}
+	
+	return $image_url;
+}
+
 /*
 $g = get_titles_for_letter('A');
 print_r($g);
 */
+
+// get_page_image_url_ia(43091138);
 
 ?>

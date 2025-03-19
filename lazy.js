@@ -143,19 +143,16 @@ if (window.IntersectionObserver) {
           	 if (item.hasAttribute('data-pageindex')) {
           	 	msg['page'] = decodeURIComponent(item.dataset.pageindex);
           	 }          	 
+
+          	 if (item.hasAttribute('data-bhl')) {
+          	 	msg['bhl'] = decodeURIComponent(item.dataset.bhl);
+          	 }          	 
           	 
-          	 /*
-          	 // Send nicely formated page number
-          	 if (item.hasAttribute('data-page')) {
-          	 	msg['page'] = decodeURIComponent(item.dataset.page);
-          	 }
-          	 */
- 
            	 if (item.hasAttribute('data-annotations')) {
           	 	msg['annotations'] = JSON.parse(decodeURIComponent(item.dataset.annotations));
           	 }
          	 
-          	 console.log(JSON.stringify(msg));
+          	 console.log("lazy.js msg = " + JSON.stringify(msg));
           	 
           	 if (Object.keys(msg).length > 0) {
   				listener.postMessage(msg, "*");

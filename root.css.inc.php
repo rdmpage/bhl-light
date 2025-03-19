@@ -8,7 +8,7 @@
   	--nav-bg: White;
   	--nav-border: 1px solid #EEE; 
   	
-  	--aside-width:240px;
+  	--aside-width:300px;
   	
   	--image-border: 1px solid #DDD;
   	
@@ -18,6 +18,6 @@
   	
   	--viewer-bg: rgb(225,225,225);
   	--viewer-text-color: transparent;
-  	--viewer-footer-bg: rgba(0,0,0,0.7);
+  	--viewer-footer-bg: rgba(0,0,0,0.5);
   	--viewer-footer-text: white;
 }

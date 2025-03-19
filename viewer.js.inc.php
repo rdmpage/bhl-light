@@ -14,6 +14,14 @@ function receiveMessage(event) {
     else {
 
     }
+    
+    // BHL PageID
+    if (typeof event.data.bhl !== 'undefined') {
+      document.getElementById('bhlpageid').innerHTML = event.data.bhl;
+    }
+    else {
+      document.getElementById('bhlpageid').innerHTML = "";
+    }
 
     /*
     // Nicely formatted page name

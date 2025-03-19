@@ -9,6 +9,10 @@ iframe {
 	text-align:center;
 	font-weight:bold;
 }
+
+#bhlpageid {
+	font-size:0.8em;
+}
 	
 .footer {
 	margin-left: var(--aside-width);
@@ -23,7 +27,7 @@ iframe {
     
     display:flex;
     align-items:center;
-    justify-content:center;
+    justify-content:space-evenly;
 }  
 
 .footer select {
