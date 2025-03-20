@@ -294,9 +294,8 @@ function display_item($id)
 				{
 					echo '<li>';
 					// echo '<a href="' . $item->{'@id'} . '">';
-					//echo '<img loading="lazy" src="image_proxy.php?url=' . urlencode($image_base_url . $item->thumbnailUrl) . '">';
 					
-					$image_url = 'https://images.bionames.org' . sign_imgproxy_path($image_base_url . $page->thumbnailUrl, 0, $config['thumbnail_height']);
+					$image_url = get_page_image_url(str_replace('pagethumb/', '', $page->thumbnailUrl));
 					
 					echo '<img loading="lazy" src="' . $image_url . '" onerror="retry(this)">';
 					

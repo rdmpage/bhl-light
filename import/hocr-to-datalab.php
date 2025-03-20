@@ -76,7 +76,7 @@ function parse_hocr($ia, $xml, $threshold = 0, $scale = 1)
 		
 		$num_children = $ocr_page->getElementsByTagName('*')->length;
 		
-		echo $num_children . "\n";
+		// echo $num_children . "\n";
 				
 		if ($num_children > $threshold)
 		{
@@ -109,6 +109,12 @@ function parse_hocr($ia, $xml, $threshold = 0, $scale = 1)
 			if ($image != '')
 			{			
 				$page->internetarchive = $image;
+			}
+			else
+			{
+				echo "No image " . ' ' . $attributes['title'] . "\n";
+				$page->internetarchive = $document->internetarchive . '_' . str_pad($page->page, 4, '0', STR_PAD_LEFT) . '.jp2';
+				echo "Fake page id " . $page->internetarchive . "\n";
 			}
 			
 			$page->image_bbox = extract_box($attributes['title']);

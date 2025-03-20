@@ -2,6 +2,8 @@
 
 // API to retrieve JSON-LD and other JSON from CouchDB
 
+ini_set('memory_limit', '-1');
+
 require_once (dirname(__FILE__) . '/couchsimple.php');
 
 //----------------------------------------------------------------------------------------

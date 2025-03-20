@@ -66,6 +66,31 @@ $TitleID = 10229; // Spolia zeylanica
 $TitleID = 204608; // Alytes
 $TitleID = 206514;
 
+//$TitleID = 152899;
+//$TitleID = 190323;
+
+$TitleID = 150137;
+$TitleID = 158870; // Forktail
+$TitleID = 119522;
+$TitleID = 7414;
+
+$TitleID = 10088;
+$TitleID = 65344;
+$TitleID = 147681;
+$TitleID = 49914;
+$TitleID = 730; // TAR archive
+
+
+// in progress... 
+// 49914 Iberus
+// 210747 Mycotaxon
+// 169356 Austrobaileya
+// 7414 Journal of Bombay...
+// 147681 Flora of Peru
+// 62642 Bulletin of the Natural History Museum
+
+$TitleID = 62642;
+
 $identifiers = get_ia_for_title($TitleID);
 
 $config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/Hetzner.localized/bhl';
@@ -85,31 +110,60 @@ foreach ($identifiers as $ia)
 	{
 	
 		echo "Fetching $ia\n";
-		fetch_ia_images($ia);
+		
+		$archive_format = 'zip';
+		
+		$ok = fetch_ia_images($ia);
+		
+		if (!$ok)
+		{
+			echo "Badness getting images, trying TAR\n";			
+			$ok = fetch_ia_images_tar($ia);
+			if ($ok)
+			{
+				$archive_format = 'tar';
+			}
+			else
+			{
+				echo "The badness is strong with this one\n";
+				exit();
+			}
+		}
 		
 		echo $ia . "\n";
 		
 		// where IA files are stored
 		$dir = $config['cache'] . "/" . $ia;
 		
-		// where JP2 images will be unzipped too
+		// where JP2 images will be extracted too
 		$jp2_dir = $dir . '/' . $ia . '_jp2';
-		
-		// JP2 ZIP file from IA
-		$zip_filename = $jp2_dir . '.zip';
-			
-		$unzip = new ZipArchive;
-		$out = $unzip->open($zip_filename);
-		if ($out === TRUE) 
+
+
+		if ($archive_format == 'zip')
 		{
-		  $unzip->extractTo($dir);
-		  $unzip->close();
-		  echo "File unzipped\n";
+			// JP2 ZIP file from IA
+			$zip_filename = $jp2_dir . '.zip';
+				
+			$unzip = new ZipArchive;
+			$out = $unzip->open($zip_filename);
+			if ($out === TRUE) 
+			{
+			  $unzip->extractTo($dir);
+			  $unzip->close();
+			  echo "File unzipped\n";
+			}
+			else
+			{
+				echo "Error unzipping\n";
+			}		
 		}
 		else
 		{
-			echo "Error unzipping\n";
-		}		
+			// not tested yet...
+			$tar_filename = $jp2_dir . '.tar';
+			
+			system('tar -xvzf ' . $tar_filename);		
+		}
 		
 		// convert JP2
 		jp2towebp($jp2_dir);

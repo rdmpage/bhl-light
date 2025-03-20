@@ -62,6 +62,9 @@ function mets($xml)
 function get_ia($ia, $filename, $force = false)
 {
 	global $config;
+	
+	$ok = false;
+	
 	$dir = $config['cache'] . "/" . $ia;
 	
 	$file_path = $dir . '/' . $filename;
@@ -92,7 +95,8 @@ function get_ia($ia, $filename, $force = false)
 			unlink($file_path);
 		}
 	}
-
+	
+	return $ok;
 }
 
 //----------------------------------------------------------------------------------------
@@ -178,8 +182,29 @@ function fetch_ia_images($ia)
 	}	
 
 	// get images
-	get_ia($ia, $ia . '_jp2.zip');
+	$ok = get_ia($ia, $ia . '_jp2.zip');
 	
+	return $ok;
+}
+
+//----------------------------------------------------------------------------------------
+function fetch_ia_images_tar($ia)
+{
+	global $config;
+	
+	// put everything in a folder
+	$dir = $config['cache'] . "/" . $ia;
+	if (!file_exists($dir))
+	{
+		$oldumask = umask(0); 
+		mkdir($dir, 0777);
+		umask($oldumask);
+	}	
+
+	// get images
+	$ok = get_ia($ia, $ia . '_jp2.tar');
+	
+	return $ok;
 }
 
 //----------------------------------------------------------------------------------------
