@@ -95,6 +95,10 @@ function get_ia($ia, $filename, $force = false)
 			unlink($file_path);
 		}
 	}
+	else
+	{
+		$ok = true;
+	}
 	
 	return $ok;
 }

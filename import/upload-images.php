@@ -87,11 +87,14 @@ $TitleID = 730; // TAR archive
 // 169356 Austrobaileya
 // 7414 Journal of Bombay...
 // 147681 Flora of Peru
-// 62642 Bulletin of the Natural History Museum
+// 62642 Bulletin of the Natural History Museum - done
 
-$TitleID = 62642;
+$TitleID = 7414;
+//$TitleID = 9243;
 
 $identifiers = get_ia_for_title($TitleID);
+
+$identifiers  = array('journalofbombay741977bomb');
 
 $config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/Hetzner.localized/bhl';
 
@@ -125,8 +128,7 @@ foreach ($identifiers as $ia)
 			}
 			else
 			{
-				echo "The badness is strong with this one\n";
-				exit();
+				echo "The badness is strong with this one\n";				
 			}
 		}
 		
@@ -137,7 +139,6 @@ foreach ($identifiers as $ia)
 		
 		// where JP2 images will be extracted too
 		$jp2_dir = $dir . '/' . $ia . '_jp2';
-
 
 		if ($archive_format == 'zip')
 		{
@@ -162,7 +163,7 @@ foreach ($identifiers as $ia)
 			// not tested yet...
 			$tar_filename = $jp2_dir . '.tar';
 			
-			system('tar -xvzf ' . $tar_filename);		
+			system('tar -xvzf ' . $tar_filename . ' -C ' . $dir);		
 		}
 		
 		// convert JP2
@@ -193,6 +194,8 @@ foreach ($identifiers as $ia)
 				copy($source_filename, $target_filename);
 			}
 		}
+		
+		//exit();
 	}
 }
 
