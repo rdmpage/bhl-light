@@ -3,7 +3,7 @@
 aside {
     width:var(--aside-width);
 	position: fixed;
-	background-color:white;
+	background-color:var(--aside-bg);
 }
 
 /* by default (desktop) we hide the <summary> element */

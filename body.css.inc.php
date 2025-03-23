@@ -5,6 +5,7 @@ body {
   overflow:hidden;
   
   background-color: var(--bg);
+  color: var(--text); 
 }
 
 img {
@@ -24,7 +25,6 @@ dl {
 
 dt {
   text-align:right;
-  color:#444;
 }
 
 dd {

@@ -20,7 +20,6 @@
 	
 	/* Keep things sensible if we have, say, only one item */
 	max-width: var(	--grid-image-maxwidth);
-	
 }
 
 .image-grid div {
