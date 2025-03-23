@@ -84,6 +84,6 @@ $config['image_server'] = 'https://images.bionames.org';
 $config['thumbnail_height'] = 200;
 
 // Extras---------------------------------------------------------------------------------
-$config['use_hypothesis'] = false; // true enables hypothes.is to annotate IFRAME content
+$config['use_hypothesis'] = true; // true enables hypothes.is to annotate IFRAME content
 
 ?>
