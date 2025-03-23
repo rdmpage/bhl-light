@@ -8,7 +8,7 @@ global $config;
 date_default_timezone_set('UTC');
 
 $config['platform'] = 'local';
-//$config['platform'] = 'cloud';
+$config['platform'] = 'cloud';
 
 $config['site']		= 'local';
 //$config['site']		= 'heroku';

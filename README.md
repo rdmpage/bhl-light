@@ -35,3 +35,37 @@ The OCR files are converted to a JSON format based on that returned by the [Data
 
 Setup an instance of imgproxy running on Heroku, with Cloudflare sitting in front of it. URLs are signed.
 
+## CouchDB
+
+Initially create database locally, but need to replicate it to a  server in the cloud. Experiments with 8Gb servers crashed, so will need more RAM for replication to work :(
+
+```
+{
+  "_id": "fac630cdbfdba69c544164bc9d02410c",
+  "_rev": "1-d81f1e456d8adc4af28ad9b680bbce0c",
+  "user_ctx": {
+    "name": "admin",
+    "roles": [
+      "_admin",
+      "_reader",
+      "_writer"
+    ]
+  },
+  "source": {
+    "url": "http://127.0.0.1:5984/bhl-lite",
+    "headers": {
+      "Authorization": "Basic …”
+    }
+  },
+  "target": {
+    "url": "http://95.217.23.82:5984/bhl-lite",
+    "headers": {
+      "Authorization": "Basic …”
+    }
+  },
+  "create_target": true,
+  "continuous": false,
+  "owner": "admin"
+}
+```
+
