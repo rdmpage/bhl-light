@@ -36,9 +36,8 @@
 }
 
 .media-title {
-  margin: 0 0 .5em;
-  
-  color:black;
+  margin: 0 0 .5em;x  
+  color:var(--text);
 }
 
 .media--center {

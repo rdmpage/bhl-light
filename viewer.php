@@ -8,7 +8,7 @@ require_once (dirname(__FILE__) . '/core.php');
 require_once (dirname(__FILE__) . '/imgproxy.php');
 
 //----------------------------------------------------------------------------------------
-function layout_to_viewer_html($layout, $image_width = 700)
+function layout_to_viewer_html($layout, $page=1, $image_width = 700)
 {
 	global $config;
 
@@ -243,6 +243,7 @@ function layout_to_viewer_html($layout, $image_width = 700)
 	}
 	
 	$html .= '<script src="lazy.js"></script>' . "\n";
+	$html .= '<script>window.location.hash="#page=' . $page . '"</script>' . "\n";
 	$html .= '</body>' . "\n";
 	$html .= '</html>' . "\n";
 	
@@ -252,11 +253,20 @@ function layout_to_viewer_html($layout, $image_width = 700)
 
 //----------------------------------------------------------------------------------------
 
+// Internet Archive id for item
 $id = '';
 
 if (isset($_GET['id']))
 {	
 	$id = $_GET['id']; 
+} 
+
+// One-based page number to display, by default 1
+$page = 1;
+
+if (isset($_GET['page']))
+{	
+	$page = $_GET['page']; 
 } 
 
 if ($id == '')
@@ -272,7 +282,7 @@ else
 	
 	if ($layout)
 	{
-		$html = layout_to_viewer_html($layout);
+		$html = layout_to_viewer_html($layout, $page);
 	}
 	else
 	{

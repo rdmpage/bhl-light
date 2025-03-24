@@ -54,3 +54,15 @@ a {
 a:hover {
 	text-decoration:underline;
 }
+
+.search {
+	border:1px solid var(--input-border);
+ 	background-color: var(--input-bg);
+ 	color: var(--input-color);
+}  
+
+.search:focus { 
+	background-color: var(--input-bg-focus);
+	border:1px solid var(--input-border-focus);
+	color: var(--input-focus-color);
+}

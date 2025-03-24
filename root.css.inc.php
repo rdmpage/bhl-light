@@ -23,6 +23,14 @@
   	--viewer-footer-bg: rgba(0,0,0,0.5);
   	--viewer-footer-text: white;
   	
+	/* input */
+	--input-border: #BBB;
+	--input-bg: #fff;
+	--input-color: var(--text);
+	
+	--input-bg-focus: white;
+	--input-border-focus: black;
+	--input-focus-color: black;  	
 }
 
 @media (prefers-color-scheme: dark) {
@@ -48,6 +56,14 @@
 	--grid-image-border: black;    
     
     --viewer-bg: #222;
-
+    
+   	/* input */
+   	--input-border:var(--bg);
+   	--input-bg: rgb(56,45,71);
+	--input-color: rgb(212,180,250);
+	
+	--input-bg-focus: rgb(79,70,93);
+	--input-border-focus: white;
+	--input-focus-color: white;    
 	}
 }

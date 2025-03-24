@@ -37,7 +37,9 @@
 			<key>CollectionItems</key>
 			<array>
 				<string>F57A4DC3-91C5-4467-9222-74372F92DDF6</string>
+				<string>2F04F1C5-D99F-46FA-958B-F2B15F14437B</string>
 				<string>42167123-2F03-4947-8585-463E54464CEF</string>
+				<string>AF7EE6C3-35D4-449F-896C-995C72F0C829</string>
 				<string>AB41F3F9-BB9D-465C-8F18-BEADEF9A101A</string>
 			</array>
 		</dict>
@@ -180,6 +182,52 @@
 			</dict>
 			<key>ItemName</key>
 			<string>env-template.php</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+		</dict>
+		<key>2F04F1C5-D99F-46FA-958B-F2B15F14437B</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9va+wCAAAAAAQQMAAAAGXofLAQMOMGd6JOeY41l2WN
+				yXLZVtYIZvM1vTFh4cro6AEAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAFAAAAAQEAAHJwYWdlAAAABQAA
+				AAEBAABTaXRlcwAAAAkAAAABAQAAYmhsLWxpZ2h0AAAA
+				EwAAAAEBAABrZXlwcmVzcy5qcy5pbmMucGhwABQAAAAB
+				BgAAEAAAACAAAAAwAAAAQAAAAFQAAAAIAAAABAMAAIRc
+				AAAAAAAACAAAAAQDAACWxgMAAAAAAAgAAAAEAwAAQOge
+				AAAAAAAIAAAABAMAAIlQOi8AAAAACAAAAAQDAACTEO0x
+				AAAAABQAAAABBgAAjAAAAJwAAACsAAAAvAAAAMwAAAAI
+				AAAAAAQAAEHGt7C24aLAGAAAAAECAAABAAAAAAAAAA8A
+				AAAAAAAAAAAAAAAAAAAIAAAABAMAAAMAAAAAAAAABAAA
+				AAMDAAD1AQAACAAAAAEJAABmaWxlOi8vLwwAAAABAQAA
+				TWFjaW50b3NoIEhECAAAAAQDAAAAkIKW5wAAAAgAAAAA
+				BAAAQcZ3ntqAAAAkAAAAAQEAAEVFREJDNDk1LURGNTIt
+				NDU2QS1CNDMxLUZCNjA3QkYwNEFEMRgAAAABAgAAgQAA
+				AAEAAADvEwAAAQAAAAAAAAAAAAAAAQAAAAEBAAAvAAAA
+				AAAAAAEFAADMAAAA/v///wEAAAAAAAAAEAAAAAQQAABw
+				AAAAAAAAAAUQAADcAAAAAAAAABAQAAAIAQAAAAAAAEAQ
+				AAD4AAAAAAAAAAIgAADUAQAAAAAAAAUgAABEAQAAAAAA
+				ABAgAABUAQAAAAAAABEgAACIAQAAAAAAABIgAABoAQAA
+				AAAAABMgAAB4AQAAAAAAACAgAAC0AQAAAAAAADAgAADg
+				AQAAAAAAAAHAAAAoAQAAAAAAABHAAAAgAAAAAAAAABLA
+				AAA4AQAAAAAAABDQAAAEAAAAAAAAAA==
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/rpage/Sites/bhl-light/keypress.js.inc.php</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./keypress.js.inc.php</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>keypress.js.inc.php</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
 		</dict>
@@ -699,6 +747,52 @@
 			</dict>
 			<key>ItemName</key>
 			<string>viewer.js.inc.php</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+		</dict>
+		<key>AF7EE6C3-35D4-449F-896C-995C72F0C829</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9va+wCAAAAAAQQMAAAALdx8/PcyXdN/Ah0PIHVTgS4
+				IUKb9YYVxITCDCXh4K/V6AEAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAFAAAAAQEAAHJwYWdlAAAABQAA
+				AAEBAABTaXRlcwAAAAkAAAABAQAAYmhsLWxpZ2h0AAAA
+				EQAAAAEBAABzZWFyY2guanMuaW5jLnBocAAAABQAAAAB
+				BgAAEAAAACAAAAAwAAAAQAAAAFQAAAAIAAAABAMAAIRc
+				AAAAAAAACAAAAAQDAACWxgMAAAAAAAgAAAAEAwAAQOge
+				AAAAAAAIAAAABAMAAIlQOi8AAAAACAAAAAQDAACXEe0x
+				AAAAABQAAAABBgAAjAAAAJwAAACsAAAAvAAAAMwAAAAI
+				AAAAAAQAAEHGt7DeXxrFGAAAAAECAAABAAAAAAAAAA8A
+				AAAAAAAAAAAAAAAAAAAIAAAABAMAAAMAAAAAAAAABAAA
+				AAMDAAD1AQAACAAAAAEJAABmaWxlOi8vLwwAAAABAQAA
+				TWFjaW50b3NoIEhECAAAAAQDAAAAkIKW5wAAAAgAAAAA
+				BAAAQcZ3ntqAAAAkAAAAAQEAAEVFREJDNDk1LURGNTIt
+				NDU2QS1CNDMxLUZCNjA3QkYwNEFEMRgAAAABAgAAgQAA
+				AAEAAADvEwAAAQAAAAAAAAAAAAAAAQAAAAEBAAAvAAAA
+				AAAAAAEFAADMAAAA/v///wEAAAAAAAAAEAAAAAQQAABw
+				AAAAAAAAAAUQAADcAAAAAAAAABAQAAAIAQAAAAAAAEAQ
+				AAD4AAAAAAAAAAIgAADUAQAAAAAAAAUgAABEAQAAAAAA
+				ABAgAABUAQAAAAAAABEgAACIAQAAAAAAABIgAABoAQAA
+				AAAAABMgAAB4AQAAAAAAACAgAAC0AQAAAAAAADAgAADg
+				AQAAAAAAAAHAAAAoAQAAAAAAABHAAAAgAAAAAAAAABLA
+				AAA4AQAAAAAAABDQAAAEAAAAAAAAAA==
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/rpage/Sites/bhl-light/search.js.inc.php</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./search.js.inc.php</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>search.js.inc.php</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
 		</dict>

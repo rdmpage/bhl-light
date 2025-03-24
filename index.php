@@ -50,6 +50,7 @@ function html_start($title = '', $thing = null)
 
 	// Global Javascript
 	echo '<script>' . "\n";
+	require_once (dirname(__FILE__) . '/search.js.inc.php');	
 	echo '</script>' . "\n";
 	
 	// Thing this page is about
@@ -68,11 +69,9 @@ function html_start($title = '', $thing = null)
 	echo '<nav>
 	<ul>
 		<li><a href=".">Home</a></li>
-		<!--
 		<li>
 			<input class="search" id="search" type="text" placeholder="search">
 		</li>
-		-->
 		<li><a href="containers">Titles</a></li>
 		<li><a href="https://github.com/rdmpage/bhl-light/issues" target="_new">Feedback</a></li>
 	</ul>
@@ -83,6 +82,10 @@ function html_start($title = '', $thing = null)
 //----------------------------------------------------------------------------------------
 function html_end()
 {
+	echo '<script>' . "\n";
+	require_once (dirname(__FILE__) . '/keypress.js.inc.php');
+	echo '</script>' . "\n";
+
 	echo '</body>';
 	echo '</html>';
 }
@@ -142,7 +145,7 @@ function truncate_text($text, $length = 60)
 }
 
 //----------------------------------------------------------------------------------------
-function display_item($id)
+function display_item($id, $offset = 0)
 {
 	global $config;
 	
@@ -331,7 +334,7 @@ function display_item($id)
 				ksort($pages, SORT_NUMERIC);
 			}
 			
-			// list of pages where a part starts
+			// list of pages where a part (in BHL sense) starts
 			$part_start = array();
 			foreach ($list->dataFeedElement as $part)
 			{
@@ -358,8 +361,7 @@ function display_item($id)
 			
 			// Display current BHL Page ID
 			echo '	<div id="bhlpageid"></div>';
-			
-			
+						
 			// Display list of all pages in item
 			if (count($pages) > 0)
 			{
@@ -396,16 +398,19 @@ function display_item($id)
 			}			
 			
 			echo '</div>';
+			
+			// Viewer is IFRAME and we parse a page number to display, so we can scroll 
+			// to a page
 						
 			// Are we going to display hypothes.is?
 			if ($config['use_hypothesis'])
 			{
-				echo '<iframe id="viewer" enable-annotation src="viewer.php?id=' . $internet_archive . '"></iframe>';
+				echo '<iframe id="viewer" enable-annotation src="viewer.php?id=' . $internet_archive . '&page=' . ($offset + 1) . '"></iframe>';
 				echo '<script src="https://hypothes.is/embed.js" async></script>';			
 			}
 			else
 			{
-				echo '<iframe id="viewer" src="viewer.php?id=' . $internet_archive . '"></iframe>';			
+				echo '<iframe id="viewer" src="viewer.php?id=' . $internet_archive . '&page=' . ($offset + 1) . '"></iframe>';			
 			}
 		}	
 
@@ -610,6 +615,89 @@ function display_container_list($letter = 'A')
 	}
 }
 
+//----------------------------------------------------------------------------------------
+function display_search($query)
+{
+	$doc = get_search_results($query);
+	
+	if ($doc)
+	{
+		$title = $doc->name;
+	
+		html_start($title, $doc);
+		
+		// create a side bar for information on the search
+		echo '<div>';
+		echo '  <aside>';
+		echo '    <details id="aside-details">';
+		echo '      <summary>Details</summary>';
+		echo '     	<div>';
+		
+		// search query
+		echo '<h1>' . $doc->name . '</h1>';
+		
+		echo '		</div>';
+		echo '    </details>';
+		echo '  </aside>';
+		
+		// main display
+		echo '  <main>';
+				
+		echo '<ul class="media-list">';
+		foreach ($doc->dataFeedElement as $hit)
+		{
+			echo '<li class="media-item">';
+			
+			if (isset($hit->thumbnailUrl))
+			{
+				echo '<div>';
+				$image_url = get_page_image_url(str_replace('pagethumb/', '', $hit->thumbnailUrl));
+				echo '<img class="media-figure" src="' . $image_url . '">';			
+				echo '</div>';
+			}
+
+			echo '<div class="media-body">';
+			echo '<h3 class="media-title">';
+			
+			 echo '<a href="' . $hit->url . '">' . $hit->name . '</a>';
+			 
+			echo '</h3>';
+			echo '</div>';
+			echo '</li>';			
+		}
+		echo '</ul>';
+		
+		
+		echo '  </main>
+		</div>';
+		
+		echo '<script>';
+		require_once ('aside.js.inc.php');
+		echo '</script>';
+
+		html_end();
+	}
+	else
+	{
+		default_display("search for $query failed");
+	}
+}
+
+//----------------------------------------------------------------------------------------
+// Dislaying a specific BHL page is simply a redirect to a BHL item and a page offset
+function display_page($page)
+{
+	$target = get_page($page);
+	
+	if (count($target) == 2)
+	{
+		header("Location: item/" . $target[0] . "/offset/" . $target[1]);
+	}
+	else
+	{
+		default_display("PageID $page not found");
+	}
+}
 
 //----------------------------------------------------------------------------------------
 function main()
@@ -633,6 +721,7 @@ function main()
 		exit(0);			
 	}	
 	
+	// title
 	if (!$handled)
 	{		
 		$title = '';
@@ -655,6 +744,7 @@ function main()
 		}
 	}	
 	
+	// item
 	if (!$handled)
 	{		
 		$item = '';
@@ -663,17 +753,35 @@ function main()
 			$item = $_GET['item']; 
 		} 
 		
+		$offset = 0;
+		if (isset($_GET['offset']))
+		{	
+			$offset = $_GET['offset']; 
+		} 		
+		
 		if ($item != '')	
 		{			
 			if (!$handled)
 			{
-				display_item($item);
+				display_item($item, $offset);
 				$handled = true;
 			}			
 		}
-	}	
+	}
 	
-	
+	if (!$handled)
+	{		
+		$page = 0;
+		if (isset($_GET['page']))
+		{	
+			$page = $_GET['page']; 
+		} 
+		
+		display_page($page);		
+	}
+		
+		
+	// list of titles
 	if (!$handled)
 	{		
 		if (isset($_GET['containers']))
@@ -688,7 +796,17 @@ function main()
 			$handled = true;
 		}
 	}	
-		
+	
+	// search
+	if (!$handled)
+	{		
+		if (isset($_GET['q']))
+		{	
+			$query = $_GET['q'];
+			display_search($query);
+			$handled = true;
+		}
+	}			
 	
 	if (!$handled)
 	{

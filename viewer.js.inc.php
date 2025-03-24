@@ -1,6 +1,7 @@
 // handle messages sent by viewer
 window.addEventListener("message", receiveMessage, false);
 
+//----------------------------------------------------------------------------------------
 function receiveMessage(event) {
   console.log("receiveMessage " + JSON.stringify(event.data));
   //console.log("receiveMessage " + JSON.stringify(event));
@@ -56,12 +57,19 @@ function receiveMessage(event) {
   }
 }
 
+//----------------------------------------------------------------------------------------
 // Event handler for user selecting a new page to view
 function gotopage(event) {
+	scrolltopage(parseInt(event.target.value));
+}
+
+//----------------------------------------------------------------------------------------
+// Scroll to page in viewer
+function scrolltopage(zero_based_page_number) {
 
   // Use the https://www.rfc-editor.org/rfc/rfc3778 "#page=" named anchors
   // in the viewer iframe as targets
-  var page_anchor = 'page=' + (parseInt(event.target.value) + 1);
+  var page_anchor = 'page=' + (zero_based_page_number + 1);
 
   // Get element with anchor name, because anchors are in the iframe (not the main 
   // document we need a trick: https://stackoverflow.com/a/20750218

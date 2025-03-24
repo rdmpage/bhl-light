@@ -295,11 +295,121 @@ function get_page_image_url_ia($PageID, $extension = 'webp')
 	return $image_url;
 }
 
+//----------------------------------------------------------------------------------------
+function get_search_results($query, $limit = 10)
+{
+	global $config;
+	global $couch;
+	
+	$query = trim($query);
+	
+	$query = preg_replace('/\s\s+/', ' ', $query);
+	$query_parts = explode(' ', $query);
+	
+	foreach ($query_parts as &$part)
+	{
+		$part = $part; // consider adding "~" suffix for fuzzy matching
+	}
+	
+	$q = join(' AND ', $query_parts);
+	
+	$url = '_design/search/_nouveau/full-text?q=' . urlencode($q);
+	
+	$url .= '&limit=' . $limit;
+	$url .= '&include_docs=true';
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	// print_r($resp_obj);
+	
+	// make RDF-like
+    $datafeed = new stdclass;
+    $datafeed->{'@type'} = ['DataFeed'];
+    $datafeed->name = $query;
+    $datafeed->dataFeedElement = array(); 
+    
+    if ($resp_obj->total_hits == 0)
+    {
+    	$datafeed->description = "No results";
+    }
+    else
+    {
+    	if ($resp_obj->total_hits == 1)
+    	{
+    		$datafeed->description = "One hit";
+    	}
+    	else
+    	{
+    		$datafeed->description = $resp_obj->total_hits . " hits";
+    	}
+    }
+	
+	foreach ($resp_obj->hits as $hit)
+	{
+		$item = new stdclass;
+		$item->{'@id'} = $hit->id;
+		$item->name = $hit->doc->name;
+		
+		if (isset($hit->doc->thumbnailUrl))
+		{
+			$item->thumbnailUrl = $hit->doc->thumbnailUrl;
+			
+			$item->url = preg_replace('/pagethumb\//', 'page/', $hit->doc->thumbnailUrl);
+		}
+		
+		$item->resultScore = $hit->order[0]->value;
+	
+		$datafeed->dataFeedElement[] = $item;
+	}
+	
+	// print_r($datafeed);
+	
+	return $datafeed;
+}
+
+//----------------------------------------------------------------------------------------
+// For a given BHL PageID find array of ItemID and page offset (zero based)
+function get_page($PageID)
+{
+	global $config;
+	global $couch;
+	
+	$target = array();
+	
+	$url = '_design/page/_view/itemID-page?key=' . $PageID;
+	
+	if ($config['stale'])
+	{
+		$url .= '&stale=ok';
+	}			
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	if (count($resp_obj->rows) == 1)
+	{
+		$target = $resp_obj->rows[0]->value;
+	}
+	
+	
+	return $target;
+}
+
 /*
 $g = get_titles_for_letter('A');
 print_r($g);
 */
 
 // get_page_image_url_ia(43091138);
+
+/*
+get_search_results('new species');
+get_search_results('Solomon Island');
+get_search_results('Papilio demoleus');
+get_search_results('replacement name');
+*/
 
 ?>
