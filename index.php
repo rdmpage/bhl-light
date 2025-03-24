@@ -771,15 +771,13 @@ function main()
 	
 	if (!$handled)
 	{		
-		$page = 0;
 		if (isset($_GET['page']))
 		{	
 			$page = $_GET['page']; 
-		} 
-		
-		display_page($page);		
-	}
-		
+			display_page($page);
+			$handled = true;
+		}				
+	}		
 		
 	// list of titles
 	if (!$handled)
