@@ -67,41 +67,53 @@ function annotate_item($ia)
 	return $item_annotations;
 }	
 
-$TitleID = 144642; // EJT
-$TitleID = 82521; // Bonn
-$TitleID = 190323; // The Australian Entomologist
-$TitleID = 57881; // Amphibian & reptile conservation
-$items = get_items_for_title($TitleID);
+$titles = array(
+144642, // EJT
+82521,  // Bonn
+190323, // The Australian Entomologist
+57881,  // Amphibian & reptile conservation
+);
 
-foreach ($items as $item)
-{	
-	$ia = str_replace('https://archive.org/details/', '', $item->sameAs);
-	
-	$doc = new stdclass;
-	$doc->_id = 'geotagged/' . $ia;
-	$doc->internetarchive = $ia;
-	
-	$doc->annotations = annotate_item($ia);
-	
-	// store in CouchDB
-	$force_upload = true;
-	$force_upload = false;
+foreach ($titles as $TitleID)
+{
+	$items = get_items_for_title($TitleID);
+
+	foreach ($items as $item)
+	{	
+		$ia = str_replace('https://archive.org/details/', '', $item->sameAs);
 		
-	$exists = $couch->exists($doc->_id);
-	
-	if ($exists && !$force_upload)
-	{
-		echo "Have " . $doc->_id . " already!\n";
-	}
-	else
-	{
-		if ($exists && $force_upload)
+		$doc = new stdclass;
+		$doc->_id = 'geotagged/' . $ia;
+		
+		// identifiers to (potentially) make search results easier to form
+		$doc->internetarchive = $ia;
+		
+		// to make search results easier
+		$doc->name = $item->name;
+		$doc->bhl_id = $item->_id;
+		
+		$doc->annotations = annotate_item($ia);
+		
+		// store in CouchDB
+		$force_upload = true;
+		//$force_upload = false;
+			
+		$exists = $couch->exists($doc->_id);
+		
+		if ($exists && !$force_upload)
 		{
-			$couch->add_update_or_delete_document(null, $doc->_id, 'delete');
+			echo "Have " . $doc->_id . " already!\n";
 		}
-	
-		$resp = $couch->send("PUT", "/" . $config['couchdb_options']['database'] . "/" . urlencode($doc->_id), json_encode($doc));
-		var_dump($resp);	
+		else
+		{
+			if ($exists && $force_upload)
+			{
+				$couch->add_update_or_delete_document(null, $doc->_id, 'delete');
+			}
+		
+			$resp = $couch->send("PUT", "/" . $config['couchdb_options']['database'] . "/" . urlencode($doc->_id), json_encode($doc));
+			var_dump($resp);	
+		}
 	}
 }
 

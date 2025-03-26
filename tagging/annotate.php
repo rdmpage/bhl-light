@@ -1,5 +1,6 @@
 <?php
 
+require_once (dirname(__FILE__) . '/h3.php');
 
 //----------------------------------------------------------------------------------------
 // text is being annotated, highlight is bit being tagged, last_pos is last position 
@@ -143,6 +144,26 @@ function toPoint($matches)
 }
 
 //----------------------------------------------------------------------------------------
+
+function add_geo_match_to_annotation($matches, $text, &$annotations)
+{
+	$last_pos = 0;
+	
+	foreach ($matches as $match)
+	{
+		$annotation = new stdclass;			
+		$annotation->text = $match[0];			
+		$annotation->target = new stdclass;
+		$annotation->target->selector = annotation_selector($text, $match[0], $last_pos);
+		$annotation->geojson = toPoint($match);	
+		
+		$annotation->uber_h3 = latlon2h3($annotation->geojson->geometry->coordinates);	
+		
+		$annotations[] = $annotation;
+	}
+}
+
+//----------------------------------------------------------------------------------------
 // tag coordinates in text
 function tag_geo($text)
 {
@@ -229,17 +250,7 @@ function tag_geo($text)
 		(?<longitude_hemisphere>$LONGITUDE_HEMISPHERE)		
 	/xu",  $text, $matches, PREG_SET_ORDER))
 	{
-		$last_pos = 0;
-	
-		foreach ($matches as $match)
-		{
-			$annotation = new stdclass;			
-			$annotation->text = $match[0];			
-			$annotation->target = new stdclass;
-			$annotation->target->selector = annotation_selector($text, $match[0], $last_pos);
-			$annotation->geojson = toPoint($match);	
-			$annotations[] = $annotation;
-		}	
+		add_geo_match_to_annotation($matches, $text, $annotations);	
 	}
 	
 	
@@ -255,19 +266,7 @@ function tag_geo($text)
 		$DEGREES_SYMBOL		
 	/xu",  $text, $matches, PREG_SET_ORDER))
 	{
-		//print_r($matches);
-		
-		$last_pos = 0;
-		
-		foreach ($matches as $match)
-		{
-			$annotation = new stdclass;			
-			$annotation->text = $match[0];
-			$annotation->target = new stdclass;
-			$annotation->target->selector = annotation_selector($text, $match[0], $last_pos);
-			$annotation->geojson = toPoint($match);	
-			$annotations[] = $annotation;
-		}	
+		add_geo_match_to_annotation($matches, $text, $annotations);	
 	}
 	
 	// N25°59', E98°40'
@@ -297,18 +296,7 @@ function tag_geo($text)
 	/xu",  $text, $matches, PREG_SET_ORDER))
 	{
 		//print_r($matches);
-		
-		$last_pos = 0;
-		
-		foreach ($matches as $match)
-		{
-			$annotation = new stdclass;			
-			$annotation->text = $match[0];
-			$annotation->target = new stdclass;
-			$annotation->target->selector = annotation_selector($text, $match[0], $last_pos);
-			$annotation->geojson = toPoint($match);
-			$annotations[] = $annotation;
-		}	
+		add_geo_match_to_annotation($matches, $text, $annotations);
 	}
 	
 	// Spanish https://doi.org/10.21068/c2018.v19s1a11
@@ -339,17 +327,7 @@ function tag_geo($text)
 		(?<longitude_hemisphere>$ES_LONGITUDE_HEMISPHERE)
 	/xu",  $text, $matches, PREG_SET_ORDER))
 	{
-		$last_pos = 0;
-	
-		foreach ($matches as $match)
-		{
-			$annotation = new stdclass;			
-			$annotation->text = $match[0];
-			$annotation->target = new stdclass;
-			$annotation->target->selector = annotation_selector($text, $match[0], $last_pos);
-			$annotation->geojson = toPoint($match);
-			$annotations[] = $annotation;
-		}	
+		add_geo_match_to_annotation($matches, $text, $annotations);
 	}	
 	
 
