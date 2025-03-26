@@ -719,6 +719,7 @@ function display_map()
 	
 	echo '<h2>Map</h2>';
 	echo '<p>Point localities extracted from OCR text.</p>';
+	echo '<div id="h3"></div>';
 	
 	echo '		</div>';
 	echo '    </details>';
