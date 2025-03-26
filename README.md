@@ -76,4 +76,10 @@ Add a search index to CouchDB. The first time this view is called it can take a 
 ```
 
 
+## Comparisons with Plazi
+
+It is useful to compare BHL and Plazi for the same content, e.g.  item/253713 and https://ejt.biodiversity.hasdai.org/records/3ketn-e3390 and http://treatment.plazi.org/id/C93D87F0FFFCFF9F8E3BFB7DFA88FA6E 
+
+
+
 
