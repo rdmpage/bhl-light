@@ -66,3 +66,8 @@ a:hover {
 	border:1px solid var(--input-border-focus);
 	color: var(--input-focus-color);
 }
+
+#map {
+  height:100%;
+  width:100%;
+}

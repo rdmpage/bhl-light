@@ -65,5 +65,6 @@
 	--input-bg-focus: rgb(79,70,93);
 	--input-border-focus: white;
 	--input-focus-color: white;    
+	
 	}
 }

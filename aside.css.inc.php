@@ -4,6 +4,7 @@ aside {
     width:var(--aside-width);
 	position: fixed;
 	background-color:var(--aside-bg);
+	z-index:1001;
 }
 
 /* by default (desktop) we hide the <summary> element */
@@ -25,6 +26,7 @@ main {
   height:calc(100vh - var(--nav-height));
   overflow-x:auto;
 }
+
 
 /* small */
 @media screen and (max-width: 800px) {

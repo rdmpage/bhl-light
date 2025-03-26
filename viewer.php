@@ -7,13 +7,84 @@ error_reporting(E_ALL);
 require_once (dirname(__FILE__) . '/core.php');
 require_once (dirname(__FILE__) . '/imgproxy.php');
 
+
 //----------------------------------------------------------------------------------------
-function layout_to_viewer_html($layout, $page=1, $image_width = 700)
+function highlight_annotations($text, $annotations)
+{
+	// Create a HTML string with annotations highlighted
+	$open = array();
+	$close = array();
+	
+	foreach ($annotations as $annotation)
+	{
+		foreach ($annotation->target->selector as $selector)
+		{
+			if ($selector->type == "TextPositionSelector")
+			{
+				if (!isset($open[$selector->start]))
+				{
+					$open[$selector->start] = array();
+				}
+			
+				$open[$selector->start][] = 'x'; // set type of annotation
+
+				if (!isset($close[$selector->end]))
+				{
+					$close[$selector->end][] = 'x';
+				}
+			}
+		}
+	
+	}
+	
+	$content_length = mb_strlen($text);
+	
+	$html = '';
+	
+	for ($i = 0; $i < $content_length; $i++)
+	{
+		$char = mb_substr($text, $i, 1); 
+		
+		if (isset($open[$i]))
+		{
+			foreach ($open[$i] as $type)
+			{
+				switch ($type)
+				{
+					default:
+						$html .= '<mark class="' . $type . '">';
+						break;
+				}
+			}		
+		}
+		
+		$html .= $char;
+	
+		if (isset($close[$i]))
+		{
+			foreach ($close[$i] as $type)
+			{
+				switch ($type)
+				{
+					default:
+						$html.= '</mark>';
+						break;
+				}
+			}		
+		}
+	
+	}	
+	
+	return $html;				
+}
+
+//----------------------------------------------------------------------------------------
+function layout_to_viewer_html($layout, $annotations = null, $page=1, $image_width = 700)
 {
 	global $config;
 
 	$annotation_experiment = false;
-	// $annotation_experiment = true;
+	$annotation_experiment = true;
 
 	$html = '';
 	$html .= '<html>';
@@ -78,8 +149,12 @@ function layout_to_viewer_html($layout, $page=1, $image_width = 700)
 		-webkit-user-select:text;
 		-moz-user-select:text;
 		user-select:text;
-		
-		
+	}
+	
+	mark {
+		color:transparent;
+		background-color:rgba(255,165,0,0.3);
+		border-bottom:1px solid red;
 	}
 	
 /* small screen for viewer (which may be included as an iframe) */
@@ -94,14 +169,16 @@ function layout_to_viewer_html($layout, $page=1, $image_width = 700)
 	
 	$html .=  '<body>' . "\n";
 	
-		
+	/*
 	if ($annotation_experiment)
 	{
-		$annot_json = '{"3":{"10":[{"text":"Arthropoda","start":12,"end":22}]},"4":{"18":[{"text":"Gryllides","start":63,"end":72}],"20":[{"text":"Mantes","start":41,"end":47}],"21":[{"text":"Tenodera","start":35,"end":43}],"25":[{"text":"Mantes","start":20,"end":26}]},"5":{"6":[{"text":"Acrydiinae","start":20,"end":30}],"11":[{"text":"Gryllides","start":32,"end":41}],"20":[{"text":"Cutilia","start":17,"end":24},{"text":"Cosmozosteria","start":32,"end":45}],"21":[{"text":"Diploptera dytiscoides","start":47,"end":69},{"text":"Panesthia","start":70,"end":79}],"23":[{"text":"Holocompsa capsoides","start":12,"end":32}],"28":[{"text":"Gryllides","start":4,"end":13}],"29":[{"text":"Trigonidiinae","start":15,"end":28}],"30":[{"text":"Nemobiinae","start":7,"end":17}],"33":[{"text":"Graeffea","start":9,"end":17},{"text":"Valanga","start":67,"end":74}]},"6":{"6":[{"text":"Nemobius grandis","start":60,"end":76}],"7":[{"text":"Valanga stercoraria","start":38,"end":57}],"32":[{"text":"Theganopteryx brunnea","start":3,"end":24},{"text":"Mareta fascifrons","start":36,"end":53}],"33":[{"text":"Blattella germanica","start":3,"end":22}],"34":[{"text":"Eoblatta","start":33,"end":41}]},"7":{"2":[{"text":"Liphoplus novarae","start":31,"end":48}],"3":[{"text":"Loboptera extranea","start":0,"end":18}],"5":[{"text":"Cutilia soror","start":3,"end":16},{"text":"Arachnocephalus gracilis","start":25,"end":49}],"6":[{"text":"Metioche vittaticollis","start":26,"end":48}],"7":[{"text":"Cosmozosteria bicolor","start":0,"end":21},{"text":"Metioche vittaticollis insularis","start":33,"end":65}],"8":[{"text":"Dorylaea","start":4,"end":12},{"text":"Metioche","start":35,"end":43}],"9":[{"text":"Stylopyga","start":0,"end":9},{"text":"Metioche","start":28,"end":36}],"10":[{"text":"Periplaneta americana","start":0,"end":21},{"text":"Metioche fascithorax","start":29,"end":49}],"11":[{"text":"Periplaneta australasiae","start":4,"end":28},{"text":"Anaxipha maritima","start":36,"end":53}],"12":[{"text":"Periplaneta brunnea","start":4,"end":23},{"text":"Anaxipha musica","start":34,"end":49}],"13":[{"text":"Pycnoscelus surinamensis","start":4,"end":28},{"text":"Anaxipha buxtoni","start":36,"end":52}],"14":[{"text":"Holocompsa capsoides","start":4,"end":24},{"text":"Anaxipha fulva","start":36,"end":50}],"15":[{"text":"Diploptera dytiscoides","start":4,"end":26},{"text":"Anaxipha curtipennis","start":37,"end":57}],"16":[{"text":"Panesthia","start":4,"end":13},{"text":"Anaxipha brevipes","start":35,"end":52}],"17":[{"text":"Tenodera","start":0,"end":8}],"18":[{"text":"Furnia insularis","start":4,"end":20},{"text":"Anaxipha armstrongi","start":31,"end":50}],"19":[{"text":"Euconocephalus roberti","start":4,"end":26},{"text":"Anaxipha hopkinsi","start":41,"end":58}],"21":[{"text":"Xiphidion","start":18,"end":27}],"22":[{"text":"Xiphidion","start":18,"end":27}],"23":[{"text":"Salomona suturalis","start":0,"end":18},{"text":"Aphonomorphus gracilis","start":29,"end":51}],"24":[{"text":"Phisis pallida","start":4,"end":18},{"text":"Aphonomorphus punctatus","start":29,"end":52}],"25":[{"text":"Aphonomorphus surdus","start":27,"end":47}],"27":[{"text":"Rhaphidophora","start":4,"end":17}],"28":[{"text":"Apteronemobius longipes","start":4,"end":27}],"29":[{"text":"Scottia variegata","start":4,"end":21},{"text":"Nisyrus spinulosus","start":30,"end":48}],"30":[{"text":"Cophonemobius buxtoni","start":4,"end":25},{"text":"Paratettix histricus","start":38,"end":58}],"31":[{"text":"Pteronemobius dentatus","start":4,"end":26}],"32":[{"text":"Pteronemobius annulicornis","start":4,"end":30}],"33":[{"text":"Pteronemobius parallelus","start":4,"end":28},{"text":"Apterotettix samoana","start":39,"end":59}],"34":[{"text":"Nemobius","start":4,"end":12}],"35":[{"text":"Gryllus oceanicus","start":4,"end":21},{"text":"Austracris","start":36,"end":46}],"36":[{"text":"Gryllodes insularis","start":0,"end":19},{"text":"Valanga stercoraria","start":31,"end":50}],"37":[{"text":"Loxoblemmus","start":0,"end":11}],"40":[{"text":"Theganopteryx brunnea","start":3,"end":24}]},"8":{"25":[{"text":"Blattella germanica","start":3,"end":22}],"26":[{"text":"Blatta germanica","start":0,"end":16}],"27":[{"text":"Phyllodromia germanica","start":0,"end":22}],"30":[{"text":"Supellina unicolor","start":3,"end":21}]},"9":{"27":[{"text":"Mareta fascifrons","start":3,"end":20}]},"10":{"2":[{"text":"Theganopteryx brunnea","start":8,"end":29}],"4":[{"text":"Mareta fascifrons","start":51,"end":68}],"7":[{"text":"Euryblattella lata","start":68,"end":86}]},"11":{"23":[{"text":"Phyllodromia obtusata","start":0,"end":21}]},"12":{"1":[{"text":"Eoblatta","start":3,"end":11}],"2":[{"text":"Blatta notulata","start":0,"end":15}],"3":[{"text":"Phyllodromia","start":0,"end":12}],"29":[{"text":"Eoblatta","start":44,"end":52}]},"13":{"4":[{"text":"Euryblattella","start":0,"end":13}],"10":[{"text":"Euryblattella lata","start":3,"end":21}],"32":[{"text":"Euryblattella lata","start":9,"end":27}]},"14":{"20":[{"text":"Cutilia","start":3,"end":10}],"21":[{"text":"Polyzosteria soror","start":0,"end":18}],"22":[{"text":"Platyzosteria soror","start":0,"end":19}],"27":[{"text":"Cutilia nitida","start":3,"end":17}],"28":[{"text":"Platyzosteria nitida","start":0,"end":20}],"29":[{"text":"Polyzosteria","start":0,"end":12},{"text":"Melanozosteria","start":14,"end":28}]},"15":{"3":[{"text":"Tanna","start":21,"end":26}],"8":[{"text":"Dorylaea flavicincta","start":4,"end":24}],"10":[{"text":"Methana","start":0,"end":7}],"13":[{"text":"Periplaneta australasiae","start":4,"end":28}],"14":[{"text":"Blatta australasiae","start":0,"end":19}],"15":[{"text":"Periplaneta australasiae","start":0,"end":24}],"18":[{"text":"Periplaneta brunnea","start":4,"end":23}],"19":[{"text":"Periplaneta brunnea","start":0,"end":19}],"24":[{"text":"Pycnoscelus","start":4,"end":15}]},"16":{"13":[{"text":"Holocompsa capsoides","start":4,"end":24}],"14":[{"text":"Holocompsa capsoides","start":0,"end":20}],"23":[{"text":"Diploptera dytiscoides","start":4,"end":26}],"24":[{"text":"Blatta dytiscoides","start":0,"end":18}],"25":[{"text":"Diploptera dytiscoides","start":0,"end":22}],"29":[{"text":"Manua","start":0,"end":5}]},"17":{"2":[{"text":"Panesthia serratissima","start":4,"end":26}],"3":[{"text":"Panesthia serratissima","start":0,"end":22}],"6":[{"text":"Diploptera dytiscoides","start":9,"end":31}]},"18":{"5":[{"text":"Furnia insularis","start":4,"end":20}],"7":[{"text":"Anaulacomera insularis","start":0,"end":22}],"13":[{"text":"Anaulacomera","start":52,"end":64}],"16":[{"text":"Psyrae","start":34,"end":40},{"text":"Anaulacomera","start":57,"end":69}],"21":[{"text":"Euconocephalus roberti","start":4,"end":26}],"23":[{"text":"Conocephalus australis","start":0,"end":22}]},"19":{"2":[{"text":"Xiphidion","start":18,"end":27}],"3":[{"text":"Xiphidium modestum","start":0,"end":18}],"5":[{"text":"Xiphidion modestum","start":0,"end":18}],"15":[{"text":"Conocephalus modestus","start":32,"end":53}],"16":[{"text":"Phisis pectinata","start":28,"end":44},{"text":"Phisis","start":70,"end":76}]},"20":{"5":[{"text":"Xiphidion","start":18,"end":27}],"6":[{"text":"Xiphidium affine","start":0,"end":16}],"12":[{"text":"Manua","start":0,"end":5}],"17":[{"text":"Phisis pallida","start":4,"end":18}],"18":[{"text":"Nocera pallida","start":0,"end":14}],"20":[{"text":"Teuthras pallidus","start":0,"end":17}],"28":[{"text":"Manua","start":0,"end":5}]},"21":{"13":[{"text":"Phisis","start":9,"end":15}],"24":[{"text":"Phisis","start":18,"end":24}]},"22":{"5":[{"text":"Treubia","start":57,"end":64}],"7":[{"text":"Rhaphidophora rechingeri","start":9,"end":33}]},"23":{"7":[{"text":"Rhaphidophora","start":9,"end":22}],"8":[{"text":"Apteronemobius longipes","start":56,"end":79}],"10":[{"text":"Pteronemobius annulicornis","start":9,"end":35}],"15":[{"text":"Emballonura semicaudata","start":48,"end":71}]},"24":{"3":[{"text":"Apteronemobius","start":0,"end":14}],"4":[{"text":"Pseudonemobius","start":49,"end":63}],"7":[{"text":"Pseudonemobius","start":27,"end":41}],"9":[{"text":"Apteronemobius longipes","start":4,"end":27}],"33":[{"text":"Apteronemobius","start":11,"end":25}]},"25":{"18":[{"text":"Pseudonemobius","start":0,"end":14}],"23":[{"text":"Scottia variegata","start":4,"end":21}]},"26":{"24":[{"text":"Cophonemobius","start":0,"end":13}],"25":[{"text":"Nemobius","start":16,"end":24}],"29":[{"text":"Cophonemobius buxtoni","start":4,"end":25}],"31":[{"text":"Nemobius","start":12,"end":20}]},"27":{"9":[{"text":"Cophonemobius","start":8,"end":21}],"36":[{"text":"Nemobius","start":57,"end":65}],"40":[{"text":"Cophonemobius","start":19,"end":32},{"text":"Pronemobius","start":36,"end":47},{"text":"Nemobius","start":49,"end":57}]},"28":{"1":[{"text":"Pteronemobius dentatus","start":4,"end":26}],"8":[{"text":"Pteronemobius annulicornis","start":4,"end":30}]},"29":{"7":[{"text":"Nemobius","start":34,"end":42}],"9":[{"text":"Scottia","start":4,"end":11}],"10":[{"text":"Pteronemobius parallelus","start":4,"end":28}],"11":[{"text":"Pteronemobius parallelus","start":0,"end":24}],"21":[{"text":"Nemobius","start":4,"end":12}],"22":[{"text":"Nemobius grandis","start":0,"end":16}]},"30":{"5":[{"text":"Gryllus oceanicus","start":4,"end":21}],"6":[{"text":"Gryllus oceanicus","start":0,"end":17}],"13":[{"text":"Gryllus commodus","start":42,"end":58}],"16":[{"text":"Myrmecophila quadrispina","start":4,"end":28}],"17":[{"text":"Fagasa","start":9,"end":15}],"23":[{"text":"Liphoplus","start":0,"end":9}],"24":[{"text":"Cycloptilum","start":28,"end":39}],"26":[{"text":"Cycloptilum","start":15,"end":26},{"text":"Ornebius","start":30,"end":38}]},"31":{"1":[{"text":"Liphoplus novarae","start":4,"end":21}],"2":[{"text":"Liphoplus novarae","start":0,"end":17}],"4":[{"text":"Vailima","start":25,"end":32}],"10":[{"text":"Manua","start":0,"end":5}],"21":[{"text":"Liphoplus nigripennis","start":4,"end":25}]},"32":{"1":[{"text":"Liphoplus novarae","start":9,"end":26}],"3":[{"text":"Anaxipha curtipennis","start":9,"end":29},{"text":"Anaxipha brevipes","start":54,"end":71}],"4":[{"text":"Anaxipha armstrongi","start":55,"end":74}],"5":[{"text":"Anaxipha hopkinsi","start":17,"end":34}]},"33":{"14":[{"text":"Arachnocephalus maritimus","start":4,"end":29}],"15":[{"text":"Arachnocephalus maritimus","start":0,"end":25}],"23":[{"text":"Arachnocephalus gracilis","start":4,"end":28}]},"34":{"18":[{"text":"Trigonidium vittaticolle","start":0,"end":24}],"20":[{"text":"Metioche vittaticollis insularis","start":4,"end":36}],"21":[{"text":"Homoeoxiphus insularis","start":0,"end":22}],"23":[{"text":"Tanna","start":21,"end":26}],"25":[{"text":"Trigonidium flavipes","start":0,"end":20}],"28":[{"text":"Vailima","start":7,"end":14}]},"35":{"10":[{"text":"Metioche kuthyi","start":4,"end":19}],"11":[{"text":"Metioche kuthyi","start":0,"end":15}],"12":[{"text":"Vailima","start":32,"end":39}],"17":[{"text":"Metioche fascithorax","start":4,"end":24}]},"36":{"9":[{"text":"Anaxipha maritima","start":4,"end":21}],"10":[{"text":"Cyrtoxiphus maritimus","start":0,"end":21}],"17":[{"text":"Anaxipha musica","start":4,"end":19}],"21":[{"text":"Fagasa","start":45,"end":51}],"30":[{"text":"Anaxipha buxtoni","start":4,"end":20}]},"37":{"33":[{"text":"Gryllides","start":68,"end":77}],"34":[{"text":"Anaxipha","start":12,"end":20}]},"38":{"6":[{"text":"Vailima","start":56,"end":63}],"9":[{"text":"Anaxipha fulva","start":4,"end":18}],"10":[{"text":"Cyrtoxiphus fulvus","start":0,"end":18}],"25":[{"text":"Anaxipha curtipennis","start":4,"end":24}]},"39":{"15":[{"text":"Anaxipha brevipes","start":4,"end":21}]},"40":{"7":[{"text":"Anaxipha brevipes","start":51,"end":68}],"8":[{"text":"Anaxipha bryani","start":4,"end":19}]},"41":{"7":[{"text":"Anaxipha armstrongi","start":4,"end":23}]},"42":{"5":[{"text":"Anaxipha armstrongi","start":9,"end":28}],"10":[{"text":"Anaxipha hopkinsi","start":4,"end":21}]},"43":{"7":[{"text":"Anaxipha","start":9,"end":17}]},"44":{"10":[{"text":"Cardiodactylus","start":4,"end":18}],"12":[{"text":"Cardiodactylus","start":0,"end":14}],"20":[{"text":"Manua","start":0,"end":5}],"22":[{"text":"Swezwilderia","start":5,"end":17}],"23":[{"text":"Cardiodactylus","start":16,"end":30}],"28":[{"text":"Perlidae","start":75,"end":83}],"32":[{"text":"Hydropedeticus vitiensis","start":13,"end":37}]},"45":{"1":[{"text":"Swezwilderia bryani","start":4,"end":23}]},"46":{"22":[{"text":"Aphonomorphus gracilis","start":4,"end":26}],"23":[{"text":"Aphonomorphus gracilis","start":0,"end":22}],"30":[{"text":"Aphonomorphus punctatus","start":4,"end":27}],"31":[{"text":"Gryllus","start":0,"end":7},{"text":"Eneoptera","start":9,"end":18}]},"47":{"1":[{"text":"Aphonomorphus surdus","start":4,"end":24}],"7":[{"text":"Aphonomorphus surdus","start":9,"end":29}],"8":[{"text":"Paratettix compactus","start":48,"end":68}]},"48":{"25":[{"text":"Metrypa","start":18,"end":25}],"31":[{"text":"Graeffea coccophaga","start":0,"end":19}]},"49":{"5":[{"text":"Graeffea","start":44,"end":52}],"11":[{"text":"Paratettix histricus","start":4,"end":24}],"12":[{"text":"Tetrix","start":0,"end":6},{"text":"Eugenia","start":28,"end":35}],"21":[{"text":"Paratettix compactus","start":4,"end":24}]},"50":{"16":[{"text":"Apterotettix samoana","start":4,"end":24}]},"51":{"4":[{"text":"Tetriginae","start":35,"end":45}],"12":[{"text":"Aiolopus tamulus","start":4,"end":20}],"13":[{"text":"Gryllus tamulus","start":0,"end":15}],"22":[{"text":"Austracris guttulosa nana","start":4,"end":29}],"23":[{"text":"Austracris guttulosa nana","start":0,"end":25}]},"52":{"1":[{"text":"Valanga stercoraria","start":4,"end":23}],"2":[{"text":"Acridium stercorarium","start":0,"end":21}],"3":[{"text":"Valanga stercoraria","start":0,"end":19}],"13":[{"text":"Valanga stercoraria","start":9,"end":28}],"26":[{"text":"Dermaptera","start":21,"end":31},{"text":"Orthoptera","start":36,"end":46}]},"53":{"1":[{"text":"Orthoptera","start":56,"end":66}],"2":[{"text":"Orthopteres","start":43,"end":54}],"5":[{"text":"Theganopteryx brunnea","start":8,"end":29}],"7":[{"text":"Mareta fascifrons","start":38,"end":55}],"12":[{"text":"Euryblattella lata","start":9,"end":27}],"13":[{"text":"Diploptera dytiscoides","start":9,"end":31}],"14":[{"text":"Euconocephalus","start":70,"end":84}],"15":[{"text":"Conocephalus affinis","start":68,"end":88}],"16":[{"text":"Phisis pallida","start":57,"end":71}],"18":[{"text":"Phisis pallida","start":9,"end":23}],"19":[{"text":"Rhaphidophora rechingeri","start":9,"end":33}],"21":[{"text":"Apteronemobius longipes","start":58,"end":81}],"24":[{"text":"Apteronemobius longipes","start":9,"end":32}],"25":[{"text":"Cophonemobius buxtoni","start":9,"end":30}],"26":[{"text":"Liphoplus novarae","start":9,"end":26}],"27":[{"text":"Anaxipha buxtoni","start":42,"end":58},{"text":"Anaxipha","start":88,"end":96}],"28":[{"text":"Anaxipha brevipes","start":35,"end":52},{"text":"Anaxipha","start":83,"end":91}],"29":[{"text":"Anaxipha armstrongi","start":28,"end":47},{"text":"Anaxipha","start":78,"end":86}],"31":[{"text":"Anaxipha brevipes","start":9,"end":26}],"32":[{"text":"Anaxipha brevipes","start":9,"end":26}],"33":[{"text":"Anaxipha armstrongi","start":9,"end":28}],"34":[{"text":"Anaxipha armstrongi","start":9,"end":28}],"35":[{"text":"Anaxipha","start":9,"end":17}],"37":[{"text":"Aphonomorphus surdus","start":9,"end":29}],"38":[{"text":"Paratettix compactus","start":49,"end":69}],"40":[{"text":"Valanga stercoraria","start":9,"end":28}]},"56":{"4":[{"text":"Orthoptera","start":12,"end":22},{"text":"Dermaptera","start":27,"end":37}],"5":[{"text":"Hemiptera","start":8,"end":17}],"6":[{"text":"Lepidoptera","start":4,"end":15}],"7":[{"text":"Coleoptera","start":13,"end":23}],"8":[{"text":"Hymenoptera","start":3,"end":14}],"9":[{"text":"Diptera","start":6,"end":13}],"11":[{"text":"Arthropoda","start":20,"end":30}]},"57":{"5":[{"text":"Arthropoda","start":46,"end":56}],"8":[{"text":"Dermaptera","start":9,"end":19}],"9":[{"text":"Orthoptera","start":9,"end":19}],"10":[{"text":"Hemiptera","start":9,"end":18}],"11":[{"text":"Fulgoroidea","start":9,"end":20}],"15":[{"text":"Heteroptera","start":62,"end":73}],"23":[{"text":"Geometridae","start":9,"end":20}],"30":[{"text":"Heteromera","start":10,"end":20},{"text":"Bostrychoidea","start":22,"end":35}],"37":[{"text":"Apoidea","start":5,"end":12},{"text":"Sphecoidea","start":14,"end":24},{"text":"Vespoidea","start":30,"end":39}],"47":[{"text":"Isoptera","start":9,"end":17}],"50":[{"text":"Plectoptera","start":9,"end":20}],"51":[{"text":"Siphonaptera","start":12,"end":24}],"59":[{"text":"Isopoda","start":9,"end":16},{"text":"Terrestria","start":17,"end":27}]}}';
+		// load annotations for item
+		$annot_json = '{"3":{"3":[{"text":"24.56128° S, 30.86367° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":76},{"type":"TextQuoteSelector","exact":"24.56128° S, 30.86367° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 1700 m,"}]}}],"9":[{"text":"24.56374° S, 30.86293° E","target":{"selector":[{"type":"TextPositionSelector","start":0,"end":23},{"type":"TextQuoteSelector","exact":"24.56374° S, 30.86293° E","prefix":"","suffix":", 1640 m, northern mist-belt for"}]}}],"11":[{"text":"24.56692° S, 30.86482°E","target":{"selector":[{"type":"TextPositionSelector","start":16,"end":38},{"type":"TextQuoteSelector","exact":"24.56692° S, 30.86482°E","prefix":"Forest Reserve, ","suffix":", 1520 m, indigenous Afromontane"}]}}],"13":[{"text":"24.5679° S, 30.8599° E","target":{"selector":[{"type":"TextPositionSelector","start":9,"end":30},{"type":"TextQuoteSelector","exact":"24.5679° S, 30.8599° E","prefix":"Reserve, ","suffix":", 1550 m, northern mist-belt for"}]}}],"15":[{"text":"24.56795° S, 30.86138° E","target":{"selector":[{"type":"TextPositionSelector","start":15,"end":38},{"type":"TextQuoteSelector","exact":"24.56795° S, 30.86138° E","prefix":"Bushpig Trail, ","suffix":", 1520 m, northern mist-belt for"}]}}]},"4":{"2":[{"text":"24.56847° S, 30.85920° E","target":{"selector":[{"type":"TextPositionSelector","start":30,"end":53},{"type":"TextQuoteSelector","exact":"24.56847° S, 30.85920° E","prefix":"Forest Reserve, Picnic Trail, ","suffix":", 1545 m, northern mist-belt for"}]}}],"4":[{"text":"24.57108° S, 30.86014° E","target":{"selector":[{"type":"TextPositionSelector","start":57,"end":80},{"type":"TextQuoteSelector","exact":"24.57108° S, 30.86014° E","prefix":"est Reserve, east facing slope, ","suffix":", 1519 m, leg. M."}]}}],"9":[{"text":"24.56128° S, 30.86367° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":76},{"type":"TextQuoteSelector","exact":"24.56128° S, 30.86367° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 1700 m."}]}}]},"6":{"30":[{"text":"24.56847° S, 30.85920° E","target":{"selector":[{"type":"TextPositionSelector","start":67,"end":90},{"type":"TextQuoteSelector","exact":"24.56847° S, 30.85920° E","prefix":"p Forest Reserve, Picnic Trail, ","suffix":","}]}}],"36":[{"text":"24.55117° S, 30.89395° E","target":{"selector":[{"type":"TextPositionSelector","start":9,"end":32},{"type":"TextQuoteSelector","exact":"24.55117° S, 30.89395° E","prefix":"Reserve, ","suffix":", 1460 m, indigenous Affomontane"}]}}],"38":[{"text":"24.56795° S, 30.86138° E","target":{"selector":[{"type":"TextPositionSelector","start":15,"end":38},{"type":"TextQuoteSelector","exact":"24.56795° S, 30.86138° E","prefix":"Bushpig Trail, ","suffix":", 1520 m, northern mist-belt for"}]}}],"40":[{"text":"24.57108° S, 30.86014° E","target":{"selector":[{"type":"TextPositionSelector","start":35,"end":58},{"type":"TextQuoteSelector","exact":"24.57108° S, 30.86014° E","prefix":"est Reserve, east facing slope, ","suffix":", 1519 m, leg. M. Cole, 18 Oct. "}]}}]},"7":{"2":[{"text":"24.56847° S, 30.85920° E","target":{"selector":[{"type":"TextPositionSelector","start":67,"end":90},{"type":"TextQuoteSelector","exact":"24.56847° S, 30.85920° E","prefix":"p Forest Reserve, Picnic Trail, ","suffix":","}]}}]},"10":{"3":[{"text":"22.9483° S, 30.3950° E","target":{"selector":[{"type":"TextPositionSelector","start":66,"end":87},{"type":"TextQuoteSelector","exact":"22.9483° S, 30.3950° E","prefix":"g, Sibasa area, Phiphidi Falls, ","suffix":", -1000 m,"}]}}],"7":[{"text":"22.99951° S, 29.88643° E","target":{"selector":[{"type":"TextPositionSelector","start":66,"end":89},{"type":"TextQuoteSelector","exact":"22.99951° S, 29.88643° E","prefix":"g, Hanglip Forest, picnic site, ","suffix":","}]}}],"9":[{"text":"23.017° S, 29.900° E","target":{"selector":[{"type":"TextPositionSelector","start":76,"end":95},{"type":"TextQuoteSelector","exact":"23.017° S, 29.900° E","prefix":"ne in ethanol); Hanglip Forest, ","suffix":","}]}}],"11":[{"text":"23.067° S, 30.121° E","target":{"selector":[{"type":"TextPositionSelector","start":37,"end":56},{"type":"TextQuoteSelector","exact":"23.067° S, 30.121° E","prefix":"ry specimen); Goedehoop Forest, ","suffix":", 1250 m, sorted from leaf-litte"}]}}],"12":[{"text":"22.99092° S, 30.27829° E","target":{"selector":[{"type":"TextPositionSelector","start":69,"end":92},{"type":"TextQuoteSelector","exact":"22.99092° S, 30.27829° E","prefix":"ry specimens); Entabeni Forest, ","suffix":","}]}}],"14":[{"text":"22.98589° S, 30.28127° E","target":{"selector":[{"type":"TextPositionSelector","start":73,"end":96},{"type":"TextQuoteSelector","exact":"22.98589° S, 30.28127° E","prefix":"i Forest, environs of Kliphuis, ","suffix":","}]}}],"17":[{"text":"22.98455° S, 30.28272° E","target":{"selector":[{"type":"TextPositionSelector","start":72,"end":95},{"type":"TextQuoteSelector","exact":"22.98455° S, 30.28272° E","prefix":"i Forest, environs of Kliphuis, ","suffix":","}]}}],"21":[{"text":"22.92649° S, 30.35270° E","target":{"selector":[{"type":"TextPositionSelector","start":76,"end":99},{"type":"TextQuoteSelector","exact":"22.92649° S, 30.35270° E","prefix":"ndo Forest, near sacred shrine, ","suffix":","}]}}]},"11":{"2":[{"text":"22.92173° S, 30.35760° E","target":{"selector":[{"type":"TextPositionSelector","start":28,"end":51},{"type":"TextQuoteSelector","exact":"22.92173° S, 30.35760° E","prefix":"Forest, near sacred shrine, ","suffix":", 1090 m, northern mist-belt for"}]}}],"6":[{"text":"23.017° S, 29.515° E","target":{"selector":[{"type":"TextPositionSelector","start":52,"end":71},{"type":"TextQuoteSelector","exact":"23.017° S, 29.515° E","prefix":"o, Soutpansberg, Dundee Forest, ","suffix":", 1525 m, sorted"}]}}],"7":[{"text":"23.00002° S, 29.88789° E","target":{"selector":[{"type":"TextPositionSelector","start":66,"end":89},{"type":"TextQuoteSelector","exact":"23.00002° S, 29.88789° E","prefix":". 1999 (V7516); Hanglip Forest, ","suffix":", 1360 m,"}]}}],"9":[{"text":"23.017° S, 29.900° E","target":{"selector":[{"type":"TextPositionSelector","start":0,"end":19},{"type":"TextQuoteSelector","exact":"23.017° S, 29.900° E","prefix":"","suffix":", 1370 m, A.C. & W.H. van Brugge"}]}}],"10":[{"text":"23.013° S, 30.080° E","target":{"selector":[{"type":"TextPositionSelector","start":0,"end":19},{"type":"TextQuoteSelector","exact":"23.013° S, 30.080° E","prefix":"","suffix":", 1175 m, sorted from leaf-litte"}]}}],"11":[{"text":"23.07253° S, 30.11494° E","target":{"selector":[{"type":"TextPositionSelector","start":8,"end":31},{"type":"TextQuoteSelector","exact":"23.07253° S, 30.11494° E","prefix":"Forest, ","suffix":", 1190 m, Afromontane forest, in"}]}}],"12":[{"text":"23.000° S, 30.233° E","target":{"selector":[{"type":"TextPositionSelector","start":31,"end":50},{"type":"TextQuoteSelector","exact":"23.000° S, 30.233° E","prefix":"2001 (W2064); Entabeni Forest, ","suffix":", indigenous forest, J. Swaye, L"}]}}],"13":[{"text":"22.983° S, 30.250° E","target":{"selector":[{"type":"TextPositionSelector","start":31,"end":50},{"type":"TextQuoteSelector","exact":"22.983° S, 30.250° E","prefix":"(V9475); Entabeni, Matiwa Kop, ","suffix":", 1310 m, in forest, A.C. & W.H."}]}}],"14":[{"text":"22.983° S, 30.250° E","target":{"selector":[{"type":"TextPositionSelector","start":36,"end":55},{"type":"TextQuoteSelector","exact":"22.983° S, 30.250° E","prefix":" 1965 (A8352); Entabeni Forest, ","suffix":", 1160 m, A.C. & W.H. van Brugge"}]}}],"15":[{"text":"22.99541° S, 30.28023° E","target":{"selector":[{"type":"TextPositionSelector","start":31,"end":54},{"type":"TextQuoteSelector","exact":"22.99541° S, 30.28023° E","prefix":"1965 (A8341); Entabeni Forest, ","suffix":", Afromontane forest, in leaf-li"}]}}],"16":[{"text":"22.872933° S, 30.338783° E","target":{"selector":[{"type":"TextPositionSelector","start":50,"end":75},{"type":"TextQuoteSelector","exact":"22.872933° S, 30.338783° E","prefix":"1 (W2261); Thathe Vondo Forest, ","suffix":", 1280 m, indigenous"}]}}],"20":[{"text":"22.9483° S, 30.3950° E","target":{"selector":[{"type":"TextPositionSelector","start":66,"end":87},{"type":"TextQuoteSelector","exact":"22.9483° S, 30.3950° E","prefix":"g, Sibasa area, Phiphidi Falls, ","suffix":","}]}}]},"15":{"31":[{"text":"24.59563° S, 30.82600° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":76},{"type":"TextQuoteSelector","exact":"24.59563° S, 30.82600° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 790 m,"}]}}],"35":[{"text":"24.563° S, 30.863° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":72},{"type":"TextQuoteSelector","exact":"24.563° S, 30.863° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 1400 m, indigenous"}]}}],"40":[{"text":"24.56374° S, 30.86293° E","target":{"selector":[{"type":"TextPositionSelector","start":9,"end":32},{"type":"TextQuoteSelector","exact":"24.56374° S, 30.86293° E","prefix":"Reserve, ","suffix":", 1640 m, northern mist-belt for"}]}}],"42":[{"text":"24.56694° S, 30.86270° E","target":{"selector":[{"type":"TextPositionSelector","start":60,"end":83},{"type":"TextQuoteSelector","exact":"24.56694° S, 30.86270° E","prefix":" Forest Reserve, Bushpig Trail, ","suffix":", 1491 m, mist-"}]}}],"44":[{"text":"24.56708° S, 30.85990° E","target":{"selector":[{"type":"TextPositionSelector","start":40,"end":63},{"type":"TextQuoteSelector","exact":"24.56708° S, 30.85990° E","prefix":"ol); Mariepskop Forest Reserve, ","suffix":", 1540 m, Afromontane forest, in"}]}}]},"16":{"3":[{"text":"24.56795° S, 30.86138° E","target":{"selector":[{"type":"TextPositionSelector","start":38,"end":61},{"type":"TextQuoteSelector","exact":"24.56795° S, 30.86138° E","prefix":"en); Mariepskop Forest Reserve, ","suffix":", 1520 m, Afromontane forest, in"}]}}],"8":[{"text":"24.59563° S, 30.82600° E","target":{"selector":[{"type":"TextPositionSelector","start":0,"end":23},{"type":"TextQuoteSelector","exact":"24.59563° S, 30.82600° E","prefix":"","suffix":", 790 m, indigenous riverine for"}]}}],"11":[{"text":"24.875° S, 30.891° E","target":{"selector":[{"type":"TextPositionSelector","start":73,"end":92},{"type":"TextQuoteSelector","exact":"24.875° S, 30.891° E","prefix":"dies in ethanol); God’s Window, ","suffix":","}]}}],"15":[{"text":"24.54933° S, 30.87170° E","target":{"selector":[{"type":"TextPositionSelector","start":45,"end":68},{"type":"TextQuoteSelector","exact":"24.54933° S, 30.87170° E","prefix":" Mpumalanga, Mariepskop summit, ","suffix":", 1920 m, rocky"}]}}],"17":[{"text":"24.55649° S, 30.86662° E","target":{"selector":[{"type":"TextPositionSelector","start":39,"end":62},{"type":"TextQuoteSelector","exact":"24.55649° S, 30.86662° E","prefix":" Mariepskop, just below summit, ","suffix":", 1830 m, Afromontane fynbos/"}]}}],"21":[{"text":"24.59563° S, 30.82600° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":76},{"type":"TextQuoteSelector","exact":"24.59563° S, 30.82600° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 790 m."}]}}]},"20":{"41":[{"text":"23.88680° S, 30.01633° E","target":{"selector":[{"type":"TextPositionSelector","start":50,"end":73},{"type":"TextQuoteSelector","exact":"23.88680° S, 30.01633° E","prefix":"opo, Wolkberg, Baccarat Forest, ","suffix":", 1485 m, northern"}]}}]},"21":{"2":[{"text":"23.76551° S, 30.00253° E","target":{"selector":[{"type":"TextPositionSelector","start":52,"end":75},{"type":"TextQuoteSelector","exact":"23.76551° S, 30.00253° E","prefix":"o, Wolkberg, Grootbosch Forest, ","suffix":", 1600 m,"}]}}],"4":[{"text":"23.88189° S, 29.99411° E","target":{"selector":[{"type":"TextPositionSelector","start":39,"end":62},{"type":"TextQuoteSelector","exact":"23.88189° S, 29.99411° E","prefix":"ns); Wolkberg, Swartbos Forest, ","suffix":", 1425 m, Afromontane forest, in"}]}}],"7":[{"text":"23.88680° S, 30.01633° E","target":{"selector":[{"type":"TextPositionSelector","start":8,"end":31},{"type":"TextQuoteSelector","exact":"23.88680° S, 30.01633° E","prefix":"Forest, ","suffix":", 1485 m, Afromontane forest, in"}]}}],"12":[{"text":"23.88680° S, 30.01633° E","target":{"selector":[{"type":"TextPositionSelector","start":50,"end":73},{"type":"TextQuoteSelector","exact":"23.88680° S, 30.01633° E","prefix":"opo, Wolkberg, Baccarat Forest, ","suffix":", 1485 m."}]}}]}}';
+		
+		//$annot_json = "{}";
 		$annotations = json_decode($annot_json);
 	}
-	
-	//print_r($annotations);
+	*/
 		
 	$html .= '<!-- pages -->' . "\n";
 	for ($i = 0; $i < $layout->page_count; $i++)
@@ -202,22 +279,20 @@ function layout_to_viewer_html($layout, $page=1, $image_width = 700)
 				. 'font-size:' . round($height / $page_height * 100, 3) . 'vh;'
 				. '">' . "\n";
 				
-			$text = htmlentities($line->text, ENT_HTML5);
+			$text_html = $line->text;
 			
 			// if we are going to add annotations to the text this is where we do it...
+			// we assume that text annotations are line by line
 			if ($annotation_experiment)
 			{
+				
 				if (isset($annotations->{$i}->{$line_index}))
 				{
-					// just do replace
-					foreach ($annotations->{$i}->{$line_index} as $a)
-					{
-						$text = str_replace($a->text, '<mark title="' . $a->text . '" style="color:transparent;opacity:0.5;">' . $a->text . '</mark>', $text);
-					}
+					$text_html = highlight_annotations($line->text, $annotations->{$i}->{$line_index});
 				}
-			}			
-				
-			$html .= $text . "\n";
+			}
+							
+			$html .= $text_html . "\n";
 			$html .= '</div>'  . "\n";		
 		}
 		
@@ -261,6 +336,8 @@ if (isset($_GET['id']))
 	$id = $_GET['id']; 
 } 
 
+
+
 // One-based page number to display, by default 1
 $page = 1;
 
@@ -275,14 +352,16 @@ if ($id == '')
 }
 else
 {
-	$id = 'layout/' . $id;
+	$layout_id = 'layout/' . $id;
 
 	// get layout as JSON
-	$layout = get_layout($id);
+	$layout = get_layout($layout_id);
 	
 	if ($layout)
 	{
-		$html = layout_to_viewer_html($layout, $page);
+		$annotations = get_geo_annotations($id);
+	
+		$html = layout_to_viewer_html($layout, $annotations, $page);
 	}
 	else
 	{

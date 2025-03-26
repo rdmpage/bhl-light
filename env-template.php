@@ -15,4 +15,6 @@ putenv('BHL_APIKEY=');
 putenv('IMGPROXY_KEY=');
 putenv('IMGPROXY_SALT=');
 
+putenv('THUNDERFOREST_API_KEY=');
+
 ?>

@@ -398,6 +398,30 @@ function get_page($PageID)
 	return $target;
 }
 
+//----------------------------------------------------------------------------------------
+// Get geotagging for Internet Archive item
+function get_geo_annotations($ia)
+{
+	global $config;
+	global $couch;
+	
+	$annotations = null;
+	
+	$key = 'geotagged/' . $ia;
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . urlencode($key));
+
+	$resp_obj = json_decode($resp);	
+	
+	if (!isset($resp_obj->error))
+	{
+		$annotations = $resp_obj->annotations;
+	}
+		
+	return $annotations;
+}
+
+
 /*
 $g = get_titles_for_letter('A');
 print_r($g);

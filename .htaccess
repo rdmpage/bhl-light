@@ -21,3 +21,6 @@ RewriteRule containers/(.*)$ ?containers&letter=$1 [NC,L]
 
 # page
 RewriteRule page/(\d+)$ ?page=$1 [NC,L]
+
+# map
+RewriteRule map$ ?map [NC,L]

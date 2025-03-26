@@ -7,7 +7,7 @@ require_once (dirname(__FILE__) . '/core.php');
 require_once (dirname(__FILE__) . '/imgproxy.php');
 
 //----------------------------------------------------------------------------------------
-function html_start($title = '', $thing = null)
+function html_start($title = '', $thing = null, $has_map = false)
 {
 	global $config;
 	
@@ -33,6 +33,11 @@ function html_start($title = '', $thing = null)
     }
     	
     echo '<title>' . $title . '</title>';   	
+    
+    if ($has_map)
+    {
+    	require_once(dirname(__FILE__) . '/map.inc.php');
+    }
 			
 	echo '<style>';
 	
@@ -73,6 +78,7 @@ function html_start($title = '', $thing = null)
 			<input class="search" id="search" type="text" placeholder="search">
 		</li>
 		<li><a href="containers">Titles</a></li>
+		<li><a href="map">Map</a></li>
 		<li><a href="https://github.com/rdmpage/bhl-light/issues" target="_new">Feedback</a></li>
 	</ul>
 	</nav>';
@@ -700,6 +706,41 @@ function display_page($page)
 }
 
 //----------------------------------------------------------------------------------------
+function display_map()
+{
+	html_start("Map", null, true);
+	
+	// create a side bar (why?)
+	echo '<div>';
+	echo '  <aside>';
+	echo '    <details id="aside-details">';
+	echo '      <summary>Details</summary>';
+	echo '     	<div>';
+	
+	echo '<h2>Map</h2>';
+	echo '<p>Point localities extracted from OCR text.</p>';
+	
+	echo '		</div>';
+	echo '    </details>';
+	echo '  </aside>';
+	
+	// main display
+	echo '<main>';
+	echo '  <div id="map"></div>';
+	echo '</div>';
+
+	echo '  </main>
+</div>';
+		
+	echo '<script>';
+	require_once ('aside.js.inc.php');
+	echo 'create_map("map");';
+	echo '</script>';
+
+	html_end();
+}
+
+//----------------------------------------------------------------------------------------
 function main()
 {
 	global $config;
@@ -804,7 +845,17 @@ function main()
 			display_search($query);
 			$handled = true;
 		}
-	}			
+	}	
+	
+	if (!$handled)
+	{
+		if (isset($_GET['map']))
+		{
+			display_map();
+			$handled = true;		
+		}
+	}
+			
 	
 	if (!$handled)
 	{
