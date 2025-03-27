@@ -9,6 +9,8 @@ require_once (dirname(__FILE__) . '/imgproxy.php');
 
 
 //----------------------------------------------------------------------------------------
+// Using character start and end positions for each annotation of this line, mark the
+// annotation using HTML tags (e.g., <mark>)
 function highlight_annotations($text, $annotations)
 {
 	// Create a HTML string with annotations highlighted
@@ -21,6 +23,7 @@ function highlight_annotations($text, $annotations)
 		{
 			if ($selector->type == "TextPositionSelector")
 			{
+				// add to list of start and end positions
 				if (!isset($open[$selector->start]))
 				{
 					$open[$selector->start] = array();
@@ -33,12 +36,13 @@ function highlight_annotations($text, $annotations)
 					$close[$selector->end][] = 'x';
 				}
 			}
-		}
-	
+		}	
 	}
 	
 	$content_length = mb_strlen($text);
 	
+	// use array of start and end positions to insert open and close tags to mark the
+	// annotation
 	$html = '';
 	
 	for ($i = 0; $i < $content_length; $i++)
@@ -76,6 +80,39 @@ function highlight_annotations($text, $annotations)
 	}	
 	
 	return $html;				
+}
+
+//----------------------------------------------------------------------------------------
+// Ensure any stray < and > in the text are treated as HTML entities so they don't get
+// confused with tags.
+// Code assumes that annotation tag is "mark"
+// Note that we need to do this as if OCR text contains stray < or > then we can break the
+// HTML. If we encode entities before adding annotation then our position-based annotations
+// won't work as they are for the original text.
+function ltgt_entities($text, $annotation_tag = 'mark')
+{
+	preg_match_all('/<\/?' . $annotation_tag . '[^>]*>/', $text, $tagMatches);
+
+	// protect annotation tags
+	$placeholders = [];
+	foreach ($tagMatches[0] as $i => $tag)
+	{
+		$placeholder = "###HTMLTAG_$i###";
+		$placeholders[$placeholder] = $tag;
+		$text = str_replace($tag, $placeholder, $text);
+	}
+
+	// relace any unprotected < and >
+	$text = str_replace('<', '&lt;', $text);
+	$text = str_replace('>', '&gt;', $text);
+
+	// restore annotation tags
+	foreach ($placeholders as $placeholder => $tag) 
+	{
+    	$text = str_replace($placeholder, $tag, $text);
+	}
+
+	return $text;
 }
 
 //----------------------------------------------------------------------------------------
@@ -168,18 +205,7 @@ function layout_to_viewer_html($layout, $annotations = null, $page=1, $image_wid
 	$html .=  '</head>' . "\n";
 	
 	$html .=  '<body>' . "\n";
-	
-	/*
-	if ($annotation_experiment)
-	{
-		// load annotations for item
-		$annot_json = '{"3":{"3":[{"text":"24.56128° S, 30.86367° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":76},{"type":"TextQuoteSelector","exact":"24.56128° S, 30.86367° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 1700 m,"}]}}],"9":[{"text":"24.56374° S, 30.86293° E","target":{"selector":[{"type":"TextPositionSelector","start":0,"end":23},{"type":"TextQuoteSelector","exact":"24.56374° S, 30.86293° E","prefix":"","suffix":", 1640 m, northern mist-belt for"}]}}],"11":[{"text":"24.56692° S, 30.86482°E","target":{"selector":[{"type":"TextPositionSelector","start":16,"end":38},{"type":"TextQuoteSelector","exact":"24.56692° S, 30.86482°E","prefix":"Forest Reserve, ","suffix":", 1520 m, indigenous Afromontane"}]}}],"13":[{"text":"24.5679° S, 30.8599° E","target":{"selector":[{"type":"TextPositionSelector","start":9,"end":30},{"type":"TextQuoteSelector","exact":"24.5679° S, 30.8599° E","prefix":"Reserve, ","suffix":", 1550 m, northern mist-belt for"}]}}],"15":[{"text":"24.56795° S, 30.86138° E","target":{"selector":[{"type":"TextPositionSelector","start":15,"end":38},{"type":"TextQuoteSelector","exact":"24.56795° S, 30.86138° E","prefix":"Bushpig Trail, ","suffix":", 1520 m, northern mist-belt for"}]}}]},"4":{"2":[{"text":"24.56847° S, 30.85920° E","target":{"selector":[{"type":"TextPositionSelector","start":30,"end":53},{"type":"TextQuoteSelector","exact":"24.56847° S, 30.85920° E","prefix":"Forest Reserve, Picnic Trail, ","suffix":", 1545 m, northern mist-belt for"}]}}],"4":[{"text":"24.57108° S, 30.86014° E","target":{"selector":[{"type":"TextPositionSelector","start":57,"end":80},{"type":"TextQuoteSelector","exact":"24.57108° S, 30.86014° E","prefix":"est Reserve, east facing slope, ","suffix":", 1519 m, leg. M."}]}}],"9":[{"text":"24.56128° S, 30.86367° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":76},{"type":"TextQuoteSelector","exact":"24.56128° S, 30.86367° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 1700 m."}]}}]},"6":{"30":[{"text":"24.56847° S, 30.85920° E","target":{"selector":[{"type":"TextPositionSelector","start":67,"end":90},{"type":"TextQuoteSelector","exact":"24.56847° S, 30.85920° E","prefix":"p Forest Reserve, Picnic Trail, ","suffix":","}]}}],"36":[{"text":"24.55117° S, 30.89395° E","target":{"selector":[{"type":"TextPositionSelector","start":9,"end":32},{"type":"TextQuoteSelector","exact":"24.55117° S, 30.89395° E","prefix":"Reserve, ","suffix":", 1460 m, indigenous Affomontane"}]}}],"38":[{"text":"24.56795° S, 30.86138° E","target":{"selector":[{"type":"TextPositionSelector","start":15,"end":38},{"type":"TextQuoteSelector","exact":"24.56795° S, 30.86138° E","prefix":"Bushpig Trail, ","suffix":", 1520 m, northern mist-belt for"}]}}],"40":[{"text":"24.57108° S, 30.86014° E","target":{"selector":[{"type":"TextPositionSelector","start":35,"end":58},{"type":"TextQuoteSelector","exact":"24.57108° S, 30.86014° E","prefix":"est Reserve, east facing slope, ","suffix":", 1519 m, leg. M. Cole, 18 Oct. "}]}}]},"7":{"2":[{"text":"24.56847° S, 30.85920° E","target":{"selector":[{"type":"TextPositionSelector","start":67,"end":90},{"type":"TextQuoteSelector","exact":"24.56847° S, 30.85920° E","prefix":"p Forest Reserve, Picnic Trail, ","suffix":","}]}}]},"10":{"3":[{"text":"22.9483° S, 30.3950° E","target":{"selector":[{"type":"TextPositionSelector","start":66,"end":87},{"type":"TextQuoteSelector","exact":"22.9483° S, 30.3950° E","prefix":"g, Sibasa area, Phiphidi Falls, ","suffix":", -1000 m,"}]}}],"7":[{"text":"22.99951° S, 29.88643° E","target":{"selector":[{"type":"TextPositionSelector","start":66,"end":89},{"type":"TextQuoteSelector","exact":"22.99951° S, 29.88643° E","prefix":"g, Hanglip Forest, picnic site, ","suffix":","}]}}],"9":[{"text":"23.017° S, 29.900° E","target":{"selector":[{"type":"TextPositionSelector","start":76,"end":95},{"type":"TextQuoteSelector","exact":"23.017° S, 29.900° E","prefix":"ne in ethanol); Hanglip Forest, ","suffix":","}]}}],"11":[{"text":"23.067° S, 30.121° E","target":{"selector":[{"type":"TextPositionSelector","start":37,"end":56},{"type":"TextQuoteSelector","exact":"23.067° S, 30.121° E","prefix":"ry specimen); Goedehoop Forest, ","suffix":", 1250 m, sorted from leaf-litte"}]}}],"12":[{"text":"22.99092° S, 30.27829° E","target":{"selector":[{"type":"TextPositionSelector","start":69,"end":92},{"type":"TextQuoteSelector","exact":"22.99092° S, 30.27829° E","prefix":"ry specimens); Entabeni Forest, ","suffix":","}]}}],"14":[{"text":"22.98589° S, 30.28127° E","target":{"selector":[{"type":"TextPositionSelector","start":73,"end":96},{"type":"TextQuoteSelector","exact":"22.98589° S, 30.28127° E","prefix":"i Forest, environs of Kliphuis, ","suffix":","}]}}],"17":[{"text":"22.98455° S, 30.28272° E","target":{"selector":[{"type":"TextPositionSelector","start":72,"end":95},{"type":"TextQuoteSelector","exact":"22.98455° S, 30.28272° E","prefix":"i Forest, environs of Kliphuis, ","suffix":","}]}}],"21":[{"text":"22.92649° S, 30.35270° E","target":{"selector":[{"type":"TextPositionSelector","start":76,"end":99},{"type":"TextQuoteSelector","exact":"22.92649° S, 30.35270° E","prefix":"ndo Forest, near sacred shrine, ","suffix":","}]}}]},"11":{"2":[{"text":"22.92173° S, 30.35760° E","target":{"selector":[{"type":"TextPositionSelector","start":28,"end":51},{"type":"TextQuoteSelector","exact":"22.92173° S, 30.35760° E","prefix":"Forest, near sacred shrine, ","suffix":", 1090 m, northern mist-belt for"}]}}],"6":[{"text":"23.017° S, 29.515° E","target":{"selector":[{"type":"TextPositionSelector","start":52,"end":71},{"type":"TextQuoteSelector","exact":"23.017° S, 29.515° E","prefix":"o, Soutpansberg, Dundee Forest, ","suffix":", 1525 m, sorted"}]}}],"7":[{"text":"23.00002° S, 29.88789° E","target":{"selector":[{"type":"TextPositionSelector","start":66,"end":89},{"type":"TextQuoteSelector","exact":"23.00002° S, 29.88789° E","prefix":". 1999 (V7516); Hanglip Forest, ","suffix":", 1360 m,"}]}}],"9":[{"text":"23.017° S, 29.900° E","target":{"selector":[{"type":"TextPositionSelector","start":0,"end":19},{"type":"TextQuoteSelector","exact":"23.017° S, 29.900° E","prefix":"","suffix":", 1370 m, A.C. & W.H. van Brugge"}]}}],"10":[{"text":"23.013° S, 30.080° E","target":{"selector":[{"type":"TextPositionSelector","start":0,"end":19},{"type":"TextQuoteSelector","exact":"23.013° S, 30.080° E","prefix":"","suffix":", 1175 m, sorted from leaf-litte"}]}}],"11":[{"text":"23.07253° S, 30.11494° E","target":{"selector":[{"type":"TextPositionSelector","start":8,"end":31},{"type":"TextQuoteSelector","exact":"23.07253° S, 30.11494° E","prefix":"Forest, ","suffix":", 1190 m, Afromontane forest, in"}]}}],"12":[{"text":"23.000° S, 30.233° E","target":{"selector":[{"type":"TextPositionSelector","start":31,"end":50},{"type":"TextQuoteSelector","exact":"23.000° S, 30.233° E","prefix":"2001 (W2064); Entabeni Forest, ","suffix":", indigenous forest, J. Swaye, L"}]}}],"13":[{"text":"22.983° S, 30.250° E","target":{"selector":[{"type":"TextPositionSelector","start":31,"end":50},{"type":"TextQuoteSelector","exact":"22.983° S, 30.250° E","prefix":"(V9475); Entabeni, Matiwa Kop, ","suffix":", 1310 m, in forest, A.C. & W.H."}]}}],"14":[{"text":"22.983° S, 30.250° E","target":{"selector":[{"type":"TextPositionSelector","start":36,"end":55},{"type":"TextQuoteSelector","exact":"22.983° S, 30.250° E","prefix":" 1965 (A8352); Entabeni Forest, ","suffix":", 1160 m, A.C. & W.H. van Brugge"}]}}],"15":[{"text":"22.99541° S, 30.28023° E","target":{"selector":[{"type":"TextPositionSelector","start":31,"end":54},{"type":"TextQuoteSelector","exact":"22.99541° S, 30.28023° E","prefix":"1965 (A8341); Entabeni Forest, ","suffix":", Afromontane forest, in leaf-li"}]}}],"16":[{"text":"22.872933° S, 30.338783° E","target":{"selector":[{"type":"TextPositionSelector","start":50,"end":75},{"type":"TextQuoteSelector","exact":"22.872933° S, 30.338783° E","prefix":"1 (W2261); Thathe Vondo Forest, ","suffix":", 1280 m, indigenous"}]}}],"20":[{"text":"22.9483° S, 30.3950° E","target":{"selector":[{"type":"TextPositionSelector","start":66,"end":87},{"type":"TextQuoteSelector","exact":"22.9483° S, 30.3950° E","prefix":"g, Sibasa area, Phiphidi Falls, ","suffix":","}]}}]},"15":{"31":[{"text":"24.59563° S, 30.82600° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":76},{"type":"TextQuoteSelector","exact":"24.59563° S, 30.82600° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 790 m,"}]}}],"35":[{"text":"24.563° S, 30.863° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":72},{"type":"TextQuoteSelector","exact":"24.563° S, 30.863° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 1400 m, indigenous"}]}}],"40":[{"text":"24.56374° S, 30.86293° E","target":{"selector":[{"type":"TextPositionSelector","start":9,"end":32},{"type":"TextQuoteSelector","exact":"24.56374° S, 30.86293° E","prefix":"Reserve, ","suffix":", 1640 m, northern mist-belt for"}]}}],"42":[{"text":"24.56694° S, 30.86270° E","target":{"selector":[{"type":"TextPositionSelector","start":60,"end":83},{"type":"TextQuoteSelector","exact":"24.56694° S, 30.86270° E","prefix":" Forest Reserve, Bushpig Trail, ","suffix":", 1491 m, mist-"}]}}],"44":[{"text":"24.56708° S, 30.85990° E","target":{"selector":[{"type":"TextPositionSelector","start":40,"end":63},{"type":"TextQuoteSelector","exact":"24.56708° S, 30.85990° E","prefix":"ol); Mariepskop Forest Reserve, ","suffix":", 1540 m, Afromontane forest, in"}]}}]},"16":{"3":[{"text":"24.56795° S, 30.86138° E","target":{"selector":[{"type":"TextPositionSelector","start":38,"end":61},{"type":"TextQuoteSelector","exact":"24.56795° S, 30.86138° E","prefix":"en); Mariepskop Forest Reserve, ","suffix":", 1520 m, Afromontane forest, in"}]}}],"8":[{"text":"24.59563° S, 30.82600° E","target":{"selector":[{"type":"TextPositionSelector","start":0,"end":23},{"type":"TextQuoteSelector","exact":"24.59563° S, 30.82600° E","prefix":"","suffix":", 790 m, indigenous riverine for"}]}}],"11":[{"text":"24.875° S, 30.891° E","target":{"selector":[{"type":"TextPositionSelector","start":73,"end":92},{"type":"TextQuoteSelector","exact":"24.875° S, 30.891° E","prefix":"dies in ethanol); God’s Window, ","suffix":","}]}}],"15":[{"text":"24.54933° S, 30.87170° E","target":{"selector":[{"type":"TextPositionSelector","start":45,"end":68},{"type":"TextQuoteSelector","exact":"24.54933° S, 30.87170° E","prefix":" Mpumalanga, Mariepskop summit, ","suffix":", 1920 m, rocky"}]}}],"17":[{"text":"24.55649° S, 30.86662° E","target":{"selector":[{"type":"TextPositionSelector","start":39,"end":62},{"type":"TextQuoteSelector","exact":"24.55649° S, 30.86662° E","prefix":" Mariepskop, just below summit, ","suffix":", 1830 m, Afromontane fynbos/"}]}}],"21":[{"text":"24.59563° S, 30.82600° E","target":{"selector":[{"type":"TextPositionSelector","start":53,"end":76},{"type":"TextQuoteSelector","exact":"24.59563° S, 30.82600° E","prefix":"nga, Mariepskop Forest Reserve, ","suffix":", 790 m."}]}}]},"20":{"41":[{"text":"23.88680° S, 30.01633° E","target":{"selector":[{"type":"TextPositionSelector","start":50,"end":73},{"type":"TextQuoteSelector","exact":"23.88680° S, 30.01633° E","prefix":"opo, Wolkberg, Baccarat Forest, ","suffix":", 1485 m, northern"}]}}]},"21":{"2":[{"text":"23.76551° S, 30.00253° E","target":{"selector":[{"type":"TextPositionSelector","start":52,"end":75},{"type":"TextQuoteSelector","exact":"23.76551° S, 30.00253° E","prefix":"o, Wolkberg, Grootbosch Forest, ","suffix":", 1600 m,"}]}}],"4":[{"text":"23.88189° S, 29.99411° E","target":{"selector":[{"type":"TextPositionSelector","start":39,"end":62},{"type":"TextQuoteSelector","exact":"23.88189° S, 29.99411° E","prefix":"ns); Wolkberg, Swartbos Forest, ","suffix":", 1425 m, Afromontane forest, in"}]}}],"7":[{"text":"23.88680° S, 30.01633° E","target":{"selector":[{"type":"TextPositionSelector","start":8,"end":31},{"type":"TextQuoteSelector","exact":"23.88680° S, 30.01633° E","prefix":"Forest, ","suffix":", 1485 m, Afromontane forest, in"}]}}],"12":[{"text":"23.88680° S, 30.01633° E","target":{"selector":[{"type":"TextPositionSelector","start":50,"end":73},{"type":"TextQuoteSelector","exact":"23.88680° S, 30.01633° E","prefix":"opo, Wolkberg, Baccarat Forest, ","suffix":", 1485 m."}]}}]}}';
-		
-		//$annot_json = "{}";
-		$annotations = json_decode($annot_json);
-	}
-	*/
-		
+			
 	$html .= '<!-- pages -->' . "\n";
 	for ($i = 0; $i < $layout->page_count; $i++)
 	{
@@ -284,13 +310,14 @@ function layout_to_viewer_html($layout, $annotations = null, $page=1, $image_wid
 			// if we are going to add annotations to the text this is where we do it...
 			// we assume that text annotations are line by line
 			if ($annotation_experiment)
-			{
-				
+			{				
 				if (isset($annotations->{$i}->{$line_index}))
 				{
 					$text_html = highlight_annotations($line->text, $annotations->{$i}->{$line_index});
 				}
 			}
+			
+			$text_html = ltgt_entities($text_html);
 							
 			$html .= $text_html . "\n";
 			$html .= '</div>'  . "\n";		
