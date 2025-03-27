@@ -9,6 +9,8 @@
   	--nav-bg: white;
   	--nav-border: 1px solid #EEE; 
   	
+  	--nav-dropdown-bg: white;
+  	
   	--aside-width:300px;
   	--aside-bg:white;
   	
@@ -41,6 +43,8 @@
     
     --nav-bg: black;
     --nav-border: none; 
+    
+	--nav-dropdown-bg: #222;    
     
     --aside-bg:#121212;
     

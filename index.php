@@ -70,18 +70,66 @@ function html_start($title = '', $thing = null, $has_map = false)
 	echo '</head>';	
 	echo '<body>';
 	
-
+	if (1)
+	{
 	echo '<nav>
 	<ul>
 		<li><a href=".">Home</a></li>
 		<li>
 			<input class="search" id="search" type="text" placeholder="search">
 		</li>
-		<li><a href="containers">Titles</a></li>
+		<!--
+		
 		<li><a href="map">Map</a></li>
 		<li><a href="https://github.com/rdmpage/bhl-light/issues" target="_new">Feedback</a></li>
+		-->
+		<li class="dropdown"><a href="#">More ▼</a>
+			 <ul class="dropdown-menu">
+			 	<li><a href="containers">Titles</a></li>
+				<li><a href="map">Map</a></li>
+				<li><a href="https://github.com/rdmpage/bhl-light/issues" target="_new">Feedback</a></li>
+			</ul>
+		</li>
 	</ul>
 	</nav>';
+	
+	/*
+	    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #444;
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      min-width: 160px;
+      z-index: 1000;
+    }*/
+
+
+	}
+	else
+	{
+	echo '  <nav>
+    <ul class="navbar">
+      <li><a href="#">Home</a></li>
+      <!-- <li><input class="search" id="search" type="text" placeholder="search"></li> -->
+      <li class="dropdown">
+        <a href="#">More ▼</a>
+        <ul class="dropdown-menu">
+          <li><a href="containers">Titles</a></li>
+          <li><a href="map">Map</a></li>
+          <li><a href="https://github.com/rdmpage/bhl-light/issues" target="_new">Feedback</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+';
+	
+	
+	}
+	
 	
 }
 
