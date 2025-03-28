@@ -4,6 +4,9 @@
   	
   	--bg: #FEFEFE;
 	--text: #333;  	
+	
+	--hero-bg: orange;
+	--hero-text: white;
   	
   	--nav-height: 3em;
   	--nav-bg: white;

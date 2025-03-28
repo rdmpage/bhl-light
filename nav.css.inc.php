@@ -30,7 +30,7 @@ nav ul li {
 }
 
 li.dropdown {
-  min-width: 120px;
+  min-width: 120px;  
   /*text-align:right;*/
 }
 
@@ -43,6 +43,7 @@ li.dropdown a {
 .dropdown-menu {
 	display: none;
  	background-color: var(--nav-dropdown-bg);
+ 	border: var(--nav-border);
 }
 
 .dropdown-menu li a:hover {

@@ -70,8 +70,6 @@ function html_start($title = '', $thing = null, $has_map = false)
 	echo '</head>';	
 	echo '<body>';
 	
-	if (1)
-	{
 	echo '<nav>
 	<ul>
 		<li><a href=".">Home</a></li>
@@ -93,44 +91,6 @@ function html_start($title = '', $thing = null, $has_map = false)
 	</ul>
 	</nav>';
 	
-	/*
-	    .dropdown-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background-color: #444;
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-      min-width: 160px;
-      z-index: 1000;
-    }*/
-
-
-	}
-	else
-	{
-	echo '  <nav>
-    <ul class="navbar">
-      <li><a href="#">Home</a></li>
-      <!-- <li><input class="search" id="search" type="text" placeholder="search"></li> -->
-      <li class="dropdown">
-        <a href="#">More ▼</a>
-        <ul class="dropdown-menu">
-          <li><a href="containers">Titles</a></li>
-          <li><a href="map">Map</a></li>
-          <li><a href="https://github.com/rdmpage/bhl-light/issues" target="_new">Feedback</a></li>
-        </ul>
-      </li>
-    </ul>
-  </nav>
-';
-	
-	
-	}
-	
-	
 }
 
 //----------------------------------------------------------------------------------------
@@ -148,6 +108,8 @@ function html_end()
 // Home page, or badness happened
 function default_display($error_msg = '')
 {
+	global $config;
+	
 	html_start();
 
 	echo '<div>';
@@ -158,27 +120,31 @@ function default_display($error_msg = '')
 	}
 	else
 	{
-		echo '<h1>BHL Lite</h1>';
+		echo '<div class="hero">';
+		echo '<h1>' . $config['site_name'] . '</h1>';		
+		echo '<p>This is an experimental interface to the <a href="https://www.biodiversitylibrary.org" target="_new">Biodiversity Heritage Library (BHL)</a>, being developed by Rod Page.</p>';
+		echo '</div>';
 		
-		echo '<p>This is an experimental interface to the Biodiversity Heritage Library.</p>';
+		echo '<div class="subhero">';
 		
-		/*
-		echo '<h2>Examples</h2>';
 		
+		echo '<div>Browse the subset of BHL titles included this demo <a href="containers">here</a>. 
+		Each title has one or more items, each item is displayed as a set of page scans with selectedable text. 
+		Some items pages have annotations, such as geographic locations.</div>';
+		echo '<div>Explore the geographic distribution of BHL content on a <a href="map">map</a>
+		 based on localities extracted from the OCR text.</div>';
+		echo '<div>';
+		echo 'Dive in to content:';
 		echo '<ul>';
-		echo '<li><a href="bibliography/152899">Anales del Museo de Historia Natural de Valparaiso</a></li>';
-		echo '<li><a href="bibliography/68619">Insects of Samoa</a></li>';
-		echo '<li><a href="bibliography/206514">Contributions of the American Entomologicval Institute</a></li>';
-		echo '<li><a href="bibliography/105698">The birds of Australia</a></li>';
-		echo '<li><a href="bibliography/212146">The Zoogoer</a></li>';
-
-		echo '<li><a href="bibliography/2804">Asiatic herpetological research</a></li>';
-		
-		echo '<li><a href="item/252491">Revision of the Malagasy lanternfly genus Belbina Stal, 1863, with two new species (Hemiptera: Fulgoromorpha: Fulgoridae</a></li>';
-		
-		
+		echo '<li><a href="bibliography/57881">Amphibian & reptile conservation</a></li>';
+		echo '<li><a href="item/337721">Zoogoer</a></li>';
+		echo '<li><a href="page/57579634">Geotagged text in an article</a></li>';
+		echo '<li><a href="page/48200560">Colour plate of a kookaburra</a></li>';
 		echo '</ul>';
-		*/
+		echo '</div>';
+		
+		echo '</div>';
+	
 	}
 	
 	echo '</div>';

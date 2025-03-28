@@ -33,6 +33,41 @@ dd {
   font-weight: bold;
 }  
 
+a {
+	text-decoration: none;
+}
+
+/* If we want an underline when we mouse over the link */
+a:hover {
+	text-decoration:underline;
+}
+
+.hero {
+	color:var(--hero-text);
+	text-align:center;
+	background-color:var(--hero-bg);
+	padding:2em;
+	border-radius:1em;
+	margin:1em;
+}
+
+.subhero {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: 1fr;
+	grid-column-gap: 1em;
+	grid-row-gap: 1em;
+	
+	margin:1em;
+}
+
+.subhero div {
+	border-radius:0.5em;
+	padding:0.5em;
+	background-color:var(--hero-bg);
+	color:var(--hero-text);
+}
+
 .multicolumn ul {
 	columns: 200px;
 	list-style: none;
@@ -45,15 +80,6 @@ dd {
     text-overflow: ellipsis;
     line-height:1.2em;
 }	
-
-a {
-	text-decoration: none;
-}
-
-/* If we want an underline when we mouse over the link */
-a:hover {
-	text-decoration:underline;
-}
 
 .search {
 	border:1px solid var(--input-border);
