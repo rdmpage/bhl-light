@@ -51,10 +51,15 @@ a:hover {
 	margin:1em;
 }
 
+.hero div {
+	text-align:left;
+}
+
+/*
 .subhero {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	grid-template-rows: 1fr;
+	grid-template-columns: repeat(2, 1fr);
+	grid-template-rows: repeat(2, 1fr);
 	grid-column-gap: 1em;
 	grid-row-gap: 1em;
 	
@@ -67,6 +72,7 @@ a:hover {
 	background-color:var(--hero-bg);
 	color:var(--hero-text);
 }
+*/
 
 .multicolumn ul {
 	columns: 200px;

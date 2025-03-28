@@ -123,23 +123,16 @@ function default_display($error_msg = '')
 		echo '<div class="hero">';
 		echo '<h1>' . $config['site_name'] . '</h1>';		
 		echo '<p>This is an experimental interface to the <a href="https://www.biodiversitylibrary.org" target="_new">Biodiversity Heritage Library (BHL)</a>, being developed by Rod Page.</p>';
-		echo '</div>';
-		
-		echo '<div class="subhero">';
-		
-		
-		echo '<div>Browse the subset of BHL titles included this demo <a href="containers">here</a>. 
-		Each title has one or more items, each item is displayed as a set of page scans with selectedable text. 
-		Some items pages have annotations, such as geographic locations.</div>';
-		echo '<div>Explore the geographic distribution of BHL content on a <a href="map">map</a>
-		 based on localities extracted from the OCR text.</div>';
+
 		echo '<div>';
-		echo 'Dive in to content:';
+		echo 'Explore:';
 		echo '<ul>';
-		echo '<li><a href="bibliography/57881">Amphibian & reptile conservation</a></li>';
-		echo '<li><a href="item/337721">Zoogoer</a></li>';
-		echo '<li><a href="page/57579634">Geotagged text in an article</a></li>';
-		echo '<li><a href="page/48200560">Colour plate of a kookaburra</a></li>';
+		echo '<li>Browse the subset of <a href="containers">BHL titles</a> included this demo.</li>';
+		echo '<li>Explore the geographic distribution of BHL content on a <a href="map">map</a></li>';
+		echo '<li>Volumes of <a href="bibliography/57881">Amphibian & reptile conservation</a></li>';
+		echo '<li>An issue of <a href="item/337721">Zoogoer</a></li>';
+		echo '<li><a href="page/57579634">Geotagged text</a> in an article</li>';
+		echo '<li><a href="page/48200560">Colour plate</a> of a kookaburra</li>';
 		echo '</ul>';
 		echo '</div>';
 		
