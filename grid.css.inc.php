@@ -4,13 +4,15 @@
 	padding:0;
 	display:grid;
 	grid-template-columns: repeat(auto-fit, minmax(var(--grid-width), 1fr));
+	background-color:var(--grid-bg);
+	
+
 }
 
 .image-grid li {
 	padding:0.5em;
 	margin:1em;
 	list-style: none;
-	
 }
 
 .image-grid img {

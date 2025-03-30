@@ -12,26 +12,29 @@ nav {
 	position: sticky; 
 	top: 0;
 	z-index:200;
+		 
+	line-height: var(--nav-height);
 }
 
 /* https://stackoverflow.com/questions/23226888/horizontal-list-items-fit-to-100-with-even-spacing */
-nav ul{
+nav > ul{
     margin: 0;
-    padding: 1em;
     display: flex;
-    align-items: stretch;
+    align-items: center;
     justify-content: space-between;
 }
 
-nav ul li {
+nav > ul > li {
     display: block;
     flex: 0 1 auto; /* Default */
     list-style-type: none;
 }
 
+
 li.dropdown {
   min-width: 120px;  
   /*text-align:right;*/
+  
 }
 
 li.dropdown a {
@@ -44,10 +47,17 @@ li.dropdown a {
 	display: none;
  	background-color: var(--nav-dropdown-bg);
  	border: var(--nav-border);
+ 	line-height:1.5em;
+ 	position:absolute;
+ 	
+ 	list-style-type: none;
+ 	padding-left:1em;
+ 	padding-right:1em;
 }
 
 .dropdown-menu li a:hover {
-  background-color: #666;
+  background-color: var(--nav-dropdown-hover);
+  color: var(--nav-dropdown-hover-text);
 }
 
 li.dropdown:hover .dropdown-menu {

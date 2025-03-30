@@ -11,6 +11,8 @@
   align-items: flex-start;
   margin-bottom: 0.5em;
   
+  padding:var(--media-item-padding);
+  
   /*
   border-bottom:1px solid rgb(222,222,222);
   padding-bottom:0.5em;
@@ -47,4 +49,9 @@
 .media--reverse > .media-figure {
   order: 1;
   margin: 0 0 0 1em;
+}
+
+/* small */
+@media screen and (max-width: 800px) {
+	.media-item { padding: 0em; }
 }

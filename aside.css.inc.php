@@ -12,7 +12,7 @@ aside {
 aside #aside-details > summary:first-of-type {
 	display:none;
 	
-	background-color:black;
+	background-color:var(--aside-details-bg);
 	color:white;
 	padding:0.5em;
 }
@@ -25,8 +25,10 @@ main {
   margin-left: var(--aside-width);
   height:calc(100vh - var(--nav-height));
   overflow-x:auto;
+  
+  background-color:white;
+  
 }
-
 
 /* small */
 @media screen and (max-width: 800px) {
@@ -42,5 +44,10 @@ main {
 	
   }  
  
-  main { margin-left: 0; }
+  main { 
+  	margin-left: 0; 
+  	padding-top:2em;
+  }
+  
+  
 }

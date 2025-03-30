@@ -42,38 +42,6 @@ a:hover {
 	text-decoration:underline;
 }
 
-.hero {
-	color:var(--hero-text);
-	text-align:center;
-	background-color:var(--hero-bg);
-	padding:2em;
-	border-radius:1em;
-	margin:1em;
-}
-
-.hero div {
-	text-align:left;
-}
-
-/*
-.subhero {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	grid-template-rows: repeat(2, 1fr);
-	grid-column-gap: 1em;
-	grid-row-gap: 1em;
-	
-	margin:1em;
-}
-
-.subhero div {
-	border-radius:0.5em;
-	padding:0.5em;
-	background-color:var(--hero-bg);
-	color:var(--hero-text);
-}
-*/
-
 .multicolumn ul {
 	columns: 200px;
 	list-style: none;
@@ -91,6 +59,7 @@ a:hover {
 	border:1px solid var(--input-border);
  	background-color: var(--input-bg);
  	color: var(--input-color);
+ 	font-size:1em;
 }  
 
 .search:focus { 
@@ -102,4 +71,55 @@ a:hover {
 #map {
   height:100%;
   width:100%;
+}
+
+/* cards page */
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  justify-content: center;
+}
+
+.card {
+  background-color:  var(--card-bg);
+  border-left: 5px solid var(--bhl-blue);
+  padding: 1rem;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.2em;
+}
+
+.button {
+  display: inline-block;
+  background: var(--bhl-blue);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  text-decoration: none;
+  margin-top: 0.5rem;
+}
+
+
+@media (min-width: 600px) {
+  .card {
+	flex: 1 1 calc(50%);
+	max-width: calc(50%);
+  }
+}
+
+@media (min-width: 900px) {
+  .card {
+	flex: 1 1 calc(25%);
+	max-width: calc(25%);
+  }
 }

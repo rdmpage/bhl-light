@@ -2,26 +2,27 @@
 :root {
   	overscroll-behavior: none; /* https://css-irl.info/preventing-overscroll-bounce-with-css/ */
   	
-  	--bg: #FEFEFE;
+  	--bg: rgb(243,235,222); /* #FEFEFE; */
 	--text: #333;  	
-	
-	--hero-bg: orange;
-	--hero-text: white;
-  	
+ 	
   	--nav-height: 3em;
   	--nav-bg: white;
   	--nav-border: 1px solid #EEE; 
   	
   	--nav-dropdown-bg: white;
+  	--nav-dropdown-hover: rgb(69,129,190);
+  	--nav-dropdown-hover-text: white;
   	
   	--aside-width:300px;
   	--aside-bg:white;
+  	--aside-details-bg:rgb(51,60,71);
   	
   	--image-border: 1px solid #DDD;
   	
   	--grid-width: 160px;
   	--grid-image-border: #DDD;
   	--grid-image-maxwidth: 200px;
+  	--grid-bg: white;
   	
   	--viewer-bg: rgb(225,225,225);
   	--viewer-text-color: transparent;
@@ -36,6 +37,13 @@
 	--input-bg-focus: white;
 	--input-border-focus: black;
 	--input-focus-color: black;  	
+	
+	--bhl-blue: rgb(69,129,190);
+	--bhl-gray: rgb(55, 56, 56);
+	
+	--card-bg: white;
+	
+	--media-item-padding:1em;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -48,6 +56,7 @@
     --nav-border: none; 
     
 	--nav-dropdown-bg: #222;    
+	--nav-dropdown-hover: #666;
     
     --aside-bg:#121212;
     
@@ -60,7 +69,10 @@
     /* change links */
     a { color: #76D6FF; }
     
-	--grid-image-border: black;    
+
+	main { background-color: var(--bhl-gray); }
+	 
+	--grid-bg: var(--bhl-gray);
     
     --viewer-bg: #222;
     
@@ -73,5 +85,9 @@
 	--input-border-focus: white;
 	--input-focus-color: white;    
 	
+	--card-bg: var(--bhl-gray);
+	
 	}
 }
+
+

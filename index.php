@@ -73,8 +73,8 @@ function html_start($title = '', $thing = null, $has_map = false)
 	echo '<nav>
 	<ul>
 		<li><a href=".">Home</a></li>
-		<li>
-			<input class="search" id="search" type="text" placeholder="search">
+		<li style="">
+			<input class="search" id="search" type="text" placeholder="Search the catalogue">
 		</li>
 		<!--
 		
@@ -120,11 +120,56 @@ function default_display($error_msg = '')
 	}
 	else
 	{
+	echo'
+	
+  <div class="card-container">
+    <div class="card">
+      <h2>' . $config['site_name'] . '</h2>
+      <p>This is an experimental interface to the Biodiversity Heritage Library, developed by Rod Page.</p>
+      <a href="https://github.com/rdmpage/bhl-light/issues" class="button">Feedback</a>
+    </div>
+
+    <div class="card">
+      <h2>BHL titles</h2>
+      <p>A selection of titles available in ' . $config['site_name'] . '.</p>
+      <a href="containers" class="button">Titles [A-Z]</a>
+    </div>
+
+    
+    <div class="card">
+      <h2>View a title</h2>
+      <p>All items for a title displayed as thumbnails.</p>
+      <a class="button" href="bibliography/57881">Amphibian & reptile conservation</a>
+    </div>
+
+    <div class="card">
+      <h2>View an issue</h2>
+      <p>Browse v.5:no.5 (1976:Sept.-Oct.) of <i>Zoogoer</i>.</p>
+      <a class="button" href="item/337721">Zoogoer</a>
+    </div>
+
+    <div class="card">
+      <h2>Geotagging</h2>
+      <p>Pairs of latitude and longitude coordinates highlighted on a page.</p>
+      <a class="button" href="page/57579634">Geotagged text</a>
+    </div>
+    
+    <div class="card">
+      <h2>View BHL on a map</h2>
+      <p>Display location of geotagged text on a map.</p>
+      <a class="button" href="map">Map</a>
+    </div>
+    
+    
+  </div>';
+  	
+		/*
 		echo '<div class="hero">';
 		echo '<h1>' . $config['site_name'] . '</h1>';		
 		echo '<p>This is an experimental interface to the <a href="https://www.biodiversitylibrary.org" target="_new">Biodiversity Heritage Library (BHL)</a>, being developed by Rod Page.</p>';
-
-		echo '<div>';
+		echo '</div>';
+		
+		echo '<div class="subhero">';
 		echo 'Explore:';
 		echo '<ul>';
 		echo '<li>Browse the subset of <a href="containers">BHL titles</a> included this demo.</li>';
@@ -135,8 +180,7 @@ function default_display($error_msg = '')
 		echo '<li><a href="page/48200560">Colour plate</a> of a kookaburra</li>';
 		echo '</ul>';
 		echo '</div>';
-		
-		echo '</div>';
+		*/
 	
 	}
 	
