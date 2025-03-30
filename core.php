@@ -322,8 +322,6 @@ function get_search_results($query, $limit = 10)
 
 	$resp_obj = json_decode($resp);	
 	
-	// print_r($resp_obj);
-	
 	// make RDF-like
     $datafeed = new stdclass;
     $datafeed->{'@type'} = ['DataFeed'];
@@ -357,6 +355,11 @@ function get_search_results($query, $limit = 10)
 			$item->thumbnailUrl = $hit->doc->thumbnailUrl;
 			
 			$item->url = preg_replace('/pagethumb\//', 'page/', $hit->doc->thumbnailUrl);
+		}
+		else
+		{
+			// things like titles won't/might not have thumbnails
+			$item->url = $hit->doc->_id;
 		}
 		
 		$item->resultScore = $hit->order[0]->value;
