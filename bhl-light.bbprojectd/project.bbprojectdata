@@ -42,7 +42,15 @@
 				<string>42167123-2F03-4947-8585-463E54464CEF</string>
 				<string>AF7EE6C3-35D4-449F-896C-995C72F0C829</string>
 				<string>AB41F3F9-BB9D-465C-8F18-BEADEF9A101A</string>
-				<string>2AF9D1F1-5128-48C8-8069-575A058DE6C8</string>
+				<dict>
+					<key>CollectionID</key>
+					<string>A3F525D1-6D5C-4638-B404-7D264E6C085B</string>
+					<key>CollectionItems</key>
+					<array>
+						<string>DB97BE07-EDC0-478A-ADD1-603223D14E3A</string>
+						<string>FDCADD6F-0ED8-4D06-9458-ABBF56FE7C95</string>
+					</array>
+				</dict>
 			</array>
 		</dict>
 		<string>AFC3161B-8935-47B3-8799-7B16A8D8D441</string>
@@ -93,54 +101,6 @@
 			</dict>
 			<key>ItemName</key>
 			<string>root.css.inc.php</string>
-			<key>ItemType</key>
-			<string>FileReference</string>
-		</dict>
-		<key>2AF9D1F1-5128-48C8-8069-575A058DE6C8</key>
-		<dict>
-			<key>ItemData</key>
-			<dict>
-				<key>BookmarkData</key>
-				<data>
-				Ym9vayADAAAAAAQQMAAAAI4gzjTWu3/Tg8qUgykTIwWu
-				5N1meWlry78F4yrX9lLeEAIAAAQAAAADAwAAAAgAKAUA
-				AAABAQAAVXNlcnMAAAAFAAAAAQEAAHJwYWdlAAAABQAA
-				AAEBAABTaXRlcwAAAAkAAAABAQAAYmhsLWxpZ2h0AAAA
-				CwAAAAEBAABtYXAuaW5jLnBocAAUAAAAAQYAABAAAAAg
-				AAAAMAAAAEAAAABUAAAACAAAAAQDAACEXAAAAAAAAAgA
-				AAAEAwAAlsYDAAAAAAAIAAAABAMAAEDoHgAAAAAACAAA
-				AAQDAACJUDovAAAAAAgAAAAEAwAA7VL1MQAAAAAUAAAA
-				AQYAAIQAAACUAAAApAAAALQAAADEAAAACAAAAAAEAABB
-				xsmc0SmbdRgAAAABAgAAAQAAAAAAAAAPAAAAAAAAAAAA
-				AAAAAAAACAAAAAQDAAADAAAAAAAAAAQAAAADAwAA9QEA
-				AAgAAAABCQAAZmlsZTovLy8MAAAAAQEAAE1hY2ludG9z
-				aCBIRAgAAAAEAwAAAJCClucAAAAIAAAAAAQAAEHGd57a
-				gAAAJAAAAAEBAABFRURCQzQ5NS1ERjUyLTQ1NkEtQjQz
-				MS1GQjYwN0JGMDRBRDEYAAAAAQIAAIEAAAABAAAA7xMA
-				AAEAAAAAAAAAAAAAAAEAAAABAQAALwAAAAAAAAABBQAA
-				GgAAAAEBAABOU1VSTERvY3VtZW50SWRlbnRpZmllcktl
-				eQAABAAAAAMDAAAPMzQA2AAAAP7///8BAAAAAAAAABEA
-				AAAEEAAAaAAAAAAAAAAFEAAA1AAAAAAAAAAQEAAAAAEA
-				AAAAAABAEAAA8AAAAAAAAAACIAAAzAEAAAAAAAAFIAAA
-				PAEAAAAAAAAQIAAATAEAAAAAAAARIAAAgAEAAAAAAAAS
-				IAAAYAEAAAAAAAATIAAAcAEAAAAAAAAgIAAArAEAAAAA
-				AAAwIAAA2AEAAAAAAAABwAAAIAEAAAAAAAARwAAAIAAA
-				AAAAAAASwAAAMAEAAAAAAAAQ0AAABAAAAAAAAADgAQCA
-				BAIAAAAAAAA=
-				</data>
-				<key>FileURL</key>
-				<string>file:///Users/rpage/Sites/bhl-light/map.inc.php</string>
-				<key>HasSecurityScope</key>
-				<true/>
-				<key>RelativePath</key>
-				<string>./map.inc.php</string>
-				<key>TypeID</key>
-				<string>_CFileLocator</string>
-				<key>Version</key>
-				<integer>1</integer>
-			</dict>
-			<key>ItemName</key>
-			<string>map.inc.php</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
 		</dict>
@@ -755,6 +715,15 @@
 			<key>ItemType</key>
 			<string>FileReference</string>
 		</dict>
+		<key>A3F525D1-6D5C-4638-B404-7D264E6C085B</key>
+		<dict>
+			<key>ItemData</key>
+			<array/>
+			<key>ItemName</key>
+			<string>map</string>
+			<key>ItemType</key>
+			<string>StaticCollection</string>
+		</dict>
 		<key>AB41F3F9-BB9D-465C-8F18-BEADEF9A101A</key>
 		<dict>
 			<key>ItemData</key>
@@ -1090,6 +1059,53 @@
 			<key>ItemType</key>
 			<string>StaticCollection</string>
 		</dict>
+		<key>DB97BE07-EDC0-478A-ADD1-603223D14E3A</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9vawQDAAAAAAQQMAAAAOWSunRRgZgpt005tZMfKw9P
+				Y2NyOAcUWGUilpgO84N1AAIAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAFAAAAAQEAAHJwYWdlAAAABQAA
+				AAEBAABTaXRlcwAAAAkAAAABAQAAYmhsLWxpZ2h0AAAA
+				AgAAAAEBAABqcwAABQAAAAEBAABoMy5qcwAAABgAAAAB
+				BgAAEAAAACAAAAAwAAAAQAAAAFQAAABgAAAACAAAAAQD
+				AACEXAAAAAAAAAgAAAAEAwAAlsYDAAAAAAAIAAAABAMA
+				AEDoHgAAAAAACAAAAAQDAACJUDovAAAAAAgAAAAEAwAA
+				pB/1MQAAAAAIAAAABAMAAOkR+jEAAAAAGAAAAAEGAACQ
+				AAAAoAAAALAAAADAAAAA0AAAAOAAAAAIAAAAAAQAAEHG
+				V/8C0nsLGAAAAAECAAABAAAAAAAAAA8AAAAAAAAAAAAA
+				AAAAAAAIAAAABAMAAAQAAAAAAAAABAAAAAMDAAD1AQAA
+				CAAAAAEJAABmaWxlOi8vLwwAAAABAQAATWFjaW50b3No
+				IEhECAAAAAQDAAAAkIKW5wAAAAgAAAAABAAAQcZ3ntqA
+				AAAkAAAAAQEAAEVFREJDNDk1LURGNTItNDU2QS1CNDMx
+				LUZCNjA3QkYwNEFEMRgAAAABAgAAgQAAAAEAAADvEwAA
+				AQAAAAAAAAAAAAAAAQAAAAEBAAAvAAAAAAAAAAEFAADM
+				AAAA/v///wEAAAAAAAAAEAAAAAQQAABwAAAAAAAAAAUQ
+				AADwAAAAAAAAABAQAAAgAQAAAAAAAEAQAAAQAQAAAAAA
+				AAIgAADsAQAAAAAAAAUgAABcAQAAAAAAABAgAABsAQAA
+				AAAAABEgAACgAQAAAAAAABIgAACAAQAAAAAAABMgAACQ
+				AQAAAAAAACAgAADMAQAAAAAAADAgAAD4AQAAAAAAAAHA
+				AABAAQAAAAAAABHAAAAgAAAAAAAAABLAAABQAQAAAAAA
+				ABDQAAAEAAAAAAAAAA==
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/rpage/Sites/bhl-light/js/h3.js</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./js/h3.js</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>h3.js</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+		</dict>
 		<key>DEE60B47-44A7-41F1-A0DB-A1E0D2BEABFD</key>
 		<dict>
 			<key>ItemData</key>
@@ -1417,6 +1433,54 @@
 			</dict>
 			<key>ItemName</key>
 			<string>.htaccess</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
+		</dict>
+		<key>FDCADD6F-0ED8-4D06-9458-ABBF56FE7C95</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9vayADAAAAAAQQMAAAAI4gzjTWu3/Tg8qUgykTIwWu
+				5N1meWlry78F4yrX9lLeEAIAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAFAAAAAQEAAHJwYWdlAAAABQAA
+				AAEBAABTaXRlcwAAAAkAAAABAQAAYmhsLWxpZ2h0AAAA
+				CwAAAAEBAABtYXAuaW5jLnBocAAUAAAAAQYAABAAAAAg
+				AAAAMAAAAEAAAABUAAAACAAAAAQDAACEXAAAAAAAAAgA
+				AAAEAwAAlsYDAAAAAAAIAAAABAMAAEDoHgAAAAAACAAA
+				AAQDAACJUDovAAAAAAgAAAAEAwAA7VL1MQAAAAAUAAAA
+				AQYAAIQAAACUAAAApAAAALQAAADEAAAACAAAAAAEAABB
+				xsmc0SmbdRgAAAABAgAAAQAAAAAAAAAPAAAAAAAAAAAA
+				AAAAAAAACAAAAAQDAAADAAAAAAAAAAQAAAADAwAA9QEA
+				AAgAAAABCQAAZmlsZTovLy8MAAAAAQEAAE1hY2ludG9z
+				aCBIRAgAAAAEAwAAAJCClucAAAAIAAAAAAQAAEHGd57a
+				gAAAJAAAAAEBAABFRURCQzQ5NS1ERjUyLTQ1NkEtQjQz
+				MS1GQjYwN0JGMDRBRDEYAAAAAQIAAIEAAAABAAAA7xMA
+				AAEAAAAAAAAAAAAAAAEAAAABAQAALwAAAAAAAAABBQAA
+				GgAAAAEBAABOU1VSTERvY3VtZW50SWRlbnRpZmllcktl
+				eQAABAAAAAMDAAAPMzQA2AAAAP7///8BAAAAAAAAABEA
+				AAAEEAAAaAAAAAAAAAAFEAAA1AAAAAAAAAAQEAAAAAEA
+				AAAAAABAEAAA8AAAAAAAAAACIAAAzAEAAAAAAAAFIAAA
+				PAEAAAAAAAAQIAAATAEAAAAAAAARIAAAgAEAAAAAAAAS
+				IAAAYAEAAAAAAAATIAAAcAEAAAAAAAAgIAAArAEAAAAA
+				AAAwIAAA2AEAAAAAAAABwAAAIAEAAAAAAAARwAAAIAAA
+				AAAAAAASwAAAMAEAAAAAAAAQ0AAABAAAAAAAAADgAQCA
+				BAIAAAAAAAA=
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/rpage/Sites/bhl-light/map.inc.php</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./map.inc.php</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>map.inc.php</string>
 			<key>ItemType</key>
 			<string>FileReference</string>
 		</dict>

@@ -16,6 +16,7 @@
 <script>
 var map;
 var popup = L.popup();
+var geojson = null;
 
 // based on H3-viewer, but extended
 const ZOOM_TO_H3_RES_CORRESPONDENCE = {
@@ -46,6 +47,28 @@ const ZOOM_TO_H3_RES_CORRESPONDENCE = {
 };
 
 var clickTimeout;
+
+//--------------------------------------------------------------------------------
+function clear_map() {
+	if (geojson) {
+		map.removeLayer(geojson);
+	}
+}	
+
+//--------------------------------------------------------------------------------
+function show_h3_cell(h3Index) {	
+	clear_map();
+	
+	var polygon = h3.cellToBoundary(h3Index, true);
+	
+	var feature = { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: []} };
+	
+	feature.geometry.coordinates.push(polygon);
+
+	geojson = L.geoJson(feature).addTo(map);	
+}
+
+
 	
 //--------------------------------------------------------------------------------
 function create_map(id) {
@@ -81,17 +104,12 @@ function create_map(id) {
 	
 	map.on('click', function(e) {
 		var zoom = map.getZoom();
-		var h3Zoom = ZOOM_TO_H3_RES_CORRESPONDENCE[zoom];
+		var h3Zoom = ZOOM_TO_H3_RES_CORRESPONDENCE[zoom] + 1;
 		var h3Index = h3.latLngToCell(e.latlng.lat, e.latlng.lng, h3Zoom);
-	
-		/*
-		 popup
-   .setLatLng(e.latlng.wrap())
-   .setContent("You clicked the map at " + e.latlng.lng + ' ' + e.latlng.lat + ' H3 ' + h3Index + ' [' + zoom + '=' + h3Zoom + ']')
-   .openOn(map);
-   		*/
-   		document.getElementById('h3').innerHTML = h3Index;
-   		//}, 300);
+		
+		// update aside with H3 index
+		document.getElementById('h3').innerHTML = h3Index;
+		show_h3_cell(h3Index)
 	});
 		
 }
