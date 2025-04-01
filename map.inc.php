@@ -108,7 +108,7 @@ function create_map(id) {
 		var h3Index = h3.latLngToCell(e.latlng.lat, e.latlng.lng, h3Zoom);
 		
 		// update aside with H3 index
-		document.getElementById('h3').innerHTML = h3Index;
+		document.getElementById('h3').innerHTML = "H3 cell " + h3Index;
 		show_h3_cell(h3Index)
 	});
 		
