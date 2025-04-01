@@ -341,7 +341,7 @@ function get_part($PartID)
 			
 			if (isset($row->Date))
 			{
-				$obj->pagindatePublishedation = $row->Date;
+				$obj->datePublished = $row->Date;
 				
 				$obj->csl->issued = new stdclass;			
 				$obj->csl->issued->{'date-parts'} = array();
