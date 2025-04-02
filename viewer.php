@@ -2,6 +2,8 @@
 
 // HTML item viewer
 
+ini_set('memory_limit', '-1');
+
 error_reporting(E_ALL);
 
 require_once (dirname(__FILE__) . '/core.php');
@@ -116,7 +118,7 @@ function ltgt_entities($text, $annotation_tag = 'mark')
 }
 
 //----------------------------------------------------------------------------------------
-function layout_to_viewer_html($layout, $annotations = null, $page=1, $image_width = 700)
+function layout_to_viewer_html($layout, $block_layout = null, $annotations = null, $page=1, $image_width = 700)
 {
 	global $config;
 
@@ -170,7 +172,7 @@ function layout_to_viewer_html($layout, $annotations = null, $page=1, $image_wid
 		
 	}	
 	
-	.page div {
+	.pagetext {
 		position:absolute;
 		
 		/* border:1px solid black; */
@@ -187,6 +189,64 @@ function layout_to_viewer_html($layout, $annotations = null, $page=1, $image_wid
 		-moz-user-select:text;
 		user-select:text;
 	}
+	
+	.pageblock {
+		position:absolute;
+		/* border:1px solid black; */
+		opacity:0.7;
+	}
+	
+	/* https://docs.google.com/document/d/1frGmzYOHnVRWAwTOuuPfc3KVAwu-XKdkFSbpLfy78RI/edit#heading=h.iz6rewv3v747 */
+
+	.Caption {
+		background:rgb(234,183,172); /* Caption */
+	}
+	
+	.Figure {
+		background:rgb(233,222,241); 	/* Figure */	
+	}
+
+	.Footnote {
+		background:rgb(234,183,172); 	/* Footnote */	
+	}
+	
+	.PageFooter {
+		background:rgb(234,183,172); /* Footer */
+	}
+	
+	.PageHeader {
+		background:rgb(234,183,172); /* Header */
+	}	
+	
+	/* A photograph or a plate */
+	.Picture {
+		background:rgb(233,222,241); 	/* Figure */	
+	}
+	
+	.ListItem {
+		background:rgb(215,233,248); 	/* List */	
+	}	
+	
+	.SectionHeader {
+		background:rgb(244,219,144); 	/* Section */	
+	}
+	
+	.Table {
+		background:rgb(197,195,229); /* Table */
+	}	
+	
+	.TableOfContents {
+		background:rgb(215,233,248); 	/* List */	
+	}	
+	
+	.Text {
+		background:rgb(221,227,221); /* Paragraph */
+	}
+
+	.TextInlineMath {
+		background:rgb(207,204,190); /* Equation */
+	}
+	
 	
 	mark {
 		color:transparent;
@@ -294,7 +354,7 @@ function layout_to_viewer_html($layout, $annotations = null, $page=1, $image_wid
 			$width = $line->bbox[2] - $line->bbox[0];
 			$height = $line->bbox[3] - $line->bbox[1];
 		
-			$html .= '<div style="'
+			$html .= '<div class="pagetext" style="'
 				// percentage coordinates so text scales with image
 				. 'left:' . $line->bbox[0] / $page_width * 100 . '%;'
 				. 'top:' .  $line->bbox[1] / $page_height  * 100 . '%;'
@@ -326,8 +386,38 @@ function layout_to_viewer_html($layout, $annotations = null, $page=1, $image_wid
 		// other annotations? e.g. blocks for figures, etc.?
 		$html .= '<!-- annotations -->' . "\n";
 
-		if (0)
+		if ($block_layout)
 		{
+			// Block might be computed on images that are scaled differently to OCR
+			$block_page_width = $block_layout->pages[$i]->image_bbox[2] - $block_layout->pages[$i]->image_bbox[0];
+			$block_page_height = $block_layout->pages[$i]->image_bbox[3] - $block_layout->pages[$i]->image_bbox[1];
+		
+			foreach ($block_layout->pages[$i]->bboxes as $block)
+			{
+				$width = $block->bbox[2] - $block->bbox[0];
+				$height = $block->bbox[3] - $block->bbox[1];
+				
+				$class = 'pageblock';
+				
+				if (isset($block->label))
+				{
+					$class .= ' ' . $block->label;
+				}
+			
+				$html .= '<div class="' . $class . '" style="'
+					// percentage coordinates so block scales with image
+					. 'left:' . $block->bbox[0] / $block_page_width * 100 . '%;'
+					. 'top:' .  $block->bbox[1] / $block_page_height  * 100 . '%;'
+					. 'width:' . $width / $block_page_width  * 100 . '%;'
+					. 'height:' . $height / $block_page_height  * 100 . '%;'
+					. '"'
+					. ' title="' . $block->label . '"'
+					. '>' . "\n";
+					
+				$html .= '</div>';
+			}
+			
+			/*
 			$bbox = [98.2421875,439.9765625,705.46875,941.859375];
 			$image_bbox = [0,0,800,1132];
 			
@@ -339,6 +429,7 @@ function layout_to_viewer_html($layout, $annotations = null, $page=1, $image_wid
 			
 			// Annotation coordinates need to be % w.r.t. height and width of page
 			$html .= '<div style="top:' . $top . '%;left:' . $left . '%;height:' . $height . '%;width:' . $width . '%;background-color:rgba(255,0,0,0.2);"></div>';		
+			*/
 		}
 		
 		$html .= '</div><!-- end of page -->' . "\n";
@@ -363,8 +454,6 @@ if (isset($_GET['id']))
 	$id = $_GET['id']; 
 } 
 
-
-
 // One-based page number to display, by default 1
 $page = 1;
 
@@ -384,11 +473,14 @@ else
 	// get layout as JSON
 	$layout = get_layout($layout_id);
 	
+	$block_id = 'blocks/' . $id;
+	$block_layout = get_blocks($block_id);
+	
 	if ($layout)
 	{
 		$annotations = get_geo_annotations($id);
 	
-		$html = layout_to_viewer_html($layout, $annotations, $page);
+		$html = layout_to_viewer_html($layout, $block_layout, $annotations, $page);
 	}
 	else
 	{

@@ -7,10 +7,10 @@ global $config;
 // Date timezone
 date_default_timezone_set('UTC');
 
-$config['platform'] = 'local';
+//$config['platform'] = 'local';
 $config['platform'] = 'cloud';
 
-$config['site']		= 'local';
+//$config['site']		= 'local';
 $config['site']		= 'heroku';
 
 switch ($config['site'])
@@ -30,11 +30,15 @@ switch ($config['site'])
 }
 
 // Cache----------------------------------------------------------------------------------
-// Cache for file downloads
+// Local disk
 $config['cache'] = dirname(__FILE__) . '/import/cache';
 
 // External drive
-$config['cache'] = '/Volumes/Expansion/internetarchive';
+//$config['cache'] = '/Volumes/Expansion/internetarchive';
+
+// S3 storage-----------------------------------------------------------------------------
+// Machine-specific, this is where the S3 store is mounted by Mountain Duck (or other app)
+$config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/Hetzner.localized/bhl';
 
 // Language-------------------------------------------------------------------------------
 // Default language is English
@@ -85,5 +89,9 @@ $config['thumbnail_height'] = 200;
 
 // Extras---------------------------------------------------------------------------------
 $config['use_hypothesis'] = false; // true enables hypothes.is to annotate IFRAME content
+
+
+// Layout---------------------------------------------------------------------------------
+$config['datalab_api_key'] = getenv('DATALAB_API_KEY');
 
 ?>

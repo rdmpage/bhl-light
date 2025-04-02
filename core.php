@@ -29,6 +29,27 @@ function get_layout($id)
 
 //----------------------------------------------------------------------------------------
 // 
+function get_blocks($id)
+{
+	global $config;
+	global $couch;
+	
+	$blocks = null;
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . urlencode($id));
+
+	$resp_obj = json_decode($resp);	
+	
+	if (!isset($resp_obj->error))
+	{
+		$blocks = $resp_obj;
+	}
+		
+	return $blocks;
+}
+
+//----------------------------------------------------------------------------------------
+// 
 function get_parts_for_item($id)
 {
 	global $config;

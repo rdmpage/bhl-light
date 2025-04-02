@@ -135,18 +135,19 @@ function default_display($error_msg = '')
       <a href="containers" class="button">Titles [A-Z]</a>
     </div>
 
-    
     <div class="card">
       <h2>View a title</h2>
       <p>All items for a title displayed as thumbnails.</p>
       <a class="button" href="bibliography/57881">Amphibian & reptile conservation</a>
     </div>
 
+	<!--
     <div class="card">
       <h2>View an issue</h2>
       <p>Browse v.5:no.5 (1976:Sept.-Oct.) of <i>Zoogoer</i>.</p>
       <a class="button" href="item/337721">Zoogoer</a>
     </div>
+    -->
 
     <div class="card">
       <h2>Geotagging</h2>
@@ -160,7 +161,13 @@ function default_display($error_msg = '')
       <a class="button" href="map">Map</a>
     </div>
     
-    
+     <div class="card">
+      <h2>Document layout</h2>
+      <p>Blocks of text, figures, captions, headers, footers, etc. found using the Surya OCR toolkit.</p>
+      <a class="button" href="page/2748670">Document layout</a>
+    </div>
+
+   
   </div>';
   	
 		/*
@@ -318,9 +325,13 @@ function display_item($id, $offset = 0)
 		
 		// main display
 		echo '  <main>';
+		
+		$display_mode = 'pages';
+		//$display_mode = 'parts';
+		//$display_mode = 'thumbnails';
  		
  		//--------------------------------------------------------------------------------
- 		if (0)
+ 		if ($display_mode == 'parts')
  		{
 			// Display list of parts?		
 			if ($list)
@@ -345,7 +356,7 @@ function display_item($id, $offset = 0)
 		
  		//--------------------------------------------------------------------------------
 		// Display item as thumbnails?
-		if (0)
+		if ($display_mode == 'thumbnails')
 		{
 			if (isset($work->hasPart))
 			{
@@ -371,7 +382,7 @@ function display_item($id, $offset = 0)
 		}
 		
  		//--------------------------------------------------------------------------------
-		if (1)
+		if ($display_mode == 'pages')
 		{
 			// Display item as scrollable view?	
 			
@@ -759,7 +770,9 @@ function display_page($page)
 //----------------------------------------------------------------------------------------
 function display_map()
 {
-	html_start("Map", null, true);
+	global $config;
+	
+	html_start($config['site_name'] . " - Map", null, true);
 	
 	// create a side bar (why?)
 	echo '<div>';
