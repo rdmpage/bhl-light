@@ -334,7 +334,8 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
 		// Are we going to fetch image via imgproxy?
 		if ($config['use_imgproxy'])
 		{
-			$image_url = $config['image_server'] . sign_imgproxy_path($image_url, $image_width);
+			//$image_url = $config['image_server'] . sign_imgproxy_path($image_url, $image_width);
+			$image_url = $config['image_server'] . imgproxy_path_resize($image_url, $image_width);
 		}
 		
 		if (1) // 0 if we are messing about with text layouts and don't want to see page image

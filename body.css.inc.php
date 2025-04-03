@@ -75,6 +75,11 @@ a:hover {
 
 /* cards page */
 
+.homepage {
+	height:calc(100vh - var(--nav-height));
+	overflow-x:auto;
+}
+
 .card-container {
   display: flex;
   flex-wrap: wrap;
@@ -111,13 +116,6 @@ a:hover {
 
 
 @media (min-width: 600px) {
-  .card {
-	flex: 1 1 calc(50%);
-	max-width: calc(50%);
-  }
-}
-
-@media (min-width: 900px) {
   .card {
 	flex: 1 1 calc(25%);
 	max-width: calc(25%);

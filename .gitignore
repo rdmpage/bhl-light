@@ -1,7 +1,9 @@
 .DS_Store
 env.php
 /junk/
+/datalab/junk/
 /import/cache/
 /import/junk/
+/ldf/
 
 /vendor/
