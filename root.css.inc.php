@@ -20,9 +20,9 @@
   	--image-border: 1px solid #DDD;
   	
   	--grid-width: 160px;
-  	--grid-image-border: #DDD;
+  	--grid-image-border: #AAA;
   	--grid-image-maxwidth: 200px;
-  	--grid-bg: white;
+  	--grid-bg: rgb(225,225,225);
   	
   	--viewer-bg: rgb(225,225,225);
   	--viewer-text-color: transparent;

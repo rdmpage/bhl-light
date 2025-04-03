@@ -192,7 +192,7 @@ function truncate_text($text, $length = 60)
 }
 
 //----------------------------------------------------------------------------------------
-function display_item($id, $offset = 0)
+function display_item($id, $offset = 0, $display_mode = 'pages')
 {
 	global $config;
 	
@@ -300,6 +300,13 @@ function display_item($id, $offset = 0)
 			echo '</dl>';
 		}
 		
+		// different views of item
+		echo '<div>';
+		echo '<a href="item/' . $id . '">pages</a>';
+		echo ' | ';
+		echo '<a href="item/' . $id . '/thumbnails">thumbnails</a>';
+		echo '</div>';
+				
 		// do we want a BHL-style page link here?
 		
 		echo '		</div>';
@@ -309,7 +316,7 @@ function display_item($id, $offset = 0)
 		// main display
 		echo '  <main>';
 		
-		$display_mode = 'pages';
+		//$display_mode = 'pages';
 		//$display_mode = 'parts';
 		//$display_mode = 'thumbnails';
  		
@@ -347,7 +354,7 @@ function display_item($id, $offset = 0)
 				foreach ($work->hasPart as $page)
 				{
 					echo '<li>';
-					// echo '<a href="' . $item->{'@id'} . '">';
+					echo '<a href="page/' . str_replace('pagethumb/', '', $page->thumbnailUrl) . '">';
 					
 					$image_url = get_page_image_url(str_replace('pagethumb/', '', $page->thumbnailUrl));
 					
@@ -357,7 +364,7 @@ function display_item($id, $offset = 0)
 					{
 						echo '<div>' . $page->name . '</div>';
 					}
-					//echo '</a>';
+					echo '</a>';
 					echo '</li>';
 				}
 				echo '</ul>';
@@ -847,12 +854,18 @@ function main()
 		{	
 			$offset = $_GET['offset']; 
 		} 		
+
+		$display_mode = 'pages';
+		if (isset($_GET['thumbnails']))
+		{	
+			$display_mode = 'thumbnails'; 
+		} 		
 		
 		if ($item != '')	
 		{			
 			if (!$handled)
 			{
-				display_item($item, $offset);
+				display_item($item, $offset, $display_mode);
 				$handled = true;
 			}			
 		}

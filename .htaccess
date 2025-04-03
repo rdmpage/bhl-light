@@ -13,7 +13,10 @@ RewriteRule bibliography/(.*)$ ?bibliography=$1 [NC,L]
 
 # item
 RewriteRule item/(\d+)$ ?item=$1 [NC,L]
+RewriteRule item/(\d+)/thumbnails$ ?item=$1&thumbnails [NC,L]
+
 RewriteRule item/(\d+)/offset/(\d+)$ ?item=$1&offset=$2 [NC,L]
+RewriteRule item/(\d+)/offset/(\d+)/thumbnails$ ?item=$1&offset=$2&thumbnails [NC,L]
 
 # list of titles
 RewriteRule containers$ ?containers[NC,L]
