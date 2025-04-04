@@ -30,6 +30,7 @@
 				<string>B69C542D-E557-4288-8E1B-DE6B7223CD6F</string>
 				<string>1EAB10AA-A35C-4D52-B17C-86E96A2F344E</string>
 				<string>932A07BF-23ED-451D-A635-8FBB44CD0CA6</string>
+				<string>91D4893C-2A63-4158-BBCF-8CF7AD3C6E03</string>
 			</array>
 		</dict>
 		<dict>
@@ -723,6 +724,52 @@
 			<string>ldf</string>
 			<key>ItemType</key>
 			<string>FolderReference</string>
+		</dict>
+		<key>91D4893C-2A63-4158-BBCF-8CF7AD3C6E03</key>
+		<dict>
+			<key>ItemData</key>
+			<dict>
+				<key>BookmarkData</key>
+				<data>
+				Ym9va+wCAAAAAAQQMAAAANLTySxl+UBwxqaAjKVpDZcL
+				bivQ86K7+/ryHg/HWTWp6AEAAAQAAAADAwAAAAgAKAUA
+				AAABAQAAVXNlcnMAAAAFAAAAAQEAAHJwYWdlAAAABQAA
+				AAEBAABTaXRlcwAAAAkAAAABAQAAYmhsLWxpZ2h0AAAA
+				EwAAAAEBAABnYWxsZXJ5LmNzcy5pbmMucGhwABQAAAAB
+				BgAAEAAAACAAAAAwAAAAQAAAAFQAAAAIAAAABAMAAIRc
+				AAAAAAAACAAAAAQDAACWxgMAAAAAAAgAAAAEAwAAQOge
+				AAAAAAAIAAAABAMAAIlQOi8AAAAACAAAAAQDAADRSnM2
+				AAAAABQAAAABBgAAjAAAAJwAAACsAAAAvAAAAMwAAAAI
+				AAAAAAQAAEHGnpkVOdRAGAAAAAECAAABAAAAAAAAAA8A
+				AAAAAAAAAAAAAAAAAAAIAAAABAMAAAMAAAAAAAAABAAA
+				AAMDAAD1AQAACAAAAAEJAABmaWxlOi8vLwwAAAABAQAA
+				TWFjaW50b3NoIEhECAAAAAQDAAAAkIKW5wAAAAgAAAAA
+				BAAAQcZ3ntqAAAAkAAAAAQEAAEVFREJDNDk1LURGNTIt
+				NDU2QS1CNDMxLUZCNjA3QkYwNEFEMRgAAAABAgAAgQAA
+				AAEAAADvEwAAAQAAAAAAAAAAAAAAAQAAAAEBAAAvAAAA
+				AAAAAAEFAADMAAAA/v///wEAAAAAAAAAEAAAAAQQAABw
+				AAAAAAAAAAUQAADcAAAAAAAAABAQAAAIAQAAAAAAAEAQ
+				AAD4AAAAAAAAAAIgAADUAQAAAAAAAAUgAABEAQAAAAAA
+				ABAgAABUAQAAAAAAABEgAACIAQAAAAAAABIgAABoAQAA
+				AAAAABMgAAB4AQAAAAAAACAgAAC0AQAAAAAAADAgAADg
+				AQAAAAAAAAHAAAAoAQAAAAAAABHAAAAgAAAAAAAAABLA
+				AAA4AQAAAAAAABDQAAAEAAAAAAAAAA==
+				</data>
+				<key>FileURL</key>
+				<string>file:///Users/rpage/Sites/bhl-light/gallery.css.inc.php</string>
+				<key>HasSecurityScope</key>
+				<true/>
+				<key>RelativePath</key>
+				<string>./gallery.css.inc.php</string>
+				<key>TypeID</key>
+				<string>_CFileLocator</string>
+				<key>Version</key>
+				<integer>1</integer>
+			</dict>
+			<key>ItemName</key>
+			<string>gallery.css.inc.php</string>
+			<key>ItemType</key>
+			<string>FileReference</string>
 		</dict>
 		<key>932A07BF-23ED-451D-A635-8FBB44CD0CA6</key>
 		<dict>

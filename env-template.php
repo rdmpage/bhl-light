@@ -17,4 +17,6 @@ putenv('IMGPROXY_SALT=');
 
 putenv('THUNDERFOREST_API_KEY=');
 
+putenv('DATALAB_API_KEY=');
+
 ?>

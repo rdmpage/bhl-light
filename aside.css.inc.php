@@ -26,7 +26,7 @@ main {
   height:calc(100vh - var(--nav-height));
   overflow-x:auto;
   
-  background-color:white;
+  background-color:var(--grid-bg);
   
 }
 

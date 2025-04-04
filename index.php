@@ -47,6 +47,7 @@ function html_start($title = '', $thing = null, $has_map = false)
 	require_once (dirname(__FILE__) . '/aside.css.inc.php');
 
 	/* specific views */	
+	require_once (dirname(__FILE__) . '/gallery.css.inc.php');
 	require_once (dirname(__FILE__) . '/grid.css.inc.php');
 	require_once (dirname(__FILE__) . '/media.css.inc.php');
 	require_once (dirname(__FILE__) . '/viewer.css.inc.php');
@@ -163,11 +164,20 @@ function default_display($error_msg = '')
       <a class="button" href="map">Map</a>
     </div>
     
+    <!--
      <div class="card">
       <h2>Document layout</h2>
       <p>Blocks of text, figures, captions, headers, footers, etc. found using the Surya OCR toolkit.</p>
       <a class="button" href="page/2748670">Document layout</a>
     </div>
+    -->
+    
+     <div class="card">
+      <h2>Figures found using AI tools</h2>
+      <p>Figures extracted from page scans using Surya OCR toolkit.</p>
+      <a class="button" href="item/138618/figures">Figures</a>
+    </div>
+    
 
    
   </div>';
@@ -203,6 +213,8 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 		$work = null;
 		
 		$list = null;
+		
+		$annotation_pages = null;
 	
 		// Unpack JSON-LD
 		foreach ($doc as $graph)
@@ -215,6 +227,14 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 			if (in_array('DataFeed', $graph->{'@type'}))
 			{
 				$list = $graph;
+			}	
+
+			if (in_array('AnnotationPage', $graph->{'@type'}))
+			{
+				if (isset($graph->items) && count($graph->items) > 0)
+				{
+					$annotation_pages = $graph;
+				}
 			}	
 			
 		}
@@ -305,6 +325,13 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 		echo '<a href="item/' . $id . '">pages</a>';
 		echo ' | ';
 		echo '<a href="item/' . $id . '/thumbnails">thumbnails</a>';
+		
+		if ($annotation_pages)
+		{
+			echo ' | ';
+			echo '<a href="item/' . $id . '/figures">figures</a>';
+		}
+		
 		echo '</div>';
 				
 		// do we want a BHL-style page link here?
@@ -319,6 +346,41 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 		//$display_mode = 'pages';
 		//$display_mode = 'parts';
 		//$display_mode = 'thumbnails';
+		
+		//$display_mode = 'figures';
+ 		
+ 		//--------------------------------------------------------------------------------
+ 		if ($display_mode == 'figures' && $annotation_pages) 
+ 		{			
+ 				echo '<div class="gallery">';
+				echo '<ul>';
+				foreach ($annotation_pages->items as $page)
+				{
+					foreach ($page as $figure)
+					{
+						echo '<li>';
+						
+						$extension = 'webp';
+						$image_url = $figure->image;
+						
+						$image_url = 'https://hel1.your-objectstorage.com/bhl/' . preg_replace('/_\d+$/', '', $image_url) . '_jp2/' . $image_url . '.' . $extension;
+						$image_url = $config['image_server'] . imgproxy_path_resize($image_url, $figure->canvas_width);
+						
+						// crop
+						$cropped_url = $config['image_server'] . imgproxy_path_crop($image_url, $figure->width, $figure->height, $figure->centre);
+						
+						echo '<img  loading="lazy" src="' . $cropped_url . '" onerror="retry(this)">';
+
+						
+						echo '</li>';
+					}
+				}
+			echo '<!-- need this to avoid distorting last image -->
+    		<li></li>';
+				echo '</ul>';
+				echo '</div>';
+			}
+		
  		
  		//--------------------------------------------------------------------------------
  		if ($display_mode == 'parts')
@@ -859,7 +921,12 @@ function main()
 		if (isset($_GET['thumbnails']))
 		{	
 			$display_mode = 'thumbnails'; 
-		} 		
+		} 
+
+		if (isset($_GET['figures']))
+		{	
+			$display_mode = 'figures'; 
+		} 				
 		
 		if ($item != '')	
 		{			

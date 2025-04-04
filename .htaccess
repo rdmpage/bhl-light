@@ -3,7 +3,6 @@ RewriteEngine On
 # Some hosts may require you to use the `RewriteBase` directive.
 # If you need to use the `RewriteBase` directive, it should be the
 # absolute physical path to the directory that contains this htaccess file.
-#
 RewriteBase /
 #RewriteBase /bhl-light/
 
@@ -14,9 +13,11 @@ RewriteRule bibliography/(.*)$ ?bibliography=$1 [NC,L]
 # item
 RewriteRule item/(\d+)$ ?item=$1 [NC,L]
 RewriteRule item/(\d+)/thumbnails$ ?item=$1&thumbnails [NC,L]
+RewriteRule item/(\d+)/figures$ ?item=$1&figures [NC,L]
 
 RewriteRule item/(\d+)/offset/(\d+)$ ?item=$1&offset=$2 [NC,L]
 RewriteRule item/(\d+)/offset/(\d+)/thumbnails$ ?item=$1&offset=$2&thumbnails [NC,L]
+RewriteRule item/(\d+)/offset/(\d+)/figures$ ?item=$1&offset=$2&figures [NC,L]
 
 # list of titles
 RewriteRule containers$ ?containers[NC,L]

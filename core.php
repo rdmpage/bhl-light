@@ -48,6 +48,7 @@ function get_blocks($id)
 	return $blocks;
 }
 
+
 //----------------------------------------------------------------------------------------
 // 
 function get_parts_for_item($id)
@@ -88,6 +89,41 @@ function get_parts_for_item($id)
 }
 
 //----------------------------------------------------------------------------------------
+// Get figure and picture blocks for an item 
+// This requires that we have processed the images using, say, AI, to find the figures
+// Use https://www.w3.org/TR/annotation-model/#annotation-page to store the list of
+// figures. This approximates IIIF if we ever go down that road.
+function get_figures_for_ia($ia)
+{
+	global $config;
+	global $couch;
+	
+    $annotationPage = new stdclass;
+    $annotationPage->{'@type'} = ['AnnotationPage'];
+    $annotationPage->items = array(); 
+		
+	$key = '"' . 'blocks/' . $ia . '"';
+
+	$url = '_design/blocks/_view/figures?key=' . urlencode($key);
+		
+	if ($config['stale'])
+	{
+		$url .= '&stale=ok';
+	}			
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	if (count($resp_obj->rows) == 1)
+	{
+		$annotationPage->items = $resp_obj->rows[0]->value;
+	}
+	
+	return $annotationPage;
+}
+
+//----------------------------------------------------------------------------------------
 // Return an array comprising the item and a list of its items 
 function get_item($id)
 {
@@ -123,9 +159,18 @@ function get_item($id)
 	
 	$graph[] = $work;
 	
+	//------------------------------------------------------------------------------------
 	// maybe other things here...?
 	
+	// parts
 	$graph[] = get_parts_for_item($id);
+	
+	// figures
+	if (preg_match('/archive.org\/details\/(.*)/', $work->sameAs, $m))
+	{		
+		$internet_archive = $m[1];
+		$graph[] = get_figures_for_ia($internet_archive);
+	}	
 	
 	return $graph;
 }
