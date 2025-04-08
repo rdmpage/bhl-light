@@ -1,6 +1,6 @@
 <?php
 
-// Get text for item and add tags to it...
+// Get text for item and add geotags to it
 
 ini_set('memory_limit', '-1');
 

@@ -19,6 +19,10 @@ RewriteRule item/(\d+)/offset/(\d+)$ ?item=$1&offset=$2 [NC,L]
 RewriteRule item/(\d+)/offset/(\d+)/thumbnails$ ?item=$1&offset=$2&thumbnails [NC,L]
 RewriteRule item/(\d+)/offset/(\d+)/figures$ ?item=$1&offset=$2&figures [NC,L]
 
+# viewer
+# We want a canonical URL for viewer to support annotations
+RewriteRule viewer/([A-Za-z0-9]+)$ viewer.php?id=$1 [NC,L]
+
 # list of titles
 RewriteRule containers$ ?containers[NC,L]
 RewriteRule containers/(.*)$ ?containers&letter=$1 [NC,L]

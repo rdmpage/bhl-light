@@ -7,10 +7,10 @@ global $config;
 // Date timezone
 date_default_timezone_set('UTC');
 
-//$config['platform'] = 'local';
+$config['platform'] = 'local';
 $config['platform'] = 'cloud';
 
-//$config['site']		= 'local';
+$config['site']		= 'local';
 $config['site']		= 'heroku';
 
 switch ($config['site'])
@@ -89,6 +89,7 @@ $config['thumbnail_height'] = 200;
 
 // Extras---------------------------------------------------------------------------------
 $config['use_hypothesis'] = false; // true enables hypothes.is to annotate IFRAME content
+$config['use_hypothesis'] = true;
 
 
 // Layout---------------------------------------------------------------------------------

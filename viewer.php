@@ -129,6 +129,12 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
 	$html .= '<html>';
 	$html .=  '<head>';
 	
+	$html .= '<!-- base -->
+    	<base href="' . $config['web_root'] . '" /><!--[if IE]></base><![endif]-->';
+    
+    $html .= '<!-- canonical link -->';
+	$html .= '<link rel="canonical" href="' .  $config['web_server'] . $config['web_root'] . 'viewer/' .  $layout->internetarchive . '" />';
+	
 	$html .=  '<link rel="stylesheet" href="root.css.inc.php">';
 	
 	$html .=  '<style>';
