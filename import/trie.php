@@ -23,7 +23,7 @@ class TrieNode
 	
 	function __construct ($data)
 	{
-		$this->data = $data; 
+		$this->data = $data;
 	}
 
 }
@@ -34,14 +34,15 @@ class Trie {
 
 	var $root;
 	var $has_wordbreaks = true;
-	
+	var $ignore_case = true;
+
 	var $node_count = 0; // debugging
 
-	
 	//------------------------------------------------------------------------------------
-	function __construct ()
+	function __construct ($ignore_case = true)
 	{
 		$this->root = new TrieNode('/');
+		$this->$ignore_case = $ignore_case; 
 		
 		$this->root->id = $this->node_count++;	 // debugging	
 	}
@@ -65,6 +66,11 @@ class Trie {
 		foreach ($strings as $text)
 		{
 			$p = $this->root;
+			
+			if ($this->ignore_case)
+			{
+				$text = mb_strtolower($text);
+			}
 				
 			$len = mb_strlen($text);
 			for ($i = 0; $i < $len; $i++)
@@ -72,7 +78,8 @@ class Trie {
 				// but see https://stackoverflow.com/questions/3666306/how-to-iterate-utf-8-string-in-php/14366023#14366023
 		
 				$char = mb_substr($text, $i, 1, 'UTF-8');
-			
+				
+				
 				$index = $data = $char;
 									
 				if (empty($p->children[$index]))
@@ -208,6 +215,10 @@ class Trie {
 		
 		$thing_found				= null;
 		
+		if ($this->ignore_case)
+		{
+			$sentence = mb_strtolower($sentence);
+		}
 		
 		while ($index < $sentence_len)
 		{			
