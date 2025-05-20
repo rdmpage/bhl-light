@@ -256,8 +256,8 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
 	
 	mark {
 		color:transparent;
-		background-color:rgba(255,165,0,0.3);
-		border-bottom:1px solid red;
+		background-color:rgba(0,0,255,0.2);
+		border-bottom:1px solid blue;
 	}
 	
 /* small screen for viewer (which may be included as an iframe) */
@@ -377,11 +377,29 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
 			// if we are going to add annotations to the text this is where we do it...
 			// we assume that text annotations are line by line
 			if ($annotation_experiment)
-			{				
+			{			
+				// geo
+				/*	
 				if (isset($annotations->{$i}->{$line_index}))
 				{
 					$text_html = highlight_annotations($line->text, $annotations->{$i}->{$line_index});
 				}
+				*/
+				
+				// names
+				if (isset($annotations->{$i}))
+				{					
+					if (isset($annotations->{$i}->annotations))
+					{
+						if (isset($annotations->{$i}->annotations->{$line_index}))
+						{
+							$text_html = highlight_annotations($line->text, $annotations->{$i}->annotations->{$line_index});	
+						}
+					}
+				}
+				
+				
+				
 			}
 			
 			$text_html = ltgt_entities($text_html);
@@ -393,7 +411,8 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
 		// other annotations? e.g. blocks for figures, etc.?
 		$html .= '<!-- annotations -->' . "\n";
 
-		if ($block_layout)
+		if ($block_layout && 1) // 0 if we don't want to show blocks
+		//if ($block_layout)
 		{
 			// Block might be computed on images that are scaled differently to OCR
 			$block_page_width = $block_layout->pages[$i]->image_bbox[2] - $block_layout->pages[$i]->image_bbox[0];
@@ -485,7 +504,10 @@ else
 	
 	if ($layout)
 	{
-		$annotations = get_geo_annotations($id);
+		//$annotations = get_geo_annotations($id);
+		$annotations = get_name_annotations($id);
+		
+		//print_r($annotations);
 	
 		$html = layout_to_viewer_html($layout, $block_layout, $annotations, $page);
 	}

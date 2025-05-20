@@ -2,6 +2,9 @@
 
 Lightweight interface to the Biodiversity Heritage Library (BHL)
 
+## Problems
+
+- journalofbombay721975bomb text and images out of alignment
 
 ## Basic idea
 
@@ -79,6 +82,25 @@ Add a search index to CouchDB. The first time this view is called it can take a 
 ## Comparisons with Plazi
 
 It is useful to compare BHL and Plazi for the same content, e.g.  item/253713 and https://ejt.biodiversity.hasdai.org/records/3ketn-e3390 and http://treatment.plazi.org/id/C93D87F0FFFCFF9F8E3BFB7DFA88FA6E 
+
+## Zookeys and JATS XML layout
+
+Would be interesting to overlay JATS XML onto page images, e.g. for Zookeys content. In particular we could annotate references with links to BHL content. Would need to use string matching to match blocks from XML with blocks from layout.
+
+Nice example https://www.biodiversitylibrary.org/page/64400329#page/1/mode/1up
+
+## Taxonomic names
+
+Taxonomic names are added by getting names for each page from BHL data dump. We then attempt to locate those names in the OCR text (layout/) so that we can highlight them. These locations are stored as annotations.
+
+Initial inspection suggests many names are not taxonomic, e.g. Vailima is a place in Samoa and also fish genus. It appears as a locality in the Insects of Somoa series. Might we be able to use the context around the word (i.e., the prefix and suffix of the annotation) to train a model to distinguish between taxonomic and other uses of a word?
+
+For example, in Item 137726
+- Island, **Vailima**, 12.x11.1925, Buxton and Hopkin
+- ens: one male (holotype) Upolu, **Vailima**, 1.1925, 1,200 ft. ;
+- female (paratype) **Vailima**, Upolu; two females, one male (
+
+ 
 
 
 

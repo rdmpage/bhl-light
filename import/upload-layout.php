@@ -113,13 +113,41 @@ $titles = array(
 7414
 );
 
+$titles = array(181031);
 
+$titles = array(117696);
+
+$titles = array(119522);
+
+$titles =array(78705,68672);
+
+$titles =array(79076);
+
+$titles =array(130490); // Pacific Insects
+
+$titles = array(
+53832, // Liangqi baxing dongwu yanjiu = Acta herpetologica Sinica
+53833, // Liangqi baxing dongwu yanjiu = Acta herpetologica Sinica
+2804, // Asiatic herpetological research
+46858, // She wa yan jiu = Chinese herpetological research
+40011, // Chinese herpetological research
+);
+
+$titles = array(
+181469, // Faune de Madagascar : lépidoptères. 29, Insectes
+);
+
+$titles = array(
+86930, // Illustrationes florae insularum Maris Pacifici
+);
 
 
 foreach ($titles as $TitleID)
 {
 	
 	$identifiers = get_ia_for_title($TitleID);
+	
+	//$identifiers = array('quaestionesentom11965univ');
 	
 	foreach ($identifiers as $ia)
 	{
@@ -165,7 +193,7 @@ foreach ($titles as $TitleID)
 			if (1)
 			{
 				$force_upload = true;
-				//$force_upload = false;
+				$force_upload = false;
 			
 				$doc->_id = 'layout/' . $doc->internetarchive;
 				

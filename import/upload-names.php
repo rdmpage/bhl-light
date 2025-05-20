@@ -1,6 +1,8 @@
 <?php
 
-// Extract data from SQLite and import into CouchDB
+// Extract names from SQLite and import into CouchDB as annotations
+
+ini_set('memory_limit', '-1');
 
 require_once (dirname(dirname(__FILE__)) . '/couchsimple.php');
 require_once (dirname(__FILE__) . '/sqltojson.php');
@@ -44,18 +46,19 @@ function get_names_for_item($ItemID)
 	
 	// print_r($data);
 	
-	$names = array();
+	$names = new stdclass;
 	
 	foreach ($data as $row)
 	{
-		if (!isset($names[$row->SequenceOrder-1]))
+		$page_zero_based = $row->SequenceOrder-1;
+		if (!isset($names->{$page_zero_based}))
 		{
-			$names[$row->SequenceOrder-1] = new stdclass;
-			$names[$row->SequenceOrder-1]->PageID = $row->PageID;
-			$names[$row->SequenceOrder-1]->SequenceOrder = $row->SequenceOrder;
-			$names[$row->SequenceOrder-1]->names = array();			
+			$names->{$page_zero_based} = new stdclass;
+			$names->{$page_zero_based}->PageID = $row->PageID;
+			$names->{$page_zero_based}->SequenceOrder = $row->SequenceOrder;
+			$names->{$page_zero_based}->names = array();			
 		}
-		$names[$row->SequenceOrder-1]->names[] = $row->name;
+		$names->{$page_zero_based}->names[] = $row->name;
 	}
 	
 	return $names;
@@ -72,89 +75,211 @@ function tag_trie($trie, $text)
 //----------------------------------------------------------------------------------------
 
 // Upload names for a given Item
+
+
 $ItemID = 137691;
-$internetarchive = get_barcode_from_item($ItemID);
+$ItemID = 262715;
+//$ItemID = 188012;
+//$ItemID = 183054;
 
-// layout (should get this via CouchDB)
-$json = file_get_contents($internetarchive . '.json');
+$ItemID = 137691;
 
-$layout = json_decode($json);
+$titles = array(209695);
 
-// Get names from SQLite
-$page_names = get_names_for_item($ItemID);
+$titles = array(206514); // Contributions
 
-print_r($page_names);
 
-exit();
+// 10088 Tijdschrift voor entomologie this kills the CouchDB views for names
 
-// OK convert into annotations
+$titles = array(10088); // Tijdschrift voor entomologie
+//$titles = array(190323); // The Australian Entomologist
+//$titles = array(68619); // Insects of Samoa and other Samoan terrestrial arthropoda
 
-$annotations = array();
+$titles = array(7414); // The journal of the Bombay Natural History Society
 
-foreach ($page_names as $page_index => $name_list)
+$mode = 'delete';
+$mode = 'add';
+
+foreach ($titles as $TitleID)
 {
-	// we will use a simple compound key to locate annotations
-
-	// Create a trie for list of names found on this page
-	$trie = new Trie();
-	foreach ($name_list->names as $name)
+	$items = get_items_for_title($TitleID);
+	
+	// debugging, just get one item
+	if (0)
 	{
-		$term_obj = new stdclass;
-		$term_obj->name = $name;
-		$trie->add($term_obj);
+		$items = array(get_item(310489));
 	}
 	
-	// Get lines of text from layout
-	$lines = array();
-	foreach ($layout->pages[$page_index]->text_lines as $line)
+	foreach ($items as $item)
 	{
-		$lines[] = $line->text;
-	}	
 	
-	// Locate names in text
-	
-	$page_annotations = array();
-	
-	// Find names line-by-line (obviously will fail if name spans more than one line...)
-	$n = count($lines);
-	for ($i = 0; $i < $n; $i++)
-	{
-		$hits = tag_trie($trie, $lines[$i]);
+		$ItemID = str_replace('item/', '', $item->_id);
 		
-		if (count($hits) > 0)
+		/*
+		if ($ItemID != 138618)
 		{
-			$page_annotations[$i] = $hits;
+			continue;
+			
 		}
+		*/
 		
+		$ia = str_replace('https://archive.org/details/', '', $item->sameAs);
+		
+		if ($mode == 'delete')
+		{
+			$doc = new stdclass;
+			$doc->_id = 'nametagged/' . $ia;
+						
+			$resp = $couch->add_update_or_delete_document(null, $doc->_id, 'delete');			
+			var_dump($resp);
+		}
+		else
+		{
+			// add
+			
+			// get layout from CouchDB
+			$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . urlencode("layout/" . $ia));
+			$layout = json_decode($resp);	
+			
+			// Get names from SQLite
+			$page_names = get_names_for_item($ItemID);
+			
+			// names on each page 
+			//print_r($page_names);
+			
+			// OK convert into annotations		
+			$annotations = array();
+			
+			foreach ($page_names as $page_index => $name_list)
+			{
+				// we will use a simple compound key to locate annotations
+			
+				// Create a trie for list of names found on this page
+				$trie = new Trie();
+				foreach ($name_list->names as $name)
+				{
+					$term_obj = new stdclass;
+					$term_obj->name = $name;
+					$trie->add($term_obj);
+				}
+				
+				// Get lines of text from layout
+				$lines = array();
+				foreach ($layout->pages[$page_index]->text_lines as $line)
+				{
+					$lines[] = $line->text;
+				}	
+				
+				// Locate names in text
+				
+				$page_annotations = new stdclass;
+				
+				// Find names line-by-line (obviously will fail if name spans more than one line...)
+				$n = count($lines);
+				for ($line_number = 0; $line_number < $n; $line_number++)
+				{
+					$text = $lines[$line_number];
+					$text_encoding = mb_detect_encoding($text);
+				
+					$hits = tag_trie($trie, $text);
+					
+					if (count($hits) > 0)
+					{
+						$page_annotations->{$line_number} = array();
+						
+						$flanking_length = 32;
+						
+						foreach ($hits as $hit)
+						{		
+							$annotation = new stdclass;
+							$annotation->text = $hit->text;
+														
+							$annotation->target = new stdclass;
+							$annotation->target->selector = array();
+							
+							// position in text
+							$selector = new stdclass;
+							$selector->type = "TextPositionSelector";
+							$selector->start = (Integer)$hit->start;
+							$selector->end = (Integer)$hit->end;
+							
+							$annotation->target->selector[] = $selector;
+							
+							// text loc
+							$selector = new stdclass;
+							$selector->type = 'TextQuoteSelector';
+							
+							// text that we have matched in the OCR
+							$selector->exact = mb_substr($text, $hit->start, $hit->end - $hit->start, $text_encoding);
+							
+							$pre_length = min($hit->start, $flanking_length);
+							$pre_start = $hit->start - $pre_length;	
+							$selector->prefix = mb_substr($text, $pre_start, $pre_length, $text_encoding); 
+							
+							$post_length = 	min(mb_strlen($text, mb_detect_encoding($text)) - $hit->end, $flanking_length);					
+							$selector->suffix = mb_substr($text, $hit->end, $post_length, $text_encoding);
+							
+							$annotation->target->selector[] = $selector;
+			
+							$page_annotations->{$line_number}[] = $annotation;
+						}
+					}
+					
+				}
+				
+				if (count((array)$page_annotations) > 0)
+				{
+					$page_names->{$page_index}->annotations = $page_annotations;
+				}
+			
+			}
+			//print_r($page_names);
+			
+			//echo json_encode($page_names);
+			
+			$doc = new stdclass;
+			$doc->_id = 'nametagged/' . $ia;
+			
+			// identifiers to (potentially) make search results easier to form
+			$doc->internetarchive = $ia;
+			
+			// to make search results easier
+			$doc->bhl_id = $ItemID;
+			if (isset($item->datePublished))
+			{
+				$doc->datePublished = $item->datePublished;
+			}
+			
+			print_r($doc);
+			
+			$doc->annotations = $page_names;
+			
+			//echo json_encode($doc);
+			
+			
+			// store in CouchDB
+			$force_upload = true;
+			//$force_upload = false;
+				
+			$exists = $couch->exists($doc->_id);
+			
+			if ($exists && !$force_upload)
+			{
+				echo "Have " . $doc->_id . " already!\n";
+			}
+			else
+			{
+				if ($exists && $force_upload)
+				{
+					$couch->add_update_or_delete_document(null, $doc->_id, 'delete');
+				}
+			
+				$resp = $couch->send("PUT", "/" . $config['couchdb_options']['database'] . "/" . urlencode($doc->_id), json_encode($doc));
+				var_dump($resp);	
+			}
+		}
 	}
-	
-	if (count($page_annotations) > 0)
-	{
-		$annotations[$page_index] = $page_annotations;
-	}
-	
-	
-
 }
 
 
-print_r($annotations);
-
-//echo json_encode($annotations);
-
-// apply to layout to get actual annotations
-
-/*
-
-
-
-$doc = new stdclass;
-$doc->_id = 'annotations/' . $internetarchive;
-$doc->internetarchive = $internetarchive;
-$doc->ItemID = $ItemID;
-*/
-
-
-
 ?>
-

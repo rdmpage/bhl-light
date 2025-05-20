@@ -89,10 +89,11 @@ $config['thumbnail_height'] = 200;
 
 // Extras---------------------------------------------------------------------------------
 $config['use_hypothesis'] = false; // true enables hypothes.is to annotate IFRAME content
-$config['use_hypothesis'] = true;
+//$config['use_hypothesis'] = true;
 
 
 // Layout---------------------------------------------------------------------------------
 $config['datalab_api_key'] = getenv('DATALAB_API_KEY');
+$config['datalab_tmp_dir'] = dirname(__FILE__) . '/datalab/tmp';
 
 ?>

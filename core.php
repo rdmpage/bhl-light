@@ -93,13 +93,15 @@ function get_parts_for_item($id)
 // This requires that we have processed the images using, say, AI, to find the figures
 // Use https://www.w3.org/TR/annotation-model/#annotation-page to store the list of
 // figures. This approximates IIIF if we ever go down that road.
+// Because we may have multiple types of annotation pages, we co-opt schema:ImageGallery
+// to flag that these are images
 function get_figures_for_ia($ia)
 {
 	global $config;
 	global $couch;
 	
     $annotationPage = new stdclass;
-    $annotationPage->{'@type'} = ['AnnotationPage'];
+    $annotationPage->{'@type'} = ['AnnotationPage', 'ImageGallery'];
     $annotationPage->items = array(); 
 		
 	$key = '"' . 'blocks/' . $ia . '"';
@@ -241,7 +243,43 @@ function get_title($id)
 	usort($datafeed->dataFeedElement, function($a, $b) {
       return $a->position - $b->position;
     });
+    
+    // get coverage...
+    $key = '"' . 'bibliography/' . $id . '"';
+	$url = '_design/item/_view/coverage?key=' . urlencode($key);
+		
+	if ($config['stale'])
+	{
+		$url .= '&stale=ok';
+	}			
 	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	$coverage = array();
+	
+	foreach ($resp_obj->rows as $row)
+	{
+		$coverage[$row->id] = $row->value[1];
+	}
+	
+	foreach ($datafeed->dataFeedElement as &$item)
+	{
+		if (isset($coverage[$item->{'@id'}]))
+		{
+			$item->coverage = $coverage[$item->{'@id'}]; // treat this data as just an array, will need something more elegant
+		}
+	}
+	
+	//print_r($datafeed);
+	//print_r($coverage);
+	
+	// add to 
+    
+	
+	
+	// add to the graph
 	$graph[] = $datafeed;
 	
 	return $graph;
@@ -331,6 +369,30 @@ function get_titles_for_letter($letter = 'A')
 }
 
 //----------------------------------------------------------------------------------------
+// Given a BHL PageID return a URL to the thumbnail of the page image. Uses S3 storage,
+// falls back to BHL API if Internet Archive id not found.
+function get_page_image_url($PageID)
+{
+	global $config;
+	
+	$image_url = get_page_image_url_ia($PageID);
+	
+	if ($image_url != '')
+	{
+		$image_url = 'https://hel1.your-objectstorage.com/bhl/' . $image_url;
+	}
+	else
+	{
+		// fallback to BHL
+		$image_url = 'http://www.biodiversitylibrary.org/pagethumb/' . $PageID;
+	}
+	
+	$image_url = 'https://images.bionames.org' . imgproxy_path_resize($image_url, 0, $config['thumbnail_height']);
+	
+	return $image_url;
+}
+
+//----------------------------------------------------------------------------------------
 // For a given BHL PageID return relative URL to image in Internet Archive so we can
 // retrieve image from S3 store
 function get_page_image_url_ia($PageID, $extension = 'webp')
@@ -362,6 +424,7 @@ function get_page_image_url_ia($PageID, $extension = 'webp')
 }
 
 //----------------------------------------------------------------------------------------
+// CouchDB fulltext search
 function get_search_results($query, $limit = 10)
 {
 	global $config;
@@ -490,6 +553,93 @@ function get_geo_annotations($ia)
 	return $annotations;
 }
 
+//----------------------------------------------------------------------------------------
+// Get geotagging for Internet Archive item
+function get_name_annotations($ia)
+{
+	global $config;
+	global $couch;
+	
+	$annotations = null;
+	
+	$key = 'nametagged/' . $ia;
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . urlencode($key));
+
+	$resp_obj = json_decode($resp);	
+	
+	if (!isset($resp_obj->error))
+	{
+		$annotations = $resp_obj->annotations;
+	}
+		
+	return $annotations;
+}
+
+//----------------------------------------------------------------------------------------
+// Search for taxonomic name
+function get_name_search_results($query, $limit = 10)
+{
+	global $config;
+	global $couch;
+	
+	$query = strtolower(trim($query));
+	
+	$startkey = array($query);
+	$endkey = array($query, new stdclass);
+	
+	$parameters = array(
+		'startkey' 		=> json_encode($startkey),
+		'endkey'		=> json_encode($endkey),
+		'reduce' 		=> 'false'
+	);	
+
+	$url = '_design/name/_view/name-search-context?' . http_build_query($parameters);
+		
+	if ($config['stale'])
+	{
+		//$url .= '&stale=ok';
+	}			
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	//print_r($resp_obj);
+		
+    $datafeed = new stdclass;
+    $datafeed->{'@type'} = ['DataFeed'];
+    $datafeed->name = $query;
+    $datafeed->dataFeedElement = array(); 
+	
+	foreach ($resp_obj->rows as $row)
+	{
+		$item = new stdclass;
+		$item->{'@type'} = 'Annotation';
+		
+		$item->name = $row->key[0];
+
+		$item->selector = $row->key[3];
+
+		$item->source = new stdclass;
+		$item->source->{'@id'} = "page/" . $row->key[2];
+		
+		$parent = new stdclass;
+		$parent->{'@id'} = 'item/' . $row->key[1];	
+		
+		$parent->datePublished = $row->key[4];		
+		
+		$item->source->isPartOf = array($parent);
+		
+		$datafeed->dataFeedElement[] = $item;
+	}
+	
+	//print_r($datafeed);
+	
+	return $datafeed;
+	
+}
+
 
 /*
 $g = get_titles_for_letter('A');
@@ -504,5 +654,11 @@ get_search_results('Solomon Island');
 get_search_results('Papilio demoleus');
 get_search_results('replacement name');
 */
+
+//get_name_search_results('Rhyothemis princeps');
+
+//get_title(190323);
+
+
 
 ?>

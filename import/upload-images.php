@@ -92,14 +92,41 @@ $TitleID = 730; // TAR archive
 $TitleID = 7414;
 //$TitleID = 9243;
 
+$TitleID = 117696;
+
+$TitleID = 210877;
+
+$TitleID = 79076;
+
+$titles = array(
+53832, // Liangqi baxing dongwu yanjiu = Acta herpetologica Sinica
+53833, // Liangqi baxing dongwu yanjiu = Acta herpetologica Sinica
+2804, // Asiatic herpetological research
+46858, // She wa yan jiu = Chinese herpetological research
+40011, // Chinese herpetological research
+);
+
+$TitleID = 40011;
+$TitleID = 46858;
+$TitleID = 2804;
+$TitleID = 53832;
+$TitleID = 53833;
+
+$TitleID = 181469;
+
+$TitleID = 86930;
+
+
 $identifiers = get_ia_for_title($TitleID);
 
-$identifiers  = array('journalofbombay741977bomb');
+//$identifiers  = array('journalofbombay741977bomb');
 
 $config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/Hetzner.localized/bhl';
 
 foreach ($identifiers as $ia)
 {
+	echo $ia . "\n";
+
 	$go = true;
 
 	// don't do this if we already have the images
@@ -107,6 +134,8 @@ foreach ($identifiers as $ia)
 	if (file_exists($s3_dir))
 	{
 		$go = false;
+		
+		echo "Have already\n";
 	}
 	
 	if ($go)

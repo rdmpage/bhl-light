@@ -52,6 +52,29 @@ function get_barcode_from_item($ItemID)
 // Get pages for item
 function get_pages_for_item($ItemID)
 {
+	// Parts in item
+	$sql = 'SELECT PartID, PageID FROM partpage 
+	WHERE ItemID='. $ItemID;
+	
+	$data = db_get($sql);
+	
+	// print_r($data);	
+	
+	$pages_to_parts = array();
+	
+	foreach ($data as $row)
+	{
+		if (!isset($pages_to_parts[$row->PageID]))
+		{
+			$pages_to_parts[$row->PageID] = array();
+		}
+		$pages_to_parts[$row->PageID][] = $row->PartID;
+	}
+	
+	// print_r($pages_to_parts);
+	//exit();
+	
+	// Item pages
 	$sql = 'SELECT * FROM page 
 	WHERE ItemID='. $ItemID . 
 	' ORDER BY CAST(SequenceOrder AS INTEGER)';
@@ -104,6 +127,17 @@ function get_pages_for_item($ItemID)
 			$pages[$row->PageID]->keywords[] = $row->PageTypeName;
 		}
 		
+		// is this page in one or more parts (sensu BHL)?
+		if (isset($pages_to_parts[$row->PageID]))
+		{
+			$pages[$row->PageID]->isPartOf = array();
+			foreach ($pages_to_parts[$row->PageID] as $PartID)
+			{
+				$pages[$row->PageID]->isPartOf[] = 'part/' . $PartID;
+			}
+		}
+		
+		
 	}
 	
 	// print_r($pages);
@@ -122,7 +156,7 @@ function get_title($TitleID)
 	
 	$data = db_get($sql);
 	
-	print_r($data);
+	//print_r($data);
 	
 	$obj = new stdclass;
 	
@@ -446,6 +480,91 @@ function get_parts_for_item($ItemID)
 	}
 	
 	return $parts;
+}
+
+//----------------------------------------------------------------------------------------
+// Get item for page
+function get_item_for_page($PageID)
+{
+	// list of items for a title
+	$sql = 'SELECT ItemID FROM page 
+	WHERE PageID='. $PageID;
+	
+	$data = db_get($sql);
+	
+	// print_r($data);
+	
+	$ItemID = 0;
+	
+	foreach ($data as $row)
+	{
+		$ItemID = $row->ItemID;
+	}
+	
+	return $ItemID;
+}
+
+//----------------------------------------------------------------------------------------
+// Get item and order for page
+function get_item_order_for_page($PageID)
+{
+	$result = array();
+	
+	// list of items for a title
+	$sql = 'SELECT ItemID, SequenceOrder FROM page 
+	WHERE PageID='. $PageID;
+	
+	$data = db_get($sql);
+	
+	// print_r($data);
+	
+	$ItemID = 0;
+	
+	foreach ($data as $row)
+	{
+		
+		$ItemID = $row->ItemID;
+		
+		$result = array($ItemID, (Integer)$row->SequenceOrder - 1);
+	}
+	
+	return $result;
+}
+
+//----------------------------------------------------------------------------------------
+// Get title for page
+function get_title_for_item($ItemID)
+{
+	// list of items for a title
+	$sql = 'SELECT TitleID FROM item 
+	WHERE ItemID='. $ItemID;
+	
+	$data = db_get($sql);
+	
+	// print_r($data);
+	
+	$TitleID = 0;
+	
+	foreach ($data as $row)
+	{
+		$TitleID = $row->TitleID;
+	}
+	
+	return $TitleID;
+}
+
+//----------------------------------------------------------------------------------------
+
+// test
+if (0)
+{
+	$ItemID = 325622;
+	
+	// we want all pages in this item that are in a part...
+	$item = get_item(325622);
+	
+	print_r($item);
+	
 }
 
 ?>

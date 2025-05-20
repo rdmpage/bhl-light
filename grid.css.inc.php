@@ -5,14 +5,13 @@
 	display:grid;
 	grid-template-columns: repeat(auto-fit, minmax(var(--grid-width), 1fr));
 	background-color:var(--grid-bg);
-	
-
 }
 
 .image-grid li {
-	padding:0.5em;
-	margin:1em;
+	padding:1em;
+	margin:0.5em;
 	list-style: none;
+	/*border:1px solid var(--viewer-bg);*/
 }
 
 .image-grid img {
@@ -30,4 +29,10 @@
 	
 	/* Keep things sensible if we have, say, only one item */
 	max-width: var(	--grid-image-maxwidth);	
+}
+
+/* background for pages that in a part */
+.image-grid .selected {
+	background-color:var(--coverage-block-bg); 
+	color:white;
 }

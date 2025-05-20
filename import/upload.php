@@ -233,14 +233,90 @@ $TitleID = 49914;
 
 $TitleID = 9243;
 
+$TitleID = 181031;
+$TitleID = 117696;
 
-if (1)
+$TitleID = 210877; // BDJ, item barcodes in local database don't match BHL now
+
+$TitleID = 78705;
+//$TitleID = 68672;
+
+$TitleID = 79076; // Nota lepidopterologica
+
+$TitleID = 130490; // Pacific Insects
+
+$TitleID = 181031;
+$TitleID = 169356;
+
+// redo all 36
+$titles = array(
+2804,
+5943,
+7414,
+9243,
+10088,
+10229,
+49914,
+57881,
+62642,
+68619,
+68672,
+78705,
+79076,
+82521,
+95451,
+105698,
+117696,
+119522,
+119879,
+130490,
+139317,
+144642,
+147681,
+150137,
+152899,
+158870,
+162187,
+169356,
+181031,
+190323,
+204608,
+206514,
+209695,
+210747,
+211788,
+212146,
+);
+
+$titles = array(
+53832, // Liangqi baxing dongwu yanjiu = Acta herpetologica Sinica
+53833, // Liangqi baxing dongwu yanjiu = Acta herpetologica Sinica
+2804, // Asiatic herpetological research
+46858, // She wa yan jiu = Chinese herpetological research
+40011, // Chinese herpetological research
+);
+
+$titles = array(
+181469, // Faune de Madagascar : lépidoptères. 29, Insectes
+);
+
+$titles = array(
+86930, // Illustrationes florae insularum Maris Pacifici
+);
+
+foreach ($titles as $TitleID)
 {
-	upload_title($TitleID, false);
+	echo $TitleID . "\n";
+	upload_title($TitleID, true);
 	upload_items_for_title($TitleID, true);
-	upload_parts_for_title($TitleID, false);
+	//upload_parts_for_title($TitleID, true);
 }
 
+//$ItemID = 325622;
+
+// get parts for item
+// store page - part links
+// add these to the item
 
 
 exit();

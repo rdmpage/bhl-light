@@ -114,6 +114,24 @@ a:hover {
   margin-top: 0.5rem;
 }
 
+.coverage {
+	background:var(--coverage-bg);
+	padding:0;
+	position:relative;
+	height:1em;
+	width:auto;
+	border:1px solid var(--coverage-bg);
+	overflow:hidden;
+}
+
+.coverage .block {
+	box-sizing:border-box;
+	background:var(--coverage-block-bg);
+	border-left:1px solid var(--coverage-bg);
+	position:absolute;
+	height:100%;
+
+}
 
 @media (min-width: 600px) {
   .card {

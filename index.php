@@ -51,12 +51,19 @@ function html_start($title = '', $thing = null, $has_map = false)
 	require_once (dirname(__FILE__) . '/grid.css.inc.php');
 	require_once (dirname(__FILE__) . '/media.css.inc.php');
 	require_once (dirname(__FILE__) . '/viewer.css.inc.php');
+	
+	require_once (dirname(__FILE__) . '/panel.css.inc.php');
+	
+	
 
 	echo '</style>' . "\n";
 
 	// Global Javascript
 	echo '<script>' . "\n";
 	require_once (dirname(__FILE__) . '/search.js.inc.php');	
+	
+	require_once (dirname(__FILE__) . '/panel.js.inc.php');
+	
 	echo '</script>' . "\n";
 	
 	// Thing this page is about
@@ -215,6 +222,7 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 		$list = null;
 		
 		$annotation_pages = null;
+		$image_gallery = null;
 	
 		// Unpack JSON-LD
 		foreach ($doc as $graph)
@@ -233,15 +241,63 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 			{
 				if (isset($graph->items) && count($graph->items) > 0)
 				{
-					$annotation_pages = $graph;
+					// distinguish between images (figures) and other annotations
+					if (in_array('ImageGallery', $graph->{'@type'}))
+					{
+						$image_gallery = $graph;
+					}
+					else
+					{					
+						$annotation_pages = $graph;
+					}
 				}
 			}	
 			
 		}
 		
+		
+		// hack
+		$annotationPage = new stdclass;
+		$annotationPage->{'@type'} = ['AnnotationPage'];
+		$annotationPage->items = array(); 
+		
+		// model on hypothes.is page note which is a page-level annotation
+		
+		$annotation  = new stdclass;
+		$annotation->text = "Sciomesa venata Fletcher D. S., 1961";
+		
+		$annotation->body = new stdclass;
+		$annotation->body->id = 'https://www.afromoths.net/species_by_code/SCIOVENA';
+		
+		$annotation->target = new stdclass;
+		$annotation->target->source = "page/43637832";
+		
+		$annotationPage->items[37] = array();
+		$annotationPage->items[37][] = $annotation;
+		
+		$annotation_pages = $annotationPage;
+		
+		
+		$j = '{"@type":["AnnotationPage"],"items":{"79":[{"text":"Gynaephila icterica","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NAARICTE"},"target":{"source":"page\/148261"}},{"text":"Naarda icterica","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NAARICTE"},"target":{"source":"page\/148261"}},{"text":"Schrankia solitaria","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/SCHRSOLI"},"target":{"source":"page\/148261"}}],"77":[{"text":"Tosacantha atmocyma","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/TOSAATMO"},"target":{"source":"page\/148261"}},{"text":"Polypogon atmocyma","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/TOSAATMO"},"target":{"source":"page\/148261"}}],"76":[{"text":"Progonia aenicta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PROGAENI"},"target":{"source":"page\/148261"}},{"text":"Nodaria aenicta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PROGAENI"},"target":{"source":"page\/148261"}}],"81":[{"text":"Luceria emarginata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/LUCEEMAR"},"target":{"source":"page\/148261"}},{"text":"Luceria pamphaea","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/LUCEPAMP"},"target":{"source":"page\/148261"}},{"text":"Luceria africana","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/LUCEAFRI"},"target":{"source":"page\/148261"}},{"text":"Schrankia emarginata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/LUCEEMAR"},"target":{"source":"page\/148261"}},{"text":"Schrankia pamphaea","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/LUCEPAMP"},"target":{"source":"page\/148261"}},{"text":"Luceria africana africana","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/01LUCAFR"},"target":{"source":"page\/148261"}}],"48":[{"text":"Corgatha odontota","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CORGODON"},"target":{"source":"page\/148261"}},{"text":"Oruza odontota","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CORGODON"},"target":{"source":"page\/148261"}}],"34":[{"text":"Ethiopica glaucochroa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/ETHIGLAU"},"target":{"source":"page\/148261"}},{"text":"Amefrontia glaucochroa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/ETHIGLAU"},"target":{"source":"page\/148261"}}],"26":[{"text":"Eutamsia subsagula","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/FELISUBS"},"target":{"source":"page\/148261"}},{"text":"Feliniopsis subsagula","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/FELISUBS"},"target":{"source":"page\/148261"}},{"text":"Euplexia pericalles","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EUPLPERI"},"target":{"source":"page\/148261"}}],"12":[{"text":"Euxootera callima","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EUNECALL"},"target":{"source":"page\/148261"}},{"text":"Euxootera","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/"},"target":{"source":"page\/148261"}},{"text":"Hermonassoides callima","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EUNECALL"},"target":{"source":"page\/148261"}}],"13":[{"text":"Euxootera cyclophora","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EUNECYCL"},"target":{"source":"page\/148261"}},{"text":"Euxootera cyclops","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EUNECCLO"},"target":{"source":"page\/148261"}},{"text":"Hermonassoides cyclophora","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EUNECYCL"},"target":{"source":"page\/148261"}},{"text":"Hermonassoides cyclops","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EUNECCLO"},"target":{"source":"page\/148261"}}],"36":[{"text":"Sciomesa nyei","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/SCIONYEI"},"target":{"source":"page\/148261"}},{"text":"Feraxinia nyei","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/SCIONYEI"},"target":{"source":"page\/148261"}},{"text":"Hygrostola homomunda","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYGRHOMO"},"target":{"source":"page\/148261"}}],"28":[{"text":"Procus agelasta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGAGEL"},"target":{"source":"page\/148261"}},{"text":"Procus ambiguella","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGMBIG"},"target":{"source":"page\/148261"}},{"text":"Procus decinerea","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGDECI"},"target":{"source":"page\/148261"}},{"text":"Procus subambigua","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGSUBA"},"target":{"source":"page\/148261"}},{"text":"Oligia agelasta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGAGEL"},"target":{"source":"page\/148261"}},{"text":"Oligia ambiguella","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGMBIG"},"target":{"source":"page\/148261"}},{"text":"Oligia decinerea","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGDECI"},"target":{"source":"page\/148261"}},{"text":"Oligia subambigua","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGSUBA"},"target":{"source":"page\/148261"}}],"27":[{"text":"Procus pachydetis","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGPACH"},"target":{"source":"page\/148261"}},{"text":"Oligia pachydetis","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGPACH"},"target":{"source":"page\/148261"}}],"29":[{"text":"Procus tripunctata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGTRIP"},"target":{"source":"page\/148261"}},{"text":"Appana furca","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CONSFURC"},"target":{"source":"page\/148261"}},{"text":"Oligia tripunctata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OLIGTRIP"},"target":{"source":"page\/148261"}},{"text":"Conservula furca","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CONSFURC"},"target":{"source":"page\/148261"}}],"38":[{"text":"Sciomesa argocyma","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PIRAARGO"},"target":{"source":"page\/148261"}},{"text":"Sciomesa piscator","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PIRAPISC"},"target":{"source":"page\/148261"}},{"text":"Pirateolea argocyma","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PIRAARGO"},"target":{"source":"page\/148261"}},{"text":"Pirateolea piscator","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PIRAPISC"},"target":{"source":"page\/148261"}}],"37":[{"text":"Sciomesa cyclophora","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PIRACYCL"},"target":{"source":"page\/148261"}},{"text":"Pirateolea cyclophora","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PIRACYCL"},"target":{"source":"page\/148261"}},{"text":"Sciomesa venata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/SCIOVENA"},"target":{"source":"page\/148261"}}],"32":[{"text":"Paradrina signa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CARASIGN"},"target":{"source":"page\/148261"}},{"text":"Caradrina signa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CARASIGN"},"target":{"source":"page\/148261"}}],"16":[{"text":"Elaeodes bryodes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODBRYO"},"target":{"source":"page\/148261"}},{"text":"Elaeodes chlorobapta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODCHLO"},"target":{"source":"page\/148261"}},{"text":"Nyodes bryodes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODBRYO"},"target":{"source":"page\/148261"}},{"text":"Nyodes chlorobapta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODCHLO"},"target":{"source":"page\/148261"}}],"15":[{"text":"Elaeodes callichlora","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODCALL"},"target":{"source":"page\/148261"}},{"text":"Elaeodes mochlosema","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODMOCH"},"target":{"source":"page\/148261"}},{"text":"Elaeodes panconita","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODPANC"},"target":{"source":"page\/148261"}},{"text":"Nyodes callichlora","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODCALL"},"target":{"source":"page\/148261"}},{"text":"Nyodes mochlosema","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODMOCH"},"target":{"source":"page\/148261"}},{"text":"Nyodes panconita","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NYODPANC"},"target":{"source":"page\/148261"}}],"6":[{"text":"Amazonides","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/"},"target":{"source":"page\/148261"}},{"text":"Hyperfrontia elaphrodes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/01HYPSEM"},"target":{"source":"page\/148261"}}],"10":[{"text":"Psectraxylia","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/"},"target":{"source":"page\/148261"}},{"text":"Axylia intimima","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/AXYLINTI"},"target":{"source":"page\/148261"}}],"17":[{"text":"Dicerogastra","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/"},"target":{"source":"page\/148261"}}],"14":[{"text":"Eucladodes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/"},"target":{"source":"page\/148261"}}],"62":[{"text":"Rivula catadela","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/RIVUCATA"},"target":{"source":"page\/148261"}},{"text":"Caryonopera pyrrholopha","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CARYPYRR"},"target":{"source":"page\/148261"}}],"60":[{"text":"Marcipa holmi","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/MARCHOLM"},"target":{"source":"page\/148261"}},{"text":"Paralephana westi","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PARAWEST"},"target":{"source":"page\/148261"}}],"67":[{"text":"Hypena aridoxa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEARID"},"target":{"source":"page\/148261"}},{"text":"Hypena euprepes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEEUPR"},"target":{"source":"page\/148261"}}],"66":[{"text":"Hypena phricocyma","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEPHRI"},"target":{"source":"page\/148261"}},{"text":"Hypena phricocyma phricocyma","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/01HYPPHR"},"target":{"source":"page\/148261"}}],"68":[{"text":"Hypena porphyrophaes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEPORP"},"target":{"source":"page\/148261"}},{"text":"Hypena erastialis antimima","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/04DICERA"},"target":{"source":"page\/148261"}}],"69":[{"text":"Hypena scotina","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPESCOT"},"target":{"source":"page\/148261"}}],"71":[{"text":"Hypena albizona","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEAZON"},"target":{"source":"page\/148261"}},{"text":"Hypena biangulata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/01HYPBIA"},"target":{"source":"page\/148261"}},{"text":"Hypena eucrossa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEEUCR"},"target":{"source":"page\/148261"}}],"72":[{"text":"Hypena prionodes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEPRND"},"target":{"source":"page\/148261"}}],"70":[{"text":"Hypena chionosticha","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPECHIO"},"target":{"source":"page\/148261"}},{"text":"Hypena directa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEDIRE"},"target":{"source":"page\/148261"}}],"78":[{"text":"Naarda clitodes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NAARCLIT"},"target":{"source":"page\/148261"}}],"73":[{"text":"Britha brithodes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/BRITBRIT"},"target":{"source":"page\/148261"}}],"74":[{"text":"Nodaria lophobela","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NODALOPH"},"target":{"source":"page\/148261"}}],"75":[{"text":"Nodaria verticalis","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NODAVERT"},"target":{"source":"page\/148261"}}],"80":[{"text":"Hypenodes haploa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEHAPL"},"target":{"source":"page\/148261"}},{"text":"Hypenodes prionodes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPEPRIO"},"target":{"source":"page\/148261"}}],"46":[{"text":"Cerynea limbobrunnea","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CERYLIMB"},"target":{"source":"page\/148261"}},{"text":"Cerynea nigropuncta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CERYNGRO"},"target":{"source":"page\/148261"}}],"44":[{"text":"Eublemma dyscapna","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EUBLDYSC"},"target":{"source":"page\/148261"}}],"45":[{"text":"Holocryptis neavei","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HOLONEAV"},"target":{"source":"page\/148261"}}],"51":[{"text":"Pardasena atmocyma","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PARDATMO"},"target":{"source":"page\/148261"}}],"54":[{"text":"Tegena aprepta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/TEGEAPRE"},"target":{"source":"page\/148261"}},{"text":"Tegena steeleae","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/TEGESTEE"},"target":{"source":"page\/148261"}}],"55":[{"text":"Westermannia immaculata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/WESTIMMA"},"target":{"source":"page\/148261"}}],"25":[{"text":"Homonacna alpnista","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HOMOALPN"},"target":{"source":"page\/148261"}}],"47":[{"text":"Pseudcraspedia ethiopica","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/01PSEPRO"},"target":{"source":"page\/148261"}}],"30":[{"text":"Callopistria dascia","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/CALLDASC"},"target":{"source":"page\/148261"}},{"text":"Tracheplexia schista","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/TRACSCHI"},"target":{"source":"page\/148261"}},{"text":"Tracheplexia tenuiata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/01TRASCH"},"target":{"source":"page\/148261"}}],"11":[{"text":"Ochropleura spinosa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/01OCHSPI"},"target":{"source":"page\/148261"}},{"text":"Ochropleura viettei","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OCHRVIET"},"target":{"source":"page\/148261"}},{"text":"Psectraxylia boursini","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PSECBOUR"},"target":{"source":"page\/148261"}}],"33":[{"text":"Ethiopica acrothecta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/ETHIACRO"},"target":{"source":"page\/148261"}},{"text":"Ethiopica eclecta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/ETHIELEC"},"target":{"source":"page\/148261"}}],"7":[{"text":"Amazonides ascia","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/AMAZASCI"},"target":{"source":"page\/148261"}}],"9":[{"text":"Axylia belophora","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/AXYLBELO"},"target":{"source":"page\/148261"}},{"text":"Axylia posterioducta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/AXYLPOST"},"target":{"source":"page\/148261"}}],"8":[{"text":"Axylia edwardsi","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/AXYLEDWA"},"target":{"source":"page\/148261"}},{"text":"Axylia sciodes","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/AXYLSCIO"},"target":{"source":"page\/148261"}}],"42":[{"text":"Acrapex syscia","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/ACRASYSC"},"target":{"source":"page\/148261"}}],"41":[{"text":"Manga belophora","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/MANGBELO"},"target":{"source":"page\/148261"}},{"text":"Sesamia sciagrapha","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/SESASCIA"},"target":{"source":"page\/148261"}}],"40":[{"text":"Sesamia mesosticha","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/SESAMESO"},"target":{"source":"page\/148261"}},{"text":"Sesamia plagiographa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/SESAPLAG"},"target":{"source":"page\/148261"}}],"20":[{"text":"Apospasta aethalopa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/APOSAETH"},"target":{"source":"page\/148261"}},{"text":"Apospasta synclera","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/APOSSYNC"},"target":{"source":"page\/148261"}}],"18":[{"text":"Apospasta fulvida","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/01APODIP"},"target":{"source":"page\/148261"}}],"19":[{"text":"Apospasta jacksoni","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/APOSJACK"},"target":{"source":"page\/148261"}},{"text":"Apospasta kennedyi","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/APOSKENN"},"target":{"source":"page\/148261"}}],"21":[{"text":"Apospasta rhodina","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/APOSRHOD"},"target":{"source":"page\/148261"}},{"text":"Apospasta townsendi","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/APOSTOWN"},"target":{"source":"page\/148261"}}],"23":[{"text":"Mythimna aenictopa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/LEUCANCT"},"target":{"source":"page\/148261"}},{"text":"Vietteania catadela","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/VIETCATA"},"target":{"source":"page\/148261"}}],"35":[{"text":"Plusiophaes argosticta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/PLUSARGO"},"target":{"source":"page\/148261"}}]}}';	
+
+		//$j = '{"@type":["AnnotationPage"],"items":{"36":[{"text":"Malgadonta anjouanica","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/MALGANJO"},"target":{"source":"page\/296840"}}],"48":[{"text":"Acroctena arguta","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/ACROARGU"},"target":{"source":"page\/296840"}}],"46":[{"text":"Acroctena nebulosa","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/ACRONEBU"},"target":{"source":"page\/296840"}}],"152":[{"text":"Ambina andranoma","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/AMBIANDR"},"target":{"source":"page\/296840"}}],"150":[{"text":"Ambina septentrionalis","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/AMBISEPT"},"target":{"source":"page\/296840"}}],"153":[{"text":"Ambina trioculata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/AMBITRIO"},"target":{"source":"page\/296840"}}],"156":[{"text":"Antoroka munda","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/ANTOMUND"},"target":{"source":"page\/296840"}}],"19":[{"text":"Antsalova pauliani","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/ANTSPAUL"},"target":{"source":"page\/296840"}}],"90":[{"text":"Epicerurina grisea","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EPICGRIS"},"target":{"source":"page\/296840"}}],"181":[{"text":"Eutrotonotus catalai","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/EUTRCATA"},"target":{"source":"page\/296840"}}],"57":[{"text":"Nesochadisra protea","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/NESOPROT"},"target":{"source":"page\/296840"}}],"120":[{"text":"Ochrosomera vanja","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/OCHRVANJ"},"target":{"source":"page\/296840"}}],"0":[{"text":"Rhynchophalerina inexpectata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/RHYNINEX"},"target":{"source":"page\/296840"}}],"65":[{"text":"Vietteella nigrilineata","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/VIETNIGR"},"target":{"source":"page\/296840"}}],"207":[{"text":"Hypsoides ambrensis","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/01HYPAMB"},"target":{"source":"page\/296840"}}],"218":[{"text":"Hypsoides semifusca","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPSSEMI"},"target":{"source":"page\/296840"}},{"text":"Hypsoides singularis","body":{"id":"https:\/\/www.afromoths.net\/species_by_code\/HYPSSING"},"target":{"source":"page\/296840"}}]}}';
+		
+		$annotationPage = json_decode($j);
+		//$annotation_pages = $annotationPage; // set this if we want annotation sidebar
+
+		
+		
+		
+		
 		$title = $work->name;
 	
 		html_start($title, $doc);
+		
+		echo '<div id="panel">
+<a href="javascript:close_panel()">╳</a>
+<div id="info"></div>
+</div>';
+		
 		
 		// create a side bar for information on this work
 		echo '<div>';
@@ -320,13 +376,57 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 			echo '</dl>';
 		}
 		
+		// segmentation coverage (maybe we can do this in CouchDB, means we could retrieve these for title view as well)
+		if (isset($work->hasPart))
+		{
+			$coverage = array();
+			$pos = -1;
+			
+			foreach ($work->hasPart as $page)
+			{
+				if (isset($page->isPartOf))
+				{
+					if ($pos == -1)
+					{
+						// start
+						$pos = $page->position;
+						$coverage[$pos] = $pos;					
+					}
+					else
+					{
+						// continue
+						$coverage[$pos] = $page->position;
+					}
+				}
+				else
+				{
+					$pos = -1;
+				}
+			}
+			
+			// print_r($coverage);
+			
+			$num_pages = count($work->hasPart);
+			
+			echo '<div class="coverage">';
+			
+			foreach ($coverage as $start => $end)
+			{
+				echo '<div class="block" style="left:' . round($start/$num_pages * 100) . '%;width:' . round(($end - $start)/$num_pages * 100) . '%;"></div>';
+			}
+			
+			echo '</div>';
+		}
+		
+
+		
 		// different views of item
 		echo '<div>';
 		echo '<a href="item/' . $id . '">pages</a>';
 		echo ' | ';
 		echo '<a href="item/' . $id . '/thumbnails">thumbnails</a>';
 		
-		if ($annotation_pages)
+		if ($image_gallery)
 		{
 			echo ' | ';
 			echo '<a href="item/' . $id . '/figures">figures</a>';
@@ -350,11 +450,11 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 		//$display_mode = 'figures';
  		
  		//--------------------------------------------------------------------------------
- 		if ($display_mode == 'figures' && $annotation_pages) 
+ 		if ($display_mode == 'figures' && $image_gallery) 
  		{			
  				echo '<div class="gallery">';
 				echo '<ul>';
-				foreach ($annotation_pages->items as $page)
+				foreach ($image_gallery->items as $page)
 				{
 					foreach ($page as $figure)
 					{
@@ -415,7 +515,15 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 				echo '<ul class="image-grid">';
 				foreach ($work->hasPart as $page)
 				{
-					echo '<li>';
+					echo '<li';
+					
+					// highlight pages that are in segments
+					if (isset($page->isPartOf))
+					{
+						echo ' class="selected"';
+					}
+					
+					echo '>';
 					echo '<a href="page/' . str_replace('pagethumb/', '', $page->thumbnailUrl) . '">';
 					
 					$image_url = get_page_image_url(str_replace('pagethumb/', '', $page->thumbnailUrl));
@@ -456,7 +564,7 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 			
 			// list of pages where a part (in BHL sense) starts
 			$part_start = array();
-			foreach ($list->dataFeedElement as $part)
+			foreach ($list->dataFeedElement as $part) // note that we are iterating over "list" which is parts
 			{
 				if (isset($part->thumbnailUrl))
 				{
@@ -519,6 +627,46 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 			
 			echo '</div>';
 			
+			if (1)
+			{
+				// experiment with Google-style search result marker.
+				// could be used to display search result location, or external links 
+				// to pages in item (i.e., pages of external value)
+				
+				// we will need a list of page-level annotations that we will place on this
+				// sidebar, and need a way to display them.
+				
+				
+				echo '<div style="background-color:white;position:fixed;width:1em;height:calc(100vh - var(--nav-height));left:calc(100% - 2em)">';
+				
+					// divide into pages
+					$num_pages = count($pages);
+					$tick_height = round(100 / $num_pages, 2);
+					
+					for ($i = 0; $i < $num_pages; $i++)
+					{
+						if (isset($annotation_pages->items->{$i}) && $annotation_pages)
+						{
+							$extra = 'background-color:red;';
+							$data = json_encode($annotation_pages->items->{$i});
+														
+							echo '<div style="' . $extra . 'position:absolute;width:1em;top:' . ($tick_height * $i) . '%;height:' . $tick_height . '%;" onclick="scrolltopage(' . $i . ');show_panel(&quot;' . rawurlencode($data) . '&quot;);">';
+							echo '</div>';
+
+						}
+						else
+						{
+							$extra = '';
+							echo '<div style="' . $extra . 'position:absolute;width:1em;top:' . ($tick_height * $i) . '%;height:' . $tick_height . '%;" onclick="scrolltopage(' . $i . ');">';
+							echo '</div>';	
+						}
+						// border:1px solid rgb(192,192,192);
+					
+				
+					}
+				echo '</div>';
+			}
+			
 			// Viewer is IFRAME and we parse a page number to display, so we can scroll 
 			// to a page
 						
@@ -532,10 +680,7 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 			{
 				echo '<iframe id="viewer" src="viewer.php?id=' . $internet_archive . '&page=' . ($offset + 1) . '"></iframe>';			
 			}
-		}	
-
-		// Display item as coverage?
-		
+		}			
 		
 		
 echo '  </main>
@@ -554,29 +699,7 @@ echo '  </main>
 	}
 }
 
-//----------------------------------------------------------------------------------------
-// Given a BHL PageID return a URL to the thumbnail of the page image. Uses S3 storage,
-// falls back to BHL API if Internet Archive id not found.
-function get_page_image_url($PageID)
-{
-	global $config;
-	
-	$image_url = get_page_image_url_ia($PageID);
-	
-	if ($image_url != '')
-	{
-		$image_url = 'https://hel1.your-objectstorage.com/bhl/' . $image_url;
-	}
-	else
-	{
-		// fallback to BHL
-		$image_url = 'http://www.biodiversitylibrary.org/pagethumb/' . $PageID;
-	}
-	
-	$image_url = 'https://images.bionames.org' . imgproxy_path_resize($image_url, 0, $config['thumbnail_height']);
-	
-	return $image_url;
-}
+
 
 //----------------------------------------------------------------------------------------
 function display_title($id)
@@ -655,6 +778,19 @@ function display_title($id)
 			echo '<img loading="lazy" src="' . $image_url . '" onerror="retry(this)">';
 			
 			echo '<div>' . $item->name . '</div>';
+			
+			// coverage?
+			if (isset($item->coverage))
+			{
+				$num_pages = count($item->hasPart);
+				echo '<div class="coverage">';			
+				foreach ($item->coverage as $start => $end)
+				{
+					echo '<div class="block" style="left:' . round($start/$num_pages * 100) . '%;width:' . round(($end - $start)/$num_pages * 100) . '%;"></div>';
+				}				
+				echo '</div>';
+			}			
+			
 			echo '</a>';
 			echo '</li>';
 		}
@@ -738,68 +874,182 @@ function display_container_list($letter = 'A')
 //----------------------------------------------------------------------------------------
 function display_search($query)
 {
-	$doc = get_search_results($query);
-	
-	if ($doc)
+
+	// Nouveau search
+	if (1)
 	{
-		$title = $doc->name;
-	
-		html_start($title, $doc);
-		
-		// create a side bar for information on the search
-		echo '<div>';
-		echo '  <aside>';
-		echo '    <details id="aside-details">';
-		echo '      <summary>Details</summary>';
-		echo '     	<div>';
-		
-		// search query
-		echo '<h1>' . $doc->name . '</h1>';
-		
-		echo '		</div>';
-		echo '    </details>';
-		echo '  </aside>';
-		
-		// main display
-		echo '  <main>';
-				
-		echo '<ul class="media-list">';
-		foreach ($doc->dataFeedElement as $hit)
+		$doc = get_search_results($query);
+		if ($doc)
 		{
-			echo '<li class="media-item">';
+			$title = $doc->name;
+		
+			html_start($title, $doc);
 			
-			if (isset($hit->thumbnailUrl))
+			// create a side bar for information on the search
+			echo '<div>';
+			echo '  <aside>';
+			echo '    <details id="aside-details">';
+			echo '      <summary>Details</summary>';
+			echo '     	<div>';
+			
+			// search query
+			echo '<h1>' . $doc->name . '</h1>';
+			
+			echo '		</div>';
+			echo '    </details>';
+			echo '  </aside>';
+			
+			// main display
+			echo '  <main>';
+			
+			echo '<ul class="media-list">';
+			foreach ($doc->dataFeedElement as $hit)
 			{
-				echo '<div>';
-				$image_url = get_page_image_url(str_replace('pagethumb/', '', $hit->thumbnailUrl));
-				echo '<img class="media-figure" src="' . $image_url . '">';			
+				// text search
+				echo '<li class="media-item">';
+				
+				if (isset($hit->thumbnailUrl))
+				{
+					echo '<div>';
+					$image_url = get_page_image_url(str_replace('pagethumb/', '', $hit->thumbnailUrl));
+					echo '<img class="media-figure" src="' . $image_url . '">';			
+					echo '</div>';
+				}
+	
+				echo '<div class="media-body">';
+				echo '<h3 class="media-title">';
+				
+				echo '<a href="' . $hit->url . '">' . $hit->name . '</a>';
+				 
+				echo '</h3>';
 				echo '</div>';
+				echo '</li>';				
 			}
-
-			echo '<div class="media-body">';
-			echo '<h3 class="media-title">';
+			echo '</ul>';
 			
-			 echo '<a href="' . $hit->url . '">' . $hit->name . '</a>';
-			 
-			echo '</h3>';
-			echo '</div>';
-			echo '</li>';			
+			echo '  </main>
+			</div>';
+			
+			echo '<script>';
+			require_once ('aside.js.inc.php');
+			echo '</script>';
+	
+			html_end();
 		}
-		echo '</ul>';
-		
-		
-		echo '  </main>
-		</div>';
-		
-		echo '<script>';
-		require_once ('aside.js.inc.php');
-		echo '</script>';
-
-		html_end();
+		else
+		{
+			default_display("search for $query failed");
+		}
 	}
-	else
+	
+	// Simple name search
+	if (0)
 	{
-		default_display("search for $query failed");
+		$doc = get_name_search_results($query);
+		
+		if ($doc)
+		{
+			$title = $doc->name;
+		
+			html_start($title, $doc);
+			
+			// create a side bar for information on the search
+			echo '<div>';
+			echo '  <aside>';
+			echo '    <details id="aside-details">';
+			echo '      <summary>Details</summary>';
+			echo '     	<div>';
+			
+			// search query
+			echo '<h1>' . $doc->name . '</h1>';
+			
+			echo '		</div>';
+			echo '    </details>';
+			echo '  </aside>';
+			
+			// main display
+			echo '  <main>';
+			
+			// names
+			
+			// group 
+			
+			$years = array();
+			
+			foreach ($doc->dataFeedElement as $hit)
+			{
+				$item = new stdclass;
+				$item->data = $hit->selector;
+			
+				if (isset($hit->source))
+				{
+					$item->link = $hit->source->{'@id'};
+					if (isset($hit->source->isPartOf))
+					{
+						$ItemID = $hit->source->isPartOf[0]->{'@id'};
+						$year = $hit->source->isPartOf[0]->datePublished;
+						
+						if (!isset($years[$year]))
+						{
+							$years[$year] = array();
+						}
+						if (!isset($years[$year][$ItemID]))
+						{
+							$years[$year][$ItemID] = array();
+						}
+						$years[$year][$ItemID][] = $item;
+					}
+				}
+			}
+			
+			// sort
+			ksort($years);
+			
+			// output
+			/*
+			echo '<pre>';
+			print_r($years);
+			echo '</pre>';
+			*/
+			
+			echo '<ul>';
+			foreach ($years as $year => $items)
+			{
+				echo '<li>' . $year;
+				echo '<ul>';
+				foreach ($items as $item => $hits)
+				{
+					echo '<li>' . $item;
+					echo '<ul>';
+					foreach ($hits as $hit)
+					{
+						echo '<li>';
+						echo '<a href="' . $hit->link . '">';
+						echo $hit->data->prefix . '<b>' . $hit->data->exact . '</b>' . $hit->data->suffix;
+						echo '</a>';
+						echo '</li>';
+					}
+					echo '</ul>';
+					echo '</li>';				
+				}			
+				echo '</ul>';
+				echo '</li>';
+			}
+			echo '</ul>';
+			
+			echo '  </main>
+			</div>';
+			
+			echo '<script>';
+			require_once ('aside.js.inc.php');
+			echo '</script>';
+	
+			html_end();			
+		}
+		else
+		{
+			default_display("search for $query failed");
+		}
 	}
 }
 
