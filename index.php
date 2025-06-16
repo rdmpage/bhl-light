@@ -332,6 +332,9 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 		{
 			echo '<div>';
 			$image_url = get_page_image_url(str_replace('pagethumb/', '', $work->thumbnailUrl));
+			
+			$image_url = $work->thumbnailUrl;
+			
 			echo '<img loading="lazy" src="' . $image_url . '">';			
 			echo '</div>';
 		}
@@ -527,6 +530,8 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 					echo '<a href="page/' . str_replace('pagethumb/', '', $page->thumbnailUrl) . '">';
 					
 					$image_url = get_page_image_url(str_replace('pagethumb/', '', $page->thumbnailUrl));
+					
+					$image_url = $page->thumbnailUrl;
 					
 					echo '<img loading="lazy" src="' . $image_url . '" onerror="retry(this)">';
 					
@@ -774,6 +779,8 @@ function display_title($id)
 			echo '<a href="' . $item->{'@id'} . '">';
 			
 			$image_url = get_page_image_url(str_replace('pagethumb/', '', $item->thumbnailUrl));
+			
+			$image_url = $item->thumbnailUrl;
 			
 			echo '<img loading="lazy" src="' . $image_url . '" onerror="retry(this)">';
 			
@@ -1108,6 +1115,15 @@ function display_map()
 }
 
 //----------------------------------------------------------------------------------------
+// Redirect to thumbanil for a page
+function display_page_thumbnail($PageID, $is_thumbnail = true)
+{
+	$url = get_page_image_url($PageID, $is_thumbnail);
+	header("Location: $url");
+}
+
+
+//----------------------------------------------------------------------------------------
 function main()
 {
 	global $config;
@@ -1230,6 +1246,25 @@ function main()
 		if (isset($_GET['map']))
 		{
 			display_map();
+			$handled = true;		
+		}
+	}
+	
+	// page images
+	if (!$handled)
+	{
+		if (isset($_GET['pagethumb']))
+		{
+			display_page_thumbnail($_GET['pagethumb'], true);
+			$handled = true;		
+		}
+	}
+	
+	if (!$handled)
+	{
+		if (isset($_GET['pageimage']))
+		{
+			display_page_thumbnail($_GET['pageimage'], false);
 			$handled = true;		
 		}
 	}
