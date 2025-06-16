@@ -371,7 +371,7 @@ function get_titles_for_letter($letter = 'A')
 //----------------------------------------------------------------------------------------
 // Given a BHL PageID return a URL to the thumbnail of the page image. Uses S3 storage,
 // falls back to BHL API if Internet Archive id not found.
-function get_page_image_url($PageID)
+function get_page_image_url($PageID, $is_thumbnail = false)
 {
 	global $config;
 	
@@ -387,7 +387,14 @@ function get_page_image_url($PageID)
 		$image_url = 'http://www.biodiversitylibrary.org/pagethumb/' . $PageID;
 	}
 	
-	$image_url = 'https://images.bionames.org' . imgproxy_path_resize($image_url, 0, $config['thumbnail_height']);
+	if ($is_thumbnail)
+	{
+		$image_url = 'https://images.bionames.org' . imgproxy_path_resize($image_url, 0, $config['thumbnail_height']);
+	}
+	else
+	{
+		$image_url = 'https://images.bionames.org' . imgproxy_path_resize($image_url, 700, 0);
+	}
 	
 	return $image_url;
 }
