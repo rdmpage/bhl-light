@@ -47,7 +47,19 @@ CouchDB on cloud server was installed from scratch using  [binary packages](http
 
 ### Nouveau search
 
-[Nouveau](https://neighbourhood.ie/blog/2024/10/24/first-steps-with-nouveau) used to provide full-text search. This requires Java >= 11:
+[Nouveau](https://neighbourhood.ie/blog/2024/10/24/first-steps-with-nouveau) used to provide full-text search. 
+
+#### MacOS
+
+Go to Applications folder, find `Apache CouchDB`, Ctrl-click to get context menu, select **Show Package Contents**, go to Contents/Resources/couchdbx-core and start the server:
+
+```
+java -jar nouveau/lib/nouveau-1.0-SNAPSHOT.jar server etc/nouveau.yaml
+```
+
+#### Linux (cloud)
+
+This requires Java >= 11
 
 ```
 apt install openjdk-11-jre-headless
@@ -65,7 +77,9 @@ cd /opt/couchdb
 nohup java -jar nouveau/lib/nouveau-1.0-SNAPSHOT.jar server etc/nouveau.yaml
 ```
 
-Add a search index to CouchDB. The first time this view is called it can take a while as the search index in Nouveau has to be generated.
+#### Add a search index to CouchDB
+
+The first time this view is called it can take a while as the search index in Nouveau has to be generated.
 
 ```
 {
@@ -78,6 +92,21 @@ Add a search index to CouchDB. The first time this view is called it can take a 
 }
 ```
 
+## Experiments
+
+### Document structure
+
+The folder `datalab` has code to run BHL content on Datalab and retrieve layout structure (e.g., headers, captions, lists, figures), which are uploaded to CouchDB as `blocks-`. This enables us to display figures in BHL-Light.
+
+Big challenge is reconciling OCR layout from IA with page layout from Datalab. if we do that, then we can list text blocks and their locations, and build a model of the semantics of an article. In other words, for a given block of text we will have the text and also a layout classification. If we combine that with the actual text we should be able to classify that block (e.g., “abstract”, “reference”, etc.). We also want to be able to associate figures with their captions so we can have a text-based image search.
+
+### Links
+
+Idea is that links from external sources (e.g., Wikipedia, Wikipsecies, taxonomic databases such as Afromoths and Catalogue of Life) tells us something about those pages: they are important (and hence maybe should rank higher in search results) and that these pages likely describe new species, name changes, etc.
+
+`import/afro.php’ generates some JSON we can use, see `$display_google_sidebar` flag in `index.php` for code that experiments with this display. Note that having ticks on the sidebar is hard to see (we can’t distinguish between individual ticks).
+
+See https://doriantaylor.com/document-stats for another idea, which is a scrolling list of document titles with curved lines linking to the document date.
 
 ## Comparisons with Plazi
 

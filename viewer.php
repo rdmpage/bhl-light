@@ -347,6 +347,7 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
 		if (1) // 0 if we are messing about with text layouts and don't want to see page image
 		{
 			$html .= '<img class="lazy"'
+			    //. ' style="filter: grayscale(100%) contrast(150%);"'
 				. ' data-src="' . $image_url  . '"'
 				. ' draggable="false"'
 				. '>' . "\n";
@@ -412,7 +413,6 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
 		$html .= '<!-- annotations -->' . "\n";
 
 		if ($block_layout && 1) // 0 if we don't want to show blocks
-		//if ($block_layout)
 		{
 			// Block might be computed on images that are scaled differently to OCR
 			$block_page_width = $block_layout->pages[$i]->image_bbox[2] - $block_layout->pages[$i]->image_bbox[0];

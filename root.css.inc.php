@@ -29,7 +29,7 @@
   	--viewer-footer-bg: rgba(0,0,0,0.5);
   	--viewer-footer-text: white;
   	
-  	--panel-bg: #fff;
+  	--panel-bg: rgba(255,255,255,0.5);
 	--panel-shadow: gray;
 
   	
@@ -49,8 +49,8 @@
 	
 	--media-item-padding:1em;
 	
-	--coverage-bg: rgb(192,192,192);
-	--coverage-block-bg: rgb(128,128,128);
+	--coverage-bg: var(--viewer-bg);
+	--coverage-block-bg: rgb(200,200,200);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -93,6 +93,10 @@
 	--input-focus-color: white;    
 	
 	--card-bg: var(--bhl-gray);
+	
+	--coverage-bg: var(--viewer-bg);
+	--coverage-block-bg: #555;
+	
 	
 	}
 }
