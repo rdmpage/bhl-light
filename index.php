@@ -215,6 +215,8 @@ function display_item_iiif($id)
 	$manifest = get_item_manifest($id);
 	
 	header ("Content-Type: application/json");
+	header('Access-Control-Allow-Origin: *');
+
 	echo json_encode($manifest);
 
 }
