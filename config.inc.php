@@ -16,7 +16,7 @@ $config['site']		= 'heroku';
 switch ($config['site'])
 {
 	case 'heroku':
-		$config['web_server']	= 'https://bhl-light.herokuapp.com'; 
+		$config['web_server']	= 'https://bhl-light-806b8b6fa073.herokuapp.com'; 
 		$config['web_root']		= '/';
 		$config['site_name'] 	= 'BHL Light';
 		break;	
