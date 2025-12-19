@@ -693,7 +693,7 @@ function get_item_manifest($id)
 				$manifest = new stdclass;
 				
 				$manifest->{'@context'} = 'http://iiif.io/api/presentation/3/context.json';
-				$manifest->id = $config['web_server'] . $config['web_root'] . $id . '-manifest.json';
+				$manifest->id = $config['web_server'] . $config['web_root'] . 'item/' . $id . '-manifest.json';
 				$manifest->type = 'Manifest';
 				
 				$label = new stdclass;
@@ -714,16 +714,25 @@ function get_item_manifest($id)
 					
 					$item = new stdclass;
 					$item->id = $canvas->id . '/1';
-					$item->motivation = 'painting';
+					$item->type ='AnnotationPage';
+					$item->items = array();
 					
-					$item->body = new stdclass;
-					$item->body->id = $config['web_server'] . $config['web_root'] . 'pageimage/' . $page->bhl_pageid;
-					$item->body->type = 'Image';
-					$item->body->format = 'image/webp';
-					$item->body->height = $page->image_bbox[3];
-					$item->body->width = $page->image_bbox[2];
+					$annotation = new stdclass;
+					$annotation->id = $config['web_server'] . $config['web_root'] . 'page/' . $page->bhl_pageid;
+			
+					$annotation->type = 'Annotation';
+					$annotation->motivation = 'painting';
 					
-					$item->target = $canvas->id;
+					$annotation->body = new stdclass;
+					$annotation->body->id = $config['web_server'] . $config['web_root'] . 'pageimage/' . $page->bhl_pageid;
+					$annotation->body->type = 'Image';
+					$annotation->body->format = 'image/webp';
+					$annotation->body->height = $page->image_bbox[3];
+					$annotation->body->width = $page->image_bbox[2];
+					
+					$annotation->target = $canvas->id;
+					
+					$item->items[] = $annotation;
 					
 					$canvas->items[] = $item;
 					
