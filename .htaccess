@@ -14,7 +14,11 @@ RewriteRule bibliography/(.*)$ ?bibliography=$1 [NC,L]
 RewriteRule item/(\d+)$ ?item=$1 [NC,L]
 RewriteRule item/(\d+)/thumbnails$ ?item=$1&thumbnails [NC,L]
 RewriteRule item/(\d+)/figures$ ?item=$1&figures [NC,L]
+
+# IIIF
 RewriteRule item/(\d+)/manifest.json$ ?item=$1&iiif [NC,L]
+RewriteRule page/(\d+)/info.json$ ?pageimage=$1&info [NC,L]
+RewriteRule page/(\d+)/full/(full|max)/0/default.\w+$ ?pageimage=$1 [NC,L]
 
 # go to specific place in list of pages, thumbnails, figures
 RewriteRule item/(\d+)/offset/(\d+)$ ?item=$1&offset=$2 [NC,L]
@@ -38,3 +42,4 @@ RewriteRule map$ ?map [NC,L]
 # images
 RewriteRule pagethumb/(\d+)$ ?pagethumb=$1 [NC,L]
 RewriteRule pageimage/(\d+)$ ?pageimage=$1 [NC,L]
+

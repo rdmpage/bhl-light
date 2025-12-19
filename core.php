@@ -729,7 +729,19 @@ function get_item_manifest($id)
 					$annotation->body->format = 'image/webp';
 					$annotation->body->height = $page->image_bbox[3];
 					$annotation->body->width = $page->image_bbox[2];
-					
+	
+					if (1)
+					{
+						$annotation->body->service = array();
+						
+						$service = new stdclass;
+						$service->id = $config['web_server'] . $config['web_root'] . 'page/' . $page->bhl_pageid;
+						$service->type = 'ImageService2';
+						$service->profile = 'http://iiif.io/api/image/2/level0.json';
+						
+						$annotation->body->service[] = $service;
+					}
+
 					$annotation->target = $canvas->id;
 					
 					$item->items[] = $annotation;
@@ -746,6 +758,36 @@ function get_item_manifest($id)
 	
 	return $manifest;
 }
+
+//----------------------------------------------------------------------------------------
+// For a given BHL PageID return array [width,height]
+function get_page_width_height($PageID)
+{
+	global $config;
+	global $couch;
+	
+	$wh = array();
+	
+	$url = '_design/page/_view/width-height?key=' . $PageID;
+	
+	if ($config['stale'])
+	{
+		$url .= '&stale=ok';
+	}			
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	if (count($resp_obj->rows) == 1)
+	{
+		$wh = $resp_obj->rows[0]->value;
+	}
+	
+	
+	return $wh;
+}
+
 
 /*
 $id = 331959;

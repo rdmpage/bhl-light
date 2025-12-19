@@ -1136,11 +1136,37 @@ function display_map()
 }
 
 //----------------------------------------------------------------------------------------
-// Redirect to thumbanil for a page
+// Redirect to image for a page (use $is_thumbnail to get thumbnail)
 function display_page_thumbnail($PageID, $is_thumbnail = true)
 {
 	$url = get_page_image_url($PageID, $is_thumbnail);
 	header("Location: $url");
+}
+
+//----------------------------------------------------------------------------------------
+// IIIF info on page
+function display_page_iiif_info($PageID)
+{
+	global $config;
+	
+	$info = new stdclass;
+	$info->{'@context'} = 'http://iiif.io/api/image/2/context.json';
+	$info->{'@id'} = $config['web_server'] . $config['web_root'] . 'pageimage/' . $PageID;
+
+	$info->protocol = 'http://iiif.io/api/image';
+	
+	$wh = get_page_width_height($PageID);
+	$info->width = $wh[0];
+	$info->height = $wh[1];	
+	
+	$info->profile = ['http://iiif.io/api/image/2/level0.json'];
+	$info->formats = ['webp'];
+	$info->qualities = ['default'];
+	
+	header ("Content-Type: application/json");
+	header('Access-Control-Allow-Origin: *');
+
+	echo json_encode($info);
 }
 
 
@@ -1300,8 +1326,18 @@ function main()
 	{
 		if (isset($_GET['pageimage']))
 		{
-			display_page_thumbnail($_GET['pageimage'], false);
-			$handled = true;		
+			$info = false;
+			if (isset($_GET['info']))
+			{	
+				display_page_iiif_info($_GET['pageimage']);
+				$handled = true;	
+			}			
+		
+			if (!$handled)
+			{
+				display_page_thumbnail($_GET['pageimage'], false);
+				$handled = true;
+			}
 		}
 	}			
 	
