@@ -209,6 +209,17 @@ function truncate_text($text, $length = 60)
 }
 
 //----------------------------------------------------------------------------------------
+// Manifest for IIIF
+function display_item_iiif($id)
+{
+	$manifest = get_item_manifest($id);
+	
+	header ("Content-Type: application/json");
+	echo json_encode($manifest);
+
+}
+
+//----------------------------------------------------------------------------------------
 function display_item($id, $offset = 0, $display_mode = 'pages')
 {
 	global $config;
@@ -891,7 +902,7 @@ function display_search($query)
 {
 
 	// Nouveau search
-	if (1)
+	if (0)
 	{
 		$doc = get_search_results($query);
 		if ($doc)
@@ -958,7 +969,7 @@ function display_search($query)
 	}
 	
 	// Simple name search
-	if (0)
+	if (1)
 	{
 		$doc = get_name_search_results($query);
 		
@@ -1200,13 +1211,28 @@ function main()
 		if (isset($_GET['figures']))
 		{	
 			$display_mode = 'figures'; 
+		} 	
+		
+		if (isset($_GET['iiif']))
+		{	
+			$display_mode = 'iiif'; 
 		} 				
 		
 		if ($item != '')	
 		{			
 			if (!$handled)
 			{
-				display_item($item, $offset, $display_mode);
+				switch ($display_mode)
+				{
+					case 'iiif':
+						display_item_iiif($item);
+						break;
+						
+					default:
+						display_item($item, $offset, $display_mode);
+						break;
+				}
+						
 				$handled = true;
 			}			
 		}
@@ -1275,8 +1301,7 @@ function main()
 			display_page_thumbnail($_GET['pageimage'], false);
 			$handled = true;		
 		}
-	}
-			
+	}			
 	
 	if (!$handled)
 	{

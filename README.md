@@ -129,6 +129,18 @@ For example, in Item 137726
 - ens: one male (holotype) Upolu, **Vailima**, 1.1925, 1,200 ft. ;
 - female (paratype) **Vailima**, Upolu; two females, one male (
 
+Another example, `Camorta` is an island, and most results seem to be geographic, e.g.:
+
+- ted the central islands of Camorta, Nancowry,
+- Camorta, kept up their curious pid
+- serted settlement at Camorta in the Nicobars, whe
+- Camorta and Car Nicobar, where it
+- essa, Bompoka, Tillangchong, Camorta, Nancowry, Trinkut
+- was obtained by Davison at Camorta in the
+- found it not uncommon at Camorta ; from his account it app
+- enty or eighty together at Camorta. I did not come across it
+- the abandoned settlement at Camorta in
+
  
 
 

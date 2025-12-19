@@ -593,7 +593,8 @@ function get_name_search_results($query, $limit = 10)
 	$query = strtolower(trim($query));
 	
 	$startkey = array($query);
-	$endkey = array($query, new stdclass);
+	$endkey = array($query . "\u{FFFF}");
+	$endkey = array($query . " ");
 	
 	$parameters = array(
 		'startkey' 		=> json_encode($startkey),
@@ -611,8 +612,6 @@ function get_name_search_results($query, $limit = 10)
 	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
 
 	$resp_obj = json_decode($resp);	
-	
-	//print_r($resp_obj);
 		
     $datafeed = new stdclass;
     $datafeed->{'@type'} = ['DataFeed'];
@@ -646,6 +645,104 @@ function get_name_search_results($query, $limit = 10)
 	return $datafeed;
 	
 }
+
+//----------------------------------------------------------------------------------------
+// Get IIIF manifest for item
+// Think about eventually moving this to CouchDB view
+function get_item_manifest($id)
+{
+	global $config;
+	
+	$manifest = null;
+	
+	$doc = get_item($id);
+	
+	if ($doc)
+	{
+		//$layout_id = 'layout/' . $id;
+
+		//$doc = get_layout($layout_id);
+	
+		// print_r($doc);
+		
+		// Unpack JSON-LD
+		$work = null;
+		foreach ($doc as $graph)
+		{
+			if (in_array('CreativeWork', $graph->{'@type'}))
+			{
+				$work = $graph;
+			}	
+		}
+		if ($work)
+		{
+			// Internet Archive id (barcode)
+			$internet_archive = '';
+			
+			if (preg_match('/archive.org\/details\/(.*)/', $work->sameAs, $m))
+			{		
+				$internet_archive = $m[1];
+			}
+			
+			if ($internet_archive != '')
+			{
+				$layout = get_layout('layout/' . $internet_archive);
+				
+				// print_r($layout);
+				
+				$manifest = new stdclass;
+				
+				$manifest->{'@context'} = 'http://iiif.io/api/presentation/3/context.json';
+				$manifest->id = $config['web_server'] . $config['web_root'] . $id . '-manifest.json';
+				$manifest->type = 'Manifest';
+				
+				$label = new stdclass;
+				$label->en = [$work->name];
+				$manifest->label = $label;
+				
+				$manifest->items = array();
+				
+				foreach ($layout->pages as $page)
+				{
+					$canvas = new stdclass;
+					$canvas->id = $config['web_server'] . $config['web_root'] . $id . '/canvas/p' . $page->page;
+					$canvas->type = 'Canvas';
+					$canvas->height = $page->image_bbox[3];
+					$canvas->width = $page->image_bbox[2];
+					
+					$canvas->items = array();
+					
+					$item = new stdclass;
+					$item->id = $canvas->id . '/1';
+					$item->motivation = 'painting';
+					
+					$item->body = new stdclass;
+					$item->body->id = $config['web_server'] . $config['web_root'] . 'pageimage/' . $page->bhl_pageid;
+					$item->body->type = 'Image';
+					$item->body->format = 'image/webp';
+					$item->body->height = $page->image_bbox[3];
+					$item->body->width = $page->image_bbox[2];
+					
+					$item->target = $canvas->id;
+					
+					$canvas->items[] = $item;
+					
+					$manifest->items[] = $canvas;
+				}
+				
+				
+			}
+		}
+	}
+	
+	return $manifest;
+}
+
+/*
+$id = 331959;
+get_item_manifest($id);
+*/
+
 
 
 /*

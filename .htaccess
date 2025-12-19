@@ -14,6 +14,7 @@ RewriteRule bibliography/(.*)$ ?bibliography=$1 [NC,L]
 RewriteRule item/(\d+)$ ?item=$1 [NC,L]
 RewriteRule item/(\d+)/thumbnails$ ?item=$1&thumbnails [NC,L]
 RewriteRule item/(\d+)/figures$ ?item=$1&figures [NC,L]
+RewriteRule item/(\d+)/manifest.json$ ?item=$1&iiif [NC,L]
 
 # go to specific place in list of pages, thumbnails, figures
 RewriteRule item/(\d+)/offset/(\d+)$ ?item=$1&offset=$2 [NC,L]
