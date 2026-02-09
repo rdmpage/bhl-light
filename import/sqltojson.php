@@ -286,7 +286,7 @@ function get_items_for_title($TitleID)
 	
 	$data = db_get($sql);
 	
-	// print_r($data);
+	print_r($data);
 	
 	$items = array();
 	

@@ -255,8 +255,43 @@ function hocr_sanity_check($document)
 	
 	if ($num_db_pages != $num_hocr_pages)
 	{
-		$result->ok = false;
-		$result-> message = "Page numbers in database $num_db_pages and hOCR file $num_hocr_pages don't match\n";
+		// special handling...
+		switch ($document->internetarchive)
+		{
+			case 'mobot31753002350194':
+				// BHL dataabse has 16 extra pages at the end that aren't in the scan,
+				// scan has 563 pages, database has 579.
+				break;
+
+			case 'mobot31753002350152':
+				// BHL database has 623 pages, IA has 576
+				break;
+				
+			case 'mobot31753002347604':
+			case 'mobot31753002347570':
+			case 'mobot31753002347547':
+				break;
+				
+				// Am Nat
+			case 'mobot31753002140710':
+			case 'mobot31753002156641':
+				break;
+				
+				// page numbering out of alignment with hOCR in this item, 
+				// total page numbers don't match
+				// Page numbers in database 618 and hOCR file 626 don't match
+
+			/*
+			case 'trudyrusskagoent40191113russ':
+				break;
+			*/
+	
+		
+			default:
+				$result->ok = false;
+				$result-> message = "Page numbers in database $num_db_pages and hOCR file $num_hocr_pages don't match\n";
+				break;
+		}
 	}
 
 	return $result;

@@ -97,6 +97,17 @@ $titles = array(10088); // Tijdschrift voor entomologie
 
 $titles = array(7414); // The journal of the Bombay Natural History Society
 
+// generic names of moths
+$titles=array(119421,119424,119515,119516,119597,119777);
+
+$titles = array(3882); // Novitates zoologicae
+
+$titles = array(11516); // Transactions of the Entomological Society of London
+
+$titles = array(3882); // Novitates zoologicae
+$titles = array(730);
+
+
 $mode = 'delete';
 $mode = 'add';
 
@@ -108,6 +119,9 @@ foreach ($titles as $TitleID)
 	if (0)
 	{
 		$items = array(get_item(310489));
+		
+		$items = array(get_item(22601));
+		
 	}
 	
 	foreach ($items as $item)
@@ -170,6 +184,14 @@ foreach ($titles as $TitleID)
 					$lines[] = $line->text;
 				}	
 				
+				/*
+				if ($page_index == 86)
+				{
+					print_r($lines);
+					exit();
+				}
+				*/
+				
 				// Locate names in text
 				
 				$page_annotations = new stdclass;
@@ -180,6 +202,8 @@ foreach ($titles as $TitleID)
 				{
 					$text = $lines[$line_number];
 					$text_encoding = mb_detect_encoding($text);
+					
+					$text = preg_replace('/\s\s+/u', ' ', $text);
 				
 					$hits = tag_trie($trie, $text);
 					
@@ -233,7 +257,8 @@ foreach ($titles as $TitleID)
 				}
 			
 			}
-			//print_r($page_names);
+			
+			// print_r($page_names);
 			
 			//echo json_encode($page_names);
 			
@@ -250,12 +275,13 @@ foreach ($titles as $TitleID)
 				$doc->datePublished = $item->datePublished;
 			}
 			
-			print_r($doc);
-			
+			// print_r($doc);
+						
 			$doc->annotations = $page_names;
 			
-			//echo json_encode($doc);
+			//file_put_contents('namesdebug.json', json_encode($doc));
 			
+			//echo json_encode($doc);			
 			
 			// store in CouchDB
 			$force_upload = true;

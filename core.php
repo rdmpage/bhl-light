@@ -788,6 +788,35 @@ function get_page_width_height($PageID)
 	return $wh;
 }
 
+//----------------------------------------------------------------------------------------
+// For a given BHL PageID get OCR text
+function get_page_text($PageID)
+{
+	global $config;
+	global $couch;
+	
+	$text = '';
+	
+	$url = '_design/text/_view/pageid?key=' . $PageID;
+	
+	if ($config['stale'])
+	{
+		$url .= '&stale=ok';
+	}			
+	
+	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
+
+	$resp_obj = json_decode($resp);	
+	
+	if (count($resp_obj->rows) == 1)
+	{
+		$text = $resp_obj->rows[0]->value;
+	}
+	
+	
+	return $text;
+}
+
 
 /*
 $id = 331959;

@@ -913,8 +913,9 @@ function display_search($query)
 		
 			html_start($title, $doc);
 			
-			// create a side bar for information on the search
 			echo '<div>';
+			/*
+			// create a side bar for information on the search
 			echo '  <aside>';
 			echo '    <details id="aside-details">';
 			echo '      <summary>Details</summary>';
@@ -929,6 +930,7 @@ function display_search($query)
 			
 			// main display
 			echo '  <main>';
+			*/
 			
 			echo '<ul class="media-list">';
 			foreach ($doc->dataFeedElement as $hit)
@@ -955,8 +957,8 @@ function display_search($query)
 			}
 			echo '</ul>';
 			
-			echo '  </main>
-			</div>';
+			echo '  </main>';
+			//</div>';
 			
 			echo '<script>';
 			require_once ('aside.js.inc.php');
@@ -981,8 +983,9 @@ function display_search($query)
 		
 			html_start($title, $doc);
 			
+			echo '<div style="overflow-y:auto;border:2x solid red;height:calc(100vh - var(--nav-height)">';
+			/*
 			// create a side bar for information on the search
-			echo '<div>';
 			echo '  <aside>';
 			echo '    <details id="aside-details">';
 			echo '      <summary>Details</summary>';
@@ -995,8 +998,10 @@ function display_search($query)
 			echo '    </details>';
 			echo '  </aside>';
 			
+			
 			// main display
 			echo '  <main>';
+			*/
 			
 			// names
 			
@@ -1065,8 +1070,8 @@ function display_search($query)
 			}
 			echo '</ul>';
 			
-			echo '  </main>
-			</div>';
+			//echo '  </main>';
+			echo '</div>';
 			
 			echo '<script>';
 			require_once ('aside.js.inc.php');
@@ -1167,6 +1172,15 @@ function display_page_iiif_info($PageID)
 	header('Access-Control-Allow-Origin: *');
 
 	echo json_encode($info);
+}
+
+//----------------------------------------------------------------------------------------
+// Display page text
+function display_page_text($PageID)
+{
+	$text = get_page_text($PageID);
+	header("Content-type: text/plain; charset=utf-8");
+	echo $text;
 }
 
 
@@ -1312,7 +1326,7 @@ function main()
 		}
 	}
 	
-	// page images
+	// page image thumbnails
 	if (!$handled)
 	{
 		if (isset($_GET['pagethumb']))
@@ -1322,11 +1336,11 @@ function main()
 		}
 	}
 	
+	// page images
 	if (!$handled)
 	{
 		if (isset($_GET['pageimage']))
 		{
-			$info = false;
 			if (isset($_GET['info']))
 			{	
 				display_page_iiif_info($_GET['pageimage']);
@@ -1339,7 +1353,17 @@ function main()
 				$handled = true;
 			}
 		}
-	}			
+	}
+	
+	// page text
+	if (!$handled)
+	{
+		if (isset($_GET['pagetext']))
+		{
+			display_page_text($_GET['pagetext'], true);
+			$handled = true;		
+		}
+	}	
 	
 	if (!$handled)
 	{

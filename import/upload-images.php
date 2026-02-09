@@ -116,12 +116,78 @@ $TitleID = 181469;
 
 $TitleID = 86930;
 
+$TitleID = 63883;
+$TitleID = 45481;
+
+$TitleID = 59881;
+$TitleID = 10597;
+$TitleID = 21727;
+$TitleID = 169354;
+
+$TitleID = 698;
+
+$TitleID = 10903;
+
+$TitleID = 12276; // 12260; // 12276, 13390,
+
+$TitleID = 119777;
+
+$TitleID = 66850;
+
+$TitleID = 52116;
+
+// $titles=array(119421,119424,119515,119516,119597,119777);
+
+
+
 
 $identifiers = get_ia_for_title($TitleID);
 
-//$identifiers  = array('journalofbombay741977bomb');
+/*
+$identifiers = array(
+'deutscheentomolo101897gese',
+'deutscheentomo111898gese',
+'deutscheentomolo121899gese',
+'deutscheentomolo131900gese',
+'deutscheentomolo141901gese',
+);
+*/
+
+
+// deutscheentomolo101897gese
+print_r($identifiers);
+
+
+// CAT10756254005
+
+
+//exit();
+
+/*
+$identifiers  = array(
+//'geodiversitas21muse', 
+//'geodiversitas21musea'
+
+//'memoiresdumuseu92muse',
+//'memoiresdumuseu16mused',
+
+//'memoiresdumuseu7musef',
+//'memoiresdumuseu8museg',
+//'MemoriasdoInsti11Inst',
+
+'adansonia5museb',
+
+);
+*/
+
+//$identifiers  = array('mobot31753002350178');
 
 $config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/Hetzner.localized/bhl';
+
+//$config['s3'] = ".";
+
+$force = true;
+$force = false;
 
 foreach ($identifiers as $ia)
 {
@@ -131,7 +197,7 @@ foreach ($identifiers as $ia)
 
 	// don't do this if we already have the images
 	$s3_dir = $config['s3'] . "/" . $ia . '_jp2';
-	if (file_exists($s3_dir))
+	if (file_exists($s3_dir) && !$force)
 	{
 		$go = false;
 		

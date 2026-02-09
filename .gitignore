@@ -2,8 +2,12 @@
 env.php
 /junk/
 /datalab/junk/
+/datalab/tmp/
 /import/cache/
 /import/junk/
+/import/colDP
+/jats/
 /ldf/
+/structure/
 
 /vendor/

@@ -43,3 +43,5 @@ RewriteRule map$ ?map [NC,L]
 RewriteRule pagethumb/(\d+)$ ?pagethumb=$1 [NC,L]
 RewriteRule pageimage/(\d+)$ ?pageimage=$1 [NC,L]
 
+# text
+RewriteRule pagetext/(\d+)$ ?pagetext=$1 [NC,L]
