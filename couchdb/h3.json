@@ -1,0 +1,11 @@
+{
+  "_id": "_design/h3",
+  "_rev": "4-c7d9432cfa51c5a5ee4082f086ae3c44",
+  "views": {
+    "id": {
+      "reduce": "_sum",
+      "map": "function (doc) {\n  if (doc._id.match(/^geotagged/)) {\n    for (var page in doc.annotations) {\n      for (var line in doc.annotations[page]) {\n        for (var i in doc.annotations[page][line]) {\n          if (doc.annotations[page][line][i].uber_h3) {\n            for (var j in doc.annotations[page][line][i].uber_h3) {\n              emit([doc.annotations[page][line][i].uber_h3[j], doc.bhl_id, page],1);\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}

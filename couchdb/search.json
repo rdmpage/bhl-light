@@ -1,0 +1,9 @@
+{
+  "_id": "_design/search",
+  "_rev": "2-6dbfa8d5c6ed0bff8228b47968721642",
+  "nouveau": {
+    "full-text": {
+      "index": "function(doc){ if (doc.name) { index('text', 'default', doc.name) }}"
+    }
+  }
+}

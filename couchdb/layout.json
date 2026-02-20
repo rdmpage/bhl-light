@@ -1,0 +1,10 @@
+{
+  "_id": "_design/layout",
+  "_rev": "4-ff9eb69ae1905ced3acca27a0ea6be09",
+  "views": {
+    "text": {
+      "map": "function (doc) {\n  if (doc._id.match(/^layout/)) {\n    for (var i in doc.pages) {\n      var lines = [];\n      for (var j in doc.pages[i].text_lines) {\n        lines.push(doc.pages[i].text_lines[j].text);\n      }\n      emit([doc.internetarchive, parseInt(i)], lines.join(\"\\n\"));\n\n    }\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}

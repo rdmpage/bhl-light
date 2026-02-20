@@ -1,0 +1,10 @@
+{
+  "_id": "_design/text",
+  "_rev": "2-60b94c9611dba07bd4c8f9663f41e2dd",
+  "views": {
+    "pageid": {
+      "map": "function (doc) {\n  if (doc._id.match(/^layout/)) {\n    for (var i in doc.pages) {\n      var lines = [];\n      for (var j in doc.pages[i].text_lines) {\n        lines.push(doc.pages[i].text_lines[j].text);\n      }\n      emit(parseInt(doc.pages[i].bhl_pageid), lines.join(\"\\n\"));\n    }\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}

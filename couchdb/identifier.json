@@ -1,0 +1,13 @@
+{
+  "_id": "_design/identifier",
+  "_rev": "6-4293dc7056338a2f8ed91694931b9532",
+  "views": {
+    "namespace": {
+      "map": "function (doc) {\n  if (doc.identifier) {\n    for (var i in doc.identifier) {\n      emit(doc.identifier[i].propertyID, doc.identifier[i].value);\n    }\n  }\n}\n"
+    },
+    "doi": {
+      "map": "function (doc) {\n  if (doc.identifier) {\n    for (var i in doc.identifier) {\n      if (doc.identifier[i].propertyID == 'doi') {\n        emit(doc.identifier[i].value, doc._id);\n      }\n    }\n  }\n}\n"
+    }
+  },
+  "language": "javascript"
+}

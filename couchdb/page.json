@@ -1,0 +1,16 @@
+{
+  "_id": "_design/page",
+  "_rev": "10-347534d56857aadd9c16a12b41c651de",
+  "views": {
+    "itemID-page": {
+      "map": "function (doc) {\n  if (doc._id.match(/^layout/)) {\n    for (var i in doc.pages) {\n      if (doc.pages[i].bhl_pageid) {\n        emit(parseInt(doc.pages[i].bhl_pageid), [doc.bhl_item, parseInt(i)]);\n      }\n    }\n  }\n}"
+    },
+    "internetarchive": {
+      "map": "function (doc) {\n  if (doc._id.match(/^layout/)) {\n    for (var i in doc.pages) {\n      if (doc.pages[i].bhl_pageid && doc.pages[i].internetarchive) {\n        var image = doc.pages[i].internetarchive;\n        // strip any extension (which varies between hOCR and DjVu sources)\n        image = image.replace(/\\.(djvu|jp2)/, '');\n        emit(parseInt(doc.pages[i].bhl_pageid), image);\n      }\n    }\n  }\n}"
+    },
+    "width-height": {
+      "map": "function (doc) {\n  if (doc._id.match(/^layout/)) {\n    for (var i in doc.pages) {\n      if (doc.pages[i].bhl_pageid) {\n        emit(parseInt(doc.pages[i].bhl_pageid), [parseInt(doc.pages[i].image_bbox[2]), parseInt(doc.pages[i].image_bbox[3])]);\n      }\n    }\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}

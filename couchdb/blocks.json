@@ -1,0 +1,14 @@
+{
+  "_id": "_design/blocks",
+  "_rev": "2-a32ff2cf0e3ca0b80aab6133df8c7e7d",
+  "views": {
+    "blocks": {
+      "reduce": "_sum",
+      "map": "function (doc) {\n  if (doc._id.match(/^blocks/)) {\n     emit(doc._id, 1);\n  }\n}"
+    },
+    "figures": {
+      "map": "function (doc) {\n  if (doc._id.match(/^blocks/)) {\n    \n\tvar figures = [];\n\n\tfor (var i in doc.pages) {\n\t\tfigures[i] = [];\n\t\tfor (var j in doc.pages[i].bboxes) {\n\t\t\tif (doc.pages[i].bboxes[j].label == 'Figure' || doc.pages[i].bboxes[j].label == 'Picture') {\n\t\t\t\t// compute what we need to extract the image\n\t\t\t\t\n\t\t\t\tvar figure = {};\n\t\t\t\t\n\t\t\t\tfigure.image = doc.pages[i].internetarchive.replace(/\\.(djvu|jp2)/, '');\n\t\t\t\t\n\t\t\t\tfigure.image_bbox = doc.pages[i].image_bbox;\n\t\t\t\t\n\t\t\t\t// IIIF-style where canvas is the page image\n\t\t\t\tfigure.canvas_width = figure.image_bbox[2] - figure.image_bbox[0];\n\t\t\t  figure.canvas_height = figure.image_bbox[3] - figure.image_bbox[1];\n\t\t\t\t\n\t\t\t\tfigure.bbox =  doc.pages[i].bboxes[j].bbox;\n\t\t\t\t\n\t\t\t\t// Math.round converts to integer\n\t\t\t\tfigure.width = Math.round(figure.bbox[2] - figure.bbox[0]);\n\t\t\t\tfigure.height = Math.round(figure.bbox[3] - figure.bbox[1]);\n\t\t\t\t\n\t\t\t\t// find centre of part we want to extract\n\t\t\t\tfigure.centre = [];\n\t\t\t\t// note toFixed returns a string, hence we use parseFloat to type case to float\n\t\t\t\tfigure.centre.push( parseFloat(((figure.width/2.0 + figure.bbox[0]) / figure.canvas_width).toFixed(2)) );\n\t\t\t\tfigure.centre.push( parseFloat(((figure.height/2.0 + figure.bbox[1]) / figure.canvas_height).toFixed(2)) );\n\t\t\t\n\t\t\t\tfigures[i].push(figure);\n\t\t\t}\n\t\t}\n\t}    \n\n     emit(doc._id, figures);\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}

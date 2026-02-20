@@ -1,0 +1,19 @@
+{
+  "_id": "_design/housekeeping",
+  "_rev": "13-c309d7c758a3f163cdfc0fbbb1808616",
+  "views": {
+    "title-items": {
+      "map": "function (doc) {\n  if (doc._id.match(/^item/)) {\n    emit(doc.isPartOf, doc._id);\n  }\n}"
+    },
+    "item-layout": {
+      "map": "function (doc) {\n  if (doc._id.match(/^layout/) && doc.bhl_item) {\n    emit(\"item/\" + doc.bhl_item, doc._id);\n  }\n}"
+    },
+    "item-parts": {
+      "map": "function (doc) {\n  if (doc._id.match(/^part/)) {\n    for (var j in doc.isPartOf) {\n      if (typeof (doc.isPartOf[j]) === 'string') {\n        if (doc.isPartOf[j].match(/^item/)) {\n          emit(doc.isPartOf[j], doc._id);\n        }\n      }\n    }\n  }\n}"
+    },
+    "title-ia": {
+      "map": "function (doc) {\n  if (doc._id.match(/^item/)) {\n    var TitleID = doc.isPartOf.replace(/bibliography\\//, '');\n    var IA = doc.sameAs.replace(/https:\\/\\/archive.org\\/details\\//, '');\n    emit(TitleID, IA);\n  }\n}\n"
+    }
+  },
+  "language": "javascript"
+}

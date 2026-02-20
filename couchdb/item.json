@@ -1,0 +1,16 @@
+{
+  "_id": "_design/item",
+  "_rev": "9-993932d2dd29d8f7615244cd68c018aa",
+  "views": {
+    "about": {
+      "map": "function (doc) {\n  if (doc._id.match(/^item/)) {\n    var item = {};\n    for(var i in doc) {\n      switch (i) {\n        case \"_id\":\n          item['@id'] = doc._id;\n          break;\n        case \"_rev\":\n        default:\n          item[i] = doc[i];\n          break;\n      }\n    }\n    emit(doc._id, item);\n  }\n}"
+    },
+    "parts": {
+      "map": "function (doc) {\n  if (doc._id.match(/^part/)) {\n    var item = {};\n    for(var i in doc) {\n      switch (i) {\n        case \"_id\":\n          item['@id'] = doc._id;\n          break;\n        case \"_rev\":\n        default:\n          item[i] = doc[i];\n          break;\n      }\n    }\n    \n    var ItemID = 0;\n    \n    for (var j in doc.isPartOf) {\n      if (typeof (doc.isPartOf[j]) === 'string') {\n        if (doc.isPartOf[j].match(/^item/)) {\n          ItemID = doc.isPartOf[j];\n        }\n      }\n    }\n  \n    \n    \n    emit(ItemID, item);\n  }\n}"
+    },
+    "coverage": {
+      "map": "// Get coverage of item, i.e., pairs of values representing the \n// span of page positions that are members of a BHL \"part\".\n// Note that coverage is a k,v array where k is the start and \n// v is the end of a part. In a Javascript associative array\n// k is converted to a string, but v remains an integer.\n\nfunction (doc) {\n  if (doc._id.match(/^item/)) {\n    var coverage = {};\n    var pos = -1;\n    for (var i in doc.hasPart) {\n      if (doc.hasPart[i].isPartOf) {\n        if (pos == -1) {\n          pos = doc.hasPart[i].position;\n          coverage[pos] = pos;\n        } else {\n          coverage[pos] = doc.hasPart[i].position;\n        }\n      } else {\n        pos = -1;\n      }\n    }\n    emit(doc.isPartOf, [doc._id, coverage]);\n  }\n}\n"
+    }
+  },
+  "language": "javascript"
+}

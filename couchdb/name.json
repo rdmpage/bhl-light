@@ -1,0 +1,11 @@
+{
+  "_id": "_design/name",
+  "_rev": "7-aa96da70b474ab8c790b563eb2c11854",
+  "views": {
+    "name-search-context": {
+      "reduce": "_sum",
+      "map": "function (doc) {\n  if (doc._id.match(/^nametagged/)) {\n    for (var page in doc.annotations) {\n      var PageID = parseInt(doc.annotations[page].PageID);\n      var ItemID = parseInt(doc.bhl_id);\n      var year = 0;\n      if (doc.datePublished) {\n        year = parseInt(doc.datePublished);\n      }\n      for (var line in doc.annotations[page].annotations) {\n        for (var i in doc.annotations[page].annotations[line]) {\n          for (var j in doc.annotations[page].annotations[line][i].target.selector) {\n            if (doc.annotations[page].annotations[line][i].target.selector[j].exact) {\n              var selector = doc.annotations[page].annotations[line][i].target.selector[j];\n              var searchTerm = selector.exact.toLowerCase();\n              emit([searchTerm, ItemID, PageID, selector, year], 1);\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}

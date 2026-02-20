@@ -1,0 +1,19 @@
+{
+  "_id": "_design/stats",
+  "_rev": "4-bff6879d9f72bac0b1626f794ce10aab",
+  "views": {
+    "count": {
+      "reduce": "_sum",
+      "map": "function (doc) {\n  if (doc._id.match(/^bibliography/)) {\n    emit('title', 1);\n  }\n  if (doc._id.match(/^item/)) {\n    emit('item', 1);\n  }\n  if (doc._id.match(/^part/)) {\n    emit('part', 1);\n  }\n}"
+    },
+    "provider": {
+      "reduce": "_sum",
+      "map": "function (doc) {\n  if (doc._id.match(/^item/)) {\n    if (doc.provider) {\n      emit(doc.provider, 1);\n    }\n  }\n}"
+    },
+    "document_length": {
+      "reduce": "_stats",
+      "map": "// number of words in each item\nfunction (doc) {\n  if (doc._id.match(/^layout/)) {\n    var word_count = 0;\n    for (var i in doc.pages) {\n      for (var j in doc.pages[i].text_lines) {\n        var words = doc.pages[i].text_lines[j].text.split(\" \");\n        word_count += words.length;\n      }\n    }\n    emit(doc.internetarchive, word_count);\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}
