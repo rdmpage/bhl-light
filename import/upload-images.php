@@ -11,7 +11,7 @@ require_once (dirname(__FILE__) . '/sqltojson.php');
 
 //----------------------------------------------------------------------------------------
 // Convert to WEBP
-function jp2towebp($basedir, $resize_width = 800)
+function jp2towebp($basedir, $resize_width = 800, $force = false)
 {
 	$files = scandir($basedir);
 	
@@ -21,19 +21,23 @@ function jp2towebp($basedir, $resize_width = 800)
 		{
 			$source_filename = $basedir . '/' . $image_filename;
 			
-			// convert to JPEG
-			$jpg_filename = str_replace('.jp2', '.jpg', $source_filename);			
-			$command = "mogrify -resize $resize_width  -format jpg $source_filename";
-			echo $command . "\n";	
-			system($command);
-
-			// convert to WEBP
 			$output_filename = str_replace('.jp2', '.webp', $source_filename);
-			$command = "cwebp -quiet $jpg_filename -o $output_filename";
-			echo $command . "\n";
+			
+			if (!file_exists($output_filename) || $force)
+			{
+				// convert to JPEG
+				$jpg_filename = str_replace('.jp2', '.jpg', $source_filename);			
+				$command = "mogrify -resize $resize_width  -format jpg $source_filename";
+				echo $command . "\n";	
+				system($command);
 	
-			system($command);
-
+				// convert to WEBP
+				$output_filename = str_replace('.jp2', '.webp', $source_filename);
+				$command = "cwebp -quiet $jpg_filename -o $output_filename";
+				echo $command . "\n";
+		
+				system($command);
+			}
 		}
 	}
 }
@@ -135,6 +139,9 @@ $TitleID = 119777;
 $TitleID = 66850;
 
 $TitleID = 52116;
+$TitleID = 12498;
+
+$TitleID = 41367;
 
 // $titles=array(119421,119424,119515,119516,119597,119777);
 
@@ -142,6 +149,8 @@ $TitleID = 52116;
 
 
 $identifiers = get_ia_for_title($TitleID);
+
+//$identifiers = array('naturalhistoryof01skot');
 
 /*
 $identifiers = array(

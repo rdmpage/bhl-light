@@ -556,12 +556,14 @@ function get_title_for_item($ItemID)
 //----------------------------------------------------------------------------------------
 
 // test
-if (0)
+if (1)
 {
 	$ItemID = 325622;
 	
+	$ItemID = 251129;
+	
 	// we want all pages in this item that are in a part...
-	$item = get_item(325622);
+	$item = get_item($ItemID);
 	
 	print_r($item);
 	

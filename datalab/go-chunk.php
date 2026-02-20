@@ -131,26 +131,32 @@ function webp2pdf($basedir, $num_pages)
 }
 
 //----------------------------------------------------------------------------------------
-// Convert WEBP to PDF using img2pdf, based on a list of pages
-function page_list_to_pdf($basedir, $pages)
+// Convert WEBP to PDF using img2pdf, which requires that we make a list of images
+// and concatenate those into a file.
+// Return the filename of the PDF we create
+function page_list_to_pdf($basedir, $pages, $suffix = '')
 {
+	global $config;
+	
 	$basename = basename($basedir);
+	$pdf_filename = $config['datalab_tmp_dir'] . '/' . $basename  . $suffix . '.pdf';
 	
-	$file_list = array();
-	
-	foreach ($pages as $image_filename)
-	{
-		$file_list[] = $basedir . '/' . $image_filename;
+	if (!file_exists($pdf_filename))
+	{		
+		$file_list = array();
+		
+		foreach ($pages as $image_filename)
+		{
+			$file_list[] = $basedir . '/' . $image_filename;
+		}
+		
+		$file_list_filename =  $basename  . '.txt';
+		
+		file_put_contents($file_list_filename, join("\0", $file_list));
+			
+		$command = 'img2pdf --from-file ' . $file_list_filename . ' -o ' . $pdf_filename;
+		system($command);
 	}
-	
-	$file_list_filename =  $basename  . '.txt';
-	
-	file_put_contents($file_list_filename, join("\0", $file_list));
-	
-	$pdf_filename = $basename  . '.pdf';
-	
-	$command = 'img2pdf --from-file ' . $file_list_filename . ' -o ' . $pdf_filename;
-	system($command);
 	
 	return $pdf_filename;
 }
@@ -236,12 +242,40 @@ $identifiers = array(
 	//'austrobaileya3queea',
 	//'journalofbombay751978bomb', // failed, maybe too big
 	//'bulletindumuseu42musea', // failed, maybe too big
-	'asiaticherpetolo05asia',
+	//'asiaticherpetolo05asia',
+	
+	//'europeanjournal128muse',
+	//'austrobaileya6quee',
+	
+	//'europeanjournal123muse',
+	//'australianentom44entoa',
+	//'iberusrevistad3222014barc',
+	//'metamorphosisauseptbuttf',
+	//'insectsofsamoaot05othe',
+	//'asiaticherpetolo05asia',
+	
+	//'europeanjournal27muse',
+	//'notalepidopter3822015soci',
+	//'bulletindumuseu41musea',
+	
+	//'austrobaileya12quee',
+	
+	//'biodiversitybio4teln',
+	
+	//'panpacificentom78vand',
+	
+	//'forktail2920unse',
+	
+	//'gardensquotbull00botae',
+	
+	'gardensquotbull00botad',
 );
+
+$chunk_size = 100;
 
 foreach ($identifiers as $ia)
 {
-	// get text layout so we know how many pages to include in the PDF
+	// get text layout from CouchDB so we know how many pages to include in the PDF
 	$layout = get_layout('layout/' . $ia);
 	
 	$pages = array();
@@ -253,26 +287,66 @@ foreach ($identifiers as $ia)
 	
 	print_r($pages);
 	
-	// OK make PDF from "approved" page list
+	// we may have to chunk the work if it is large
+	$page_layout = array();
 	
-	$dir = $config['s3'] . '/' . $ia . '_jp2';
+	$page_chunks = array_chunk($pages, $chunk_size);
 	
+	$num_chunks = count($page_chunks);
+	
+	for ($i = 0; $i < $num_chunks; $i++)
+	{		
+		// OK make PDF
+		
+		// Folder with images (locally mounted S3 drive)
+		$dir = $config['s3'] . '/' . $ia . '_jp2';
+		
+		$upload_filename = page_list_to_pdf($dir, $page_chunks[$i], "-$i");
+				
+		echo "Get layout from DataLabl\n";
+		
+		// Get layout for PDF
+		$output_filename = preg_replace('/\.pdf/', '.json', $upload_filename);
+		pdftolayout($upload_filename, $output_filename);
+				
+		$json = file_get_contents($output_filename);
+		
+		$chunk_layout = json_decode($json);
+		
+		$page_layout[] = $chunk_layout;
+		
+	}
+	
+	// to do: merge layouts
+	$num_layouts = count($page_layout);
+	
+	$doc = $page_layout[0];
+	
+	if ($num_layouts > 1)
+	{
+		for ($i = 1; $i < $num_layouts; $i++)
+		{
+			if ($page_layout[$i]->success)
+			{
+				$doc->pages = array_merge($doc->pages, $page_layout[$i]->pages);			
+				$doc->page_count += count($page_layout[$i]->pages);
+			}
+		}
+	}
+	else
+	{
+		
+	}
 
-	$upload_filename = page_list_to_pdf($dir, $pages);
-	
-	echo "Get layout from DataLabl\n";
-	
-	// Get layout for PDF
-	$output_filename = preg_replace('/\.pdf/', '.json', $upload_filename);
-	pdftolayout($upload_filename, $output_filename);
-	
-	
-	$json = file_get_contents($output_filename);
-	
-	$doc = json_decode($json);
-	
 	if ($doc && $doc->success)
 	{
+		// add page name so we can get the images
+		$n = count($layout->pages);
+		for ($i = 0; $i < $n; $i++)
+		{
+			$doc->pages[$i]->internetarchive = $layout->pages[$i]->internetarchive;
+		}	
+	
 		$force_upload = true;
 		//$force_upload = false;
 	

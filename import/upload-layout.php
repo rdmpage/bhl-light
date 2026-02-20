@@ -388,7 +388,12 @@ $titles=array(
 //8796,
 //1805,
 //87655,
-52116,
+//52116,
+//12498,
+//6170,
+//41367,
+//79642,
+119522,
 );
 
 foreach ($titles as $TitleID)
@@ -398,7 +403,7 @@ foreach ($titles as $TitleID)
 	
 	print_r($identifiers);
 	
-	//$identifiers=array('trudyrusskagoent40191113russ');
+	$identifiers=array('quaestion192019831984univ');
 	
 	/*
 	

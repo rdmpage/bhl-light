@@ -904,7 +904,7 @@ function display_search($query)
 {
 
 	// Nouveau search
-	if (0)
+	if (1)
 	{
 		$doc = get_search_results($query);
 		if ($doc)
@@ -913,7 +913,7 @@ function display_search($query)
 		
 			html_start($title, $doc);
 			
-			echo '<div>';
+			echo '<div style="overflow-y:auto;border:2x solid red;height:calc(100vh - var(--nav-height)">';
 			/*
 			// create a side bar for information on the search
 			echo '  <aside>';
@@ -957,8 +957,8 @@ function display_search($query)
 			}
 			echo '</ul>';
 			
-			echo '  </main>';
-			//</div>';
+			//echo '  </main>';
+			echo '</div>';
 			
 			echo '<script>';
 			require_once ('aside.js.inc.php');
