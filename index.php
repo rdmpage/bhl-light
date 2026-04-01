@@ -904,7 +904,7 @@ function display_search($query)
 {
 
 	// Nouveau search
-	if (1)
+	if (0)
 	{
 		$doc = get_search_results($query);
 		if ($doc)
@@ -1149,29 +1149,143 @@ function display_page_thumbnail($PageID, $is_thumbnail = true)
 }
 
 //----------------------------------------------------------------------------------------
-// IIIF info on page
+// IIIF info on page (Image API 2.1, level 1)
 function display_page_iiif_info($PageID)
 {
 	global $config;
-	
+
 	$info = new stdclass;
 	$info->{'@context'} = 'http://iiif.io/api/image/2/context.json';
-	$info->{'@id'} = $config['web_server'] . $config['web_root'] . 'pageimage/' . $PageID;
+	$info->{'@id'} = $config['web_server'] . $config['web_root'] . 'page/' . $PageID;
 
 	$info->protocol = 'http://iiif.io/api/image';
-	
+
 	$wh = get_page_width_height($PageID);
 	$info->width = $wh[0];
-	$info->height = $wh[1];	
-	
-	$info->profile = ['http://iiif.io/api/image/2/level0.json'];
-	$info->formats = ['webp'];
-	$info->qualities = ['default'];
-	
-	header ("Content-Type: application/json");
+	$info->height = $wh[1];
+
+	$profile_features = new stdclass;
+	$profile_features->formats = ['jpg', 'webp', 'png'];
+	$profile_features->qualities = ['default'];
+	$profile_features->supports = [
+		'regionByPx',
+		'sizeByW',
+		'sizeByH',
+		'sizeByWh',
+		'sizeByConfinedWh',
+		'cors',
+		'baseUriRedirect'
+	];
+
+	$info->profile = [
+		'http://iiif.io/api/image/2/level1.json',
+		$profile_features
+	];
+
+	// Content negotiation
+	$accept = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
+	if (strpos($accept, 'application/ld+json') !== false)
+	{
+		header('Content-Type: application/ld+json');
+	}
+	else
+	{
+		header('Content-Type: application/json');
+	}
 	header('Access-Control-Allow-Origin: *');
 
 	echo json_encode($info);
+}
+
+//----------------------------------------------------------------------------------------
+// IIIF Image API handler: parse parameters, proxy image from imgproxy
+function display_page_iiif_image($PageID, $region, $size, $rotation, $quality, $format)
+{
+	global $config;
+
+	// Validate rotation (level 1 only requires 0)
+	if ($rotation !== '0')
+	{
+		http_response_code(400);
+		header('Content-Type: application/json');
+		echo json_encode(['error' => 'Only rotation 0 is supported']);
+		return;
+	}
+
+	// Validate quality (level 1 only requires default)
+	if ($quality !== 'default')
+	{
+		http_response_code(400);
+		header('Content-Type: application/json');
+		echo json_encode(['error' => 'Only quality "default" is supported']);
+		return;
+	}
+
+	// Validate format
+	$content_types = [
+		'jpg'  => 'image/jpeg',
+		'jpeg' => 'image/jpeg',
+		'png'  => 'image/png',
+		'webp' => 'image/webp',
+	];
+	if (!isset($content_types[$format]))
+	{
+		http_response_code(400);
+		header('Content-Type: application/json');
+		echo json_encode(['error' => 'Unsupported format: ' . $format]);
+		return;
+	}
+
+	// Validate region
+	if ($region !== 'full')
+	{
+		if (!preg_match('/^\d+,\d+,\d+,\d+$/', $region))
+		{
+			http_response_code(400);
+			header('Content-Type: application/json');
+			echo json_encode(['error' => 'Region must be "full" or "x,y,w,h"']);
+			return;
+		}
+	}
+
+	// Get source image URL
+	$image_url = get_page_image_url_ia($PageID);
+	if ($image_url != '')
+	{
+		$image_url = 'https://hel1.your-objectstorage.com/bhl/' . $image_url;
+	}
+	else
+	{
+		$image_url = 'http://www.biodiversitylibrary.org/pagethumb/' . $PageID;
+	}
+
+	// Build signed imgproxy URL
+	$imgproxy_path = imgproxy_path_iiif($image_url, $region, $size, $format);
+	$imgproxy_url = $config['image_server'] . $imgproxy_path;
+
+	// Proxy the image
+	$ch = curl_init($imgproxy_url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+	$data = curl_exec($ch);
+	$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	curl_close($ch);
+
+	if ($http_code == 200 && $data !== false)
+	{
+		header('Content-Type: ' . $content_types[$format]);
+		header('Access-Control-Allow-Origin: *');
+		header('Cache-Control: public, max-age=86400');
+		header('Content-Length: ' . strlen($data));
+		echo $data;
+	}
+	else
+	{
+		http_response_code(502);
+		header('Content-Type: application/json');
+		echo json_encode(['error' => 'Failed to retrieve image']);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -1342,12 +1456,24 @@ function main()
 		if (isset($_GET['pageimage']))
 		{
 			if (isset($_GET['info']))
-			{	
+			{
 				display_page_iiif_info($_GET['pageimage']);
-				$handled = true;	
-			}			
-		
-			if (!$handled)
+				$handled = true;
+			}
+			elseif (isset($_GET['region']))
+			{
+				// IIIF Image API request
+				display_page_iiif_image(
+					$_GET['pageimage'],
+					$_GET['region'],
+					$_GET['size'],
+					$_GET['rotation'],
+					$_GET['quality'],
+					$_GET['format']
+				);
+				$handled = true;
+			}
+			else
 			{
 				display_page_thumbnail($_GET['pageimage'], false);
 				$handled = true;

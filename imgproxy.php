@@ -46,6 +46,68 @@ function imgproxy_path_crop($image_url, $width = 0, $height = 0, $centre = [0.5,
 }
 
 
+//----------------------------------------------------------------------------------------
+// Build imgproxy path for IIIF Image API parameters
+// $image_url: source image URL (e.g. on Hetzner S3)
+// $region: 'full' or 'x,y,w,h'
+// $size: 'full', 'max', 'w,', ',h', 'w,h', or '!w,h'
+// $format: 'jpg', 'webp', 'png'
+function imgproxy_path_iiif($image_url, $region = 'full', $size = 'max', $format = 'jpg')
+{
+	$options = array();
+
+	// Region: crop
+	if ($region !== 'full')
+	{
+		$parts = explode(',', $region);
+		if (count($parts) == 4)
+		{
+			$x = intval($parts[0]);
+			$y = intval($parts[1]);
+			$w = intval($parts[2]);
+			$h = intval($parts[3]);
+			$options[] = "c:$w:$h";
+			$options[] = "g:nowe:$x:$y";
+		}
+	}
+
+	// Size: resize
+	if ($size === 'full' || $size === 'max')
+	{
+		// no resize
+	}
+	elseif (preg_match('/^!(\d+),(\d+)$/', $size, $m))
+	{
+		// best fit within w,h (maintain aspect ratio)
+		$options[] = 'rs:fit:' . intval($m[1]) . ':' . intval($m[2]) . ':0';
+	}
+	elseif (preg_match('/^(\d+),(\d+)$/', $size, $m))
+	{
+		// exact w,h (may distort)
+		$options[] = 'rs:force:' . intval($m[1]) . ':' . intval($m[2]) . ':0';
+	}
+	elseif (preg_match('/^(\d+),$/', $size, $m))
+	{
+		// width only, auto height
+		$options[] = 'rs:auto:' . intval($m[1]) . ':0:0';
+	}
+	elseif (preg_match('/^,(\d+)$/', $size, $m))
+	{
+		// height only, auto width
+		$options[] = 'rs:auto:0:' . intval($m[1]) . ':0';
+	}
+
+	// Format
+	$ext_map = ['jpg' => 'jpg', 'jpeg' => 'jpg', 'png' => 'png', 'webp' => 'webp'];
+	$ext = isset($ext_map[$format]) ? $ext_map[$format] : 'jpg';
+	$options[] = 'f:' . $ext;
+
+	$path = '/' . implode('/', $options) . '/plain/' . $image_url;
+
+	return imgproxy_path_sign($path);
+}
+
+
 if (0)
 {
 

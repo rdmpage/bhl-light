@@ -724,9 +724,9 @@ function get_item_manifest($id)
 					$annotation->motivation = 'painting';
 					
 					$annotation->body = new stdclass;
-					$annotation->body->id = $config['web_server'] . $config['web_root'] . 'pageimage/' . $page->bhl_pageid;
+					$annotation->body->id = $config['web_server'] . $config['web_root'] . 'page/' . $page->bhl_pageid . '/full/max/0/default.jpg';
 					$annotation->body->type = 'Image';
-					$annotation->body->format = 'image/webp';
+					$annotation->body->format = 'image/jpeg';
 					$annotation->body->height = $page->image_bbox[3];
 					$annotation->body->width = $page->image_bbox[2];
 	
@@ -737,7 +737,7 @@ function get_item_manifest($id)
 						$service = new stdclass;
 						$service->id = $config['web_server'] . $config['web_root'] . 'page/' . $page->bhl_pageid;
 						$service->type = 'ImageService2';
-						$service->profile = 'http://iiif.io/api/image/2/level0.json';
+						$service->profile = 'http://iiif.io/api/image/2/level1.json';
 						
 						$annotation->body->service[] = $service;
 					}
