@@ -39,6 +39,7 @@ $config['cache'] = dirname(__FILE__) . '/import/cache';
 // S3 storage-----------------------------------------------------------------------------
 // Machine-specific, this is where the S3 store is mounted by Mountain Duck (or other app)
 $config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/Hetzner.localized/bhl';
+$config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/BHL.localized/bhl';
 
 // Language-------------------------------------------------------------------------------
 // Default language is English
