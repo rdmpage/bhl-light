@@ -558,9 +558,270 @@ $titles=array(
 // 12498,
 //6170,
 //41367, 
-79642
+//79642,
+178260,
+149317,
+40366,
 );
 
+// Monographs in systematic botany from the Missouri Botanical Garden
+// has many titles within, e.g. series and individual volumes,
+// some of these are linked in the item table because there are multiple
+// rows of (ItemID, TitleID) pairs for the same ItemID. But many series
+// are not linked!
+
+/*
+SELECT DISTINCT i2.TitleID, title.FullTitle from item AS i1
+INNER JOIN item AS i2 USING(ItemID)
+INNER JOIN title ON title.TitleID = i2.TitleID
+WHERE i1.TitleID=40366;
+*/
+
+
+$titles=array(
+40366,
+178269,
+149317, // Icones Pleurothallidinarum
+178264,
+178266,
+178263,
+160228,
+178271,
+178270,
+178268,
+149829, // Index to plant chromosome numbers
+178260,
+178261,
+154221,
+178262,
+154224,
+178267,
+169392,
+169544,
+178265,
+);
+
+/*
+$titles=array(
+// Flora of Panama 153180, two items no linked anywhere else but should be to 40366
+153180,
+// Manual de plantas de Costa Rica 891
+891,
+// Flora de Nicaragua 197976
+197976,
+// Index of mosses several titles, each with a single volume?
+
+199667,
+195262,
+199669,
+193490,
+202405,
+);
+*/
+
+// Fieldiana Botany
+$titles=array(
+//147681, // Flora of Peru
+//2321,
+//42246,
+//42247,
+
+//2624,
+//2414,
+
+42247,
+958,
+974,
+2380,
+2381,
+2383,
+2385,
+2393,
+2403,
+2413,
+2418,
+2425,
+2438,
+2451,
+2452,
+2454,
+955,
+960,
+972,
+968,
+2400,
+2412,
+2417,
+2255,
+2384,
+2391,
+2396,
+2402,
+2408,
+2410,
+2411,
+2420,
+2439,
+2450,
+2233,
+2270,
+2301,
+2328,
+2386,
+2388,
+2404,
+2406,
+2415,
+2419,
+2432,
+2542,
+2547,
+2565,
+2600,
+147681,
+2604,
+2608,
+2612,
+2620,
+2649,
+2659,
+2247,
+2382,
+2387,
+2390,
+2401,
+2405,
+2407,
+2426,
+2431,
+2442,
+2444,
+2536,
+2550,
+2593,
+2599,
+2602,
+2607,
+2655,
+2389,
+2394,
+2398,
+2409,
+2416,
+2421,
+2447,
+2448,
+2540,
+2541,
+2561,
+2569,
+2627,
+2648,
+3843,
+2434,
+2437,
+2456,
+2559,
+2586,
+2591,
+2606,
+2614,
+2629,
+2650,
+2543,
+2577,
+2624,
+2626,
+2641,
+2644,
+2662,
+2537,
+2555,
+2571,
+2582,
+2598,
+2613,
+2618,
+2658,
+2660,
+5639,
+4961,
+5638,
+4816,
+2288,
+2297,
+2392,
+2397,
+3847,
+2399,
+2429,
+2433,
+2445,
+3851,
+2457,
+2567,
+2573,
+2590,
+2617,
+2623,
+2628,
+2651,
+2652,
+2663,
+2664,
+2414,
+2422,
+2427,
+2428,
+2430,
+2435,
+2436,
+2443,
+2446,
+2449,
+2453,
+2538,
+2549,
+2552,
+2594,
+2636,
+2643
+);
+
+$titles=array(
+//110138,
+//218607,
+);
+
+//  Annales du Musée du Congo (mess, volumes, multiple titles, v limited coverage)
+$titles=array(
+/*
+5766,
+149676,
+62379,
+118672,
+51828,
+209514,
+12601,
+210672,
+209943,
+*/
+
+//52319,
+
+//150137,
+
+//3595,
+
+//109981,
+
+13353,
+);
+
+$titles=array(665500);
+
+
+$force = true;
 
 
 foreach ($titles as $TitleID)
@@ -568,7 +829,7 @@ foreach ($titles as $TitleID)
 	echo $TitleID . "\n";
 	upload_title($TitleID, true);
 	upload_items_for_title($TitleID, true);
-	//upload_parts_for_title($TitleID, true);
+	upload_parts_for_title($TitleID, true);
 }
 
 

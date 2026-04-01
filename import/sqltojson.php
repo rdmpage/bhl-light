@@ -220,56 +220,70 @@ function get_item ($ItemID)
 	
 	// print_r($data);
 	
-	$obj = new stdclass;
+	$obj = null;
 	
 	foreach ($data as $row)
 	{	
-		$obj->_id = 'item/' . $row->ItemID;
+		if (!$obj)
+		{
+			$obj = new stdclass;
 		
-		if (isset($row->VolumeInfo))
-		{		
-			$obj->name = $row->VolumeInfo;
+			$obj->_id = 'item/' . $row->ItemID;
 			
-			// to do: can we parse this more accurately than BHL?
+			if (isset($row->VolumeInfo))
+			{		
+				$obj->name = $row->VolumeInfo;
+				
+				// to do: can we parse this more accurately than BHL?
+			}
+			else
+			{
+				$obj->name = '[Untitled]';
+			}
+				
+			$obj->isPartOf = 'bibliography/' . $row->TitleID;
+			
+			if (isset($row->ThumbnailPageID))
+			{
+				$obj->thumbnailUrl = 'pagethumb/' . $row->ThumbnailPageID;
+			}
+			
+			if (isset($row->Year))
+			{
+				$obj->datePublished = $row->Year;
+			}
+		
+			if (isset($row->InstitutionName))
+			{
+				$obj->provider = $row->InstitutionName;
+			}
+			
+			if (isset($row->CopyrightStatus))
+			{
+				$obj->copyrightNotice = $row->CopyrightStatus;
+			}
+		
+			// to do, maybe change this?
+			if (isset($row->BarCode))
+			{
+				$obj->sameAs = 'https://archive.org/details/' . $row->BarCode;
+			}
+			
+			// get pages
+			$pages = get_pages_for_item($row->ItemID);
+			
+			$obj->hasPart = $pages;
+			
 		}
 		else
 		{
-			$obj->name = '[Untitled]';
-		}
-			
-		$obj->isPartOf = 'bibliography/' . $row->TitleID;
+			if (!is_array($obj->isPartOf))
+			{
+				$obj->isPartOf = [$obj->isPartOf];
+			}
+			$obj->isPartOf[] = 'bibliography/' . $row->TitleID;
 		
-		if (isset($row->ThumbnailPageID))
-		{
-			$obj->thumbnailUrl = 'pagethumb/' . $row->ThumbnailPageID;
 		}
-		
-		if (isset($row->Year))
-		{
-			$obj->datePublished = $row->Year;
-		}
-	
-		if (isset($row->InstitutionName))
-		{
-			$obj->provider = $row->InstitutionName;
-		}
-		
-		if (isset($row->CopyrightStatus))
-		{
-			$obj->copyrightNotice = $row->CopyrightStatus;
-		}
-	
-		// to do, maybe change this?
-		if (isset($row->BarCode))
-		{
-			$obj->sameAs = 'https://archive.org/details/' . $row->BarCode;
-		}
-		
-		// get pages
-		$pages = get_pages_for_item($row->ItemID);
-		
-		$obj->hasPart = $pages;
-		
 	}
 	
 	return $obj;
@@ -306,7 +320,7 @@ function get_items_for_title($TitleID)
 }
 
 //----------------------------------------------------------------------------------------
-// Get details of a title
+// Get details of a part
 function get_part($PartID)
 {
 	$obj = null;
@@ -319,8 +333,7 @@ function get_part($PartID)
 	$data = db_get($sql);
 	
 	if (count($data) > 0)
-	{
-		
+	{		
 		$obj = new stdclass;
 		
 		foreach ($data as $row)
@@ -450,6 +463,47 @@ function get_part($PartID)
 			$obj->identifier[] = $identifier;
 			
 		}
+		
+		// authors?
+		$sql = 'SELECT * FROM partcreator WHERE PartID='. $PartID;
+	
+		$data = db_get($sql);
+		
+		foreach ($data as $row)
+		{
+			if (isset($obj->csl->author))
+			{
+				$obj->csl->author = [];
+			}
+			
+			$author = new stdclass;
+			$author->id = $row->CreatorID;
+			
+			$author->literal = $row->CreatorName;
+						
+			// clean shit up
+			$author->literal = preg_replace('/,?\s+[0-9]{4}-(0-9]{4})?/', '', $author->literal);
+			
+			$name_parts = preg_split('/,\s+/', $author->literal);
+			
+			if (count($name_parts) == 2)
+			{
+				$author->family = $name_parts[0];
+				$author->given  = $name_parts[1];
+				
+				if (preg_match('/^(.*)\s+(Jr\.)/', $author->given, $m))
+				{
+					$author->given  = $m[1];
+					$author->suffix = $m[2];
+				}
+								
+				unset($author->literal);
+			}
+			
+			$obj->csl->author[] = $author;			
+		}
+		
+		
 	}
 	
 	return $obj;
@@ -556,11 +610,12 @@ function get_title_for_item($ItemID)
 //----------------------------------------------------------------------------------------
 
 // test
-if (1)
+if (0)
 {
 	$ItemID = 325622;
 	
 	$ItemID = 251129;
+	$ItemID = 258877;
 	
 	// we want all pages in this item that are in a part...
 	$item = get_item($ItemID);

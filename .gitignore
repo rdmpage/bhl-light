@@ -11,3 +11,5 @@ env.php
 /structure/
 
 /vendor/
+tagging/uber_h3.db-shm
+tagging/uber_h3.db-wal

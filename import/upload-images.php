@@ -145,10 +145,36 @@ $TitleID = 41367;
 
 // $titles=array(119421,119424,119515,119516,119597,119777);
 
+$TitleID=110138;
+
+$TitleID = 218607;
+
+//  Annales du Musée du Congo (mess, volumes, multiple titles, v limited coverage)
+$titles=array(
+5766,
+149676,
+62379,
+118672,
+51828,
+209514,
+12601,
+210672,
+209943,
+);
+
+$TitleID = 3595;
+$TitleID = 42247;
 
 
 
 $identifiers = get_ia_for_title($TitleID);
+
+$identifiers=['floracostaricens18burg'];
+
+$identifiers=
+[
+'newspeciesfromso361simp',
+];
 
 //$identifiers = array('naturalhistoryof01skot');
 
@@ -191,12 +217,12 @@ $identifiers  = array(
 
 //$identifiers  = array('mobot31753002350178');
 
-$config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/Hetzner.localized/bhl';
+//$config['s3'] = '/Users/rpage/Library/Application Support/Mountain Duck/Volumes.noindex/BHL.localized/bhl';
 
 //$config['s3'] = ".";
 
 $force = true;
-$force = false;
+//$force = false;
 
 foreach ($identifiers as $ia)
 {

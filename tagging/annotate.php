@@ -57,6 +57,8 @@ function annotation_selector($text, $highlight, &$last_pos, $offset = 0)
  */
 function degrees2decimal($degrees, $minutes=0, $seconds=0, $hemisphere='N')
 {
+	// echo "Input=$degrees • $minutes • $seconds • $hemisphere\n";
+
 	// ensure decimal point (if any) is a point, not a comma
 	$degrees = str_replace(',', '.', $degrees);
 	$minutes = str_replace(',', '.', $minutes);
@@ -65,7 +67,7 @@ function degrees2decimal($degrees, $minutes=0, $seconds=0, $hemisphere='N')
 	$result = $degrees;
 	$result += $minutes/60.0;
 	$result += $seconds/3600.0;
-	
+		
 	//echo "seconds=$seconds|<br/>";
 	
 	if ($hemisphere == 'S')
@@ -159,7 +161,7 @@ function add_geo_match_to_annotation($matches, $text, &$annotations)
 		$annotation->target->selector = annotation_selector($text, $match[0], $last_pos);
 		$annotation->geojson = toPoint($match);	
 		
-		$annotation->uber_h3 = latlon2h3($annotation->geojson->geometry->coordinates);	
+		//$annotation->uber_h3 = latlon2h3($annotation->geojson->geometry->coordinates);	
 		
 		$annotations[] = $annotation;
 	}
@@ -171,12 +173,12 @@ function tag_geo($text)
 {
 	$annotations = array();
 
-	$DEGREES_SYMBOL 		=  '[˚|°|º]';
+	$DEGREES_SYMBOL 		=  '(?:˚|°|º)';
 	$MINUTES_SYMBOL			= '(\'|’|\′|\´)';
 	$SECONDS_SYMBOL			= '("|\'\'|’’|”|\′\′|\´\´|″|\′\′)';
 	
 	$INTEGER				= '\d+';
-	$FLOAT					= '\d+([\.|,]\d+)?';
+	$FLOAT					= '\d+(?:[.,]\d+)?';
 	
 	$LATITUDE_DEGREES 		= '[0-9]{1,2}';
 	$LONGITUDE_DEGREES 		= '[0-9]{1,3}';
@@ -184,8 +186,8 @@ function tag_geo($text)
 	$LATITUDE_HEMISPHERE 	= '[N|S]';
 	$LONGITUDE_HEMISPHERE 	= '[W|E]';
 	
-	$ES_LATITUDE_HEMISPHERE 	= '[N|S]';
-	$ES_LONGITUDE_HEMISPHERE 	= '[O|E]';
+	$ES_LATITUDE_HEMISPHERE 	= '[NS]';
+	$ES_LONGITUDE_HEMISPHERE 	= '[OE]';
 		
 	$flanking_length = 50;
 	

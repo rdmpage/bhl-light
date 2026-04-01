@@ -102,6 +102,7 @@ function create_map(id) {
 	
 	// https://github.com/Leaflet/Leaflet/issues/1885#issuecomment-91395167 for wrap()
 	
+	/*
 	map.on('click', function(e) {
 		var zoom = map.getZoom();
 		var h3Zoom = ZOOM_TO_H3_RES_CORRESPONDENCE[zoom] + 1;
@@ -111,6 +112,7 @@ function create_map(id) {
 		document.getElementById('h3').innerHTML = "H3 cell " + h3Index;
 		show_h3_cell(h3Index)
 	});
+	*/
 		
 }
 
