@@ -704,11 +704,17 @@ function get_item_manifest($id)
 				
 				foreach ($layout->pages as $page)
 				{
+					// Source images on S3 are 800px wide; scale dimensions to match
+					$stored_width = 800;
+					$scale = $stored_width / $page->image_bbox[2];
+					$actual_width = $stored_width;
+					$actual_height = round($page->image_bbox[3] * $scale);
+
 					$canvas = new stdclass;
 					$canvas->id = $config['web_server'] . $config['web_root'] . $id . '/canvas/p' . $page->page;
 					$canvas->type = 'Canvas';
-					$canvas->height = $page->image_bbox[3];
-					$canvas->width = $page->image_bbox[2];
+					$canvas->height = $actual_height;
+					$canvas->width = $actual_width;
 					
 					$canvas->items = array();
 					
@@ -727,8 +733,8 @@ function get_item_manifest($id)
 					$annotation->body->id = $config['web_server'] . $config['web_root'] . 'page/' . $page->bhl_pageid . '/full/max/0/default.jpg';
 					$annotation->body->type = 'Image';
 					$annotation->body->format = 'image/jpeg';
-					$annotation->body->height = $page->image_bbox[3];
-					$annotation->body->width = $page->image_bbox[2];
+					$annotation->body->height = $actual_height;
+					$annotation->body->width = $actual_width;
 	
 					if (1)
 					{

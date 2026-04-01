@@ -1160,9 +1160,14 @@ function display_page_iiif_info($PageID)
 
 	$info->protocol = 'http://iiif.io/api/image';
 
+	// The source images on S3 are stored at 800px wide (converted from jp2).
+	// Report actual stored dimensions, not the original scan dimensions,
+	// so IIIF viewers request regions that match the real image.
+	$stored_width = 800;
 	$wh = get_page_width_height($PageID);
-	$info->width = $wh[0];
-	$info->height = $wh[1];
+	$scale = $stored_width / $wh[0];
+	$info->width = $stored_width;
+	$info->height = round($wh[1] * $scale);
 
 	$profile_features = new stdclass;
 	$profile_features->formats = ['jpg', 'webp', 'png'];
