@@ -267,11 +267,9 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 						$annotation_pages = $graph;
 					}
 				}
-			}	
-			
+			}			
 		}
-		
-		
+				
 		if ($display_google_sidebar)
 		{
 			// load some annotations to play with
@@ -305,9 +303,6 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 			$annotation_pages = $annotationPage; // set this if we want annotation sidebar
 		}
 		
-		
-		
-		
 		$title = $work->name;
 	
 		html_start($title, $doc);
@@ -316,8 +311,7 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 <a href="javascript:close_panel()">╳</a>
 <div id="info"></div>
 </div>';
-		
-		
+				
 		// create a side bar for information on this work
 		echo '<div>';
 		echo '  <aside>';
@@ -440,13 +434,16 @@ function display_item($id, $offset = 0, $display_mode = 'pages')
 			echo '</div>';
 		}
 		
-
-		
 		// different views of item
 		echo '<div>';
 		echo '<a href="item/' . $id . '">pages</a>';
 		echo ' | ';
 		echo '<a href="item/' . $id . '/thumbnails">thumbnails</a>';
+		
+		// IIIF 
+		// at this stage we just give a link to the manifest file
+		echo ' | ';
+		echo '<a href="item/' . $id . '/manifest.json">IIIF</a>';
 		
 		if ($image_gallery)
 		{
