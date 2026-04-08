@@ -213,12 +213,13 @@ function get_title($TitleID)
 function get_item ($ItemID)
 {
 	// get individual item
-	$sql = 'SELECT * FROM item 
+	$sql = 'SELECT DISTINCT ItemID, VolumeInfo, TitleID, ThumbnailPageID, Year, InstitutionName, CopyrightStatus, BarCode
+	FROM item 
 	WHERE ItemID='. $ItemID;
 	
 	$data = db_get($sql);
 	
-	// print_r($data);
+	//print_r($data);
 	
 	$obj = null;
 	
@@ -294,10 +295,10 @@ function get_item ($ItemID)
 function get_items_for_title($TitleID)
 {
 	// list of items for a title
-	$sql = 'SELECT * FROM item 
+	$sql = 'SELECT DISTINCT ItemID FROM item 
 	WHERE TitleID='. $TitleID . '
 	ORDER BY item.year, item.VolumeInfo';
-	
+		
 	$data = db_get($sql);
 	
 	print_r($data);

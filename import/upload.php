@@ -98,9 +98,7 @@ function upload_title($TitleID, $force = false)
 	global $couch;
 	
 	$doc = get_title($TitleID);
-	
-	print_r($doc);
-	
+		
 	$exists = $couch->exists($doc->_id);
 	
 	if ($exists && !$force)
@@ -128,7 +126,6 @@ function upload_items_for_title($TitleID, $force = false)
 	
 	$items = get_items_for_title($TitleID);
 	
-
 	foreach ($items as $doc)
 	{
 		$exists = $couch->exists($doc->_id);
@@ -818,7 +815,7 @@ $titles=array(
 13353,
 );
 
-$titles=array(665500);
+$titles=array(66550);
 
 
 $force = true;
@@ -827,9 +824,9 @@ $force = true;
 foreach ($titles as $TitleID)
 {
 	echo $TitleID . "\n";
-	upload_title($TitleID, true);
-	upload_items_for_title($TitleID, true);
-	upload_parts_for_title($TitleID, true);
+	upload_title($TitleID, $force);
+	upload_items_for_title($TitleID, $force);
+	upload_parts_for_title($TitleID, $force);
 }
 
 

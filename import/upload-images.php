@@ -165,16 +165,15 @@ $titles=array(
 $TitleID = 3595;
 $TitleID = 42247;
 
+$TitleID = 66550;
+
 
 
 $identifiers = get_ia_for_title($TitleID);
 
-$identifiers=['floracostaricens18burg'];
+$identifiers=['bothaliavolume3636unse_0'];
 
-$identifiers=
-[
-'newspeciesfromso361simp',
-];
+//$identifiers=['newspeciesfromso361simp'];
 
 //$identifiers = array('naturalhistoryof01skot');
 
@@ -222,7 +221,7 @@ $identifiers  = array(
 //$config['s3'] = ".";
 
 $force = true;
-//$force = false;
+$force = false;
 
 foreach ($identifiers as $ia)
 {

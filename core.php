@@ -437,6 +437,8 @@ function get_search_results($query, $limit = 10)
 	global $config;
 	global $couch;
 	
+	$datafeed = null;
+	
 	$query = trim($query);
 	
 	$query = preg_replace('/\s\s+/', ' ', $query);
@@ -464,47 +466,55 @@ function get_search_results($query, $limit = 10)
     $datafeed->name = $query;
     $datafeed->dataFeedElement = array(); 
     
-    if ($resp_obj->total_hits == 0)
+    if (isset($resp_obj->error))
     {
-    	$datafeed->description = "No results";
+		$item = new stdclass;
+		$item->name = basename(__FILE__) . ' ' . __LINE__ . ' ' . $resp_obj->reason;					
+		$datafeed->dataFeedElement[] = $item;   
     }
     else
-    {
-    	if ($resp_obj->total_hits == 1)
-    	{
-    		$datafeed->description = "One hit";
-    	}
-    	else
-    	{
-    		$datafeed->description = $resp_obj->total_hits . " hits";
-    	}
-    }
-	
-	foreach ($resp_obj->hits as $hit)
 	{
-		$item = new stdclass;
-		$item->{'@id'} = $hit->id;
-		$item->name = $hit->doc->name;
 		
-		if (isset($hit->doc->thumbnailUrl))
+		if ($resp_obj->total_hits == 0)
 		{
-			$item->thumbnailUrl = $hit->doc->thumbnailUrl;
-			
-			$item->url = preg_replace('/pagethumb\//', 'page/', $hit->doc->thumbnailUrl);
+			$datafeed->description = "No results";
 		}
 		else
 		{
-			// things like titles won't/might not have thumbnails
-			$item->url = $hit->doc->_id;
+			if ($resp_obj->total_hits == 1)
+			{
+				$datafeed->description = "One hit";
+			}
+			else
+			{
+				$datafeed->description = $resp_obj->total_hits . " hits";
+			}
 		}
 		
-		$item->resultScore = $hit->order[0]->value;
-	
-		$datafeed->dataFeedElement[] = $item;
+		foreach ($resp_obj->hits as $hit)
+		{
+			$item = new stdclass;
+			$item->{'@id'} = $hit->id;
+			$item->name = $hit->doc->name;
+			
+			if (isset($hit->doc->thumbnailUrl))
+			{
+				$item->thumbnailUrl = $hit->doc->thumbnailUrl;
+				
+				$item->url = preg_replace('/pagethumb\//', 'page/', $hit->doc->thumbnailUrl);
+			}
+			else
+			{
+				// things like titles won't/might not have thumbnails
+				$item->url = $hit->doc->_id;
+			}
+			
+			$item->resultScore = $hit->order[0]->value;
+		
+			$datafeed->dataFeedElement[] = $item;
+		}
 	}
-	
-	// print_r($datafeed);
-	
+		
 	return $datafeed;
 }
 
@@ -590,6 +600,8 @@ function get_name_search_results($query, $limit = 10)
 	global $config;
 	global $couch;
 	
+	$datafeed = null;
+	
 	$query = strtolower(trim($query));
 	
 	$startkey = array($query);
@@ -612,38 +624,44 @@ function get_name_search_results($query, $limit = 10)
 	$resp = $couch->send("GET", "/" . $config['couchdb_options']['database'] . "/" . $url);
 
 	$resp_obj = json_decode($resp);	
-		
-    $datafeed = new stdclass;
-    $datafeed->{'@type'} = ['DataFeed'];
-    $datafeed->name = $query;
-    $datafeed->dataFeedElement = array(); 
 	
-	foreach ($resp_obj->rows as $row)
-	{
+	$datafeed = new stdclass;
+	$datafeed->{'@type'} = ['DataFeed'];
+	$datafeed->name = $query;
+	$datafeed->dataFeedElement = array(); 	
+	
+    if (isset($resp_obj->error))
+    {
 		$item = new stdclass;
-		$item->{'@type'} = 'Annotation';
-		
-		$item->name = $row->key[0];
-
-		$item->selector = $row->key[3];
-
-		$item->source = new stdclass;
-		$item->source->{'@id'} = "page/" . $row->key[2];
-		
-		$parent = new stdclass;
-		$parent->{'@id'} = 'item/' . $row->key[1];	
-		
-		$parent->datePublished = $row->key[4];		
-		
-		$item->source->isPartOf = array($parent);
-		
-		$datafeed->dataFeedElement[] = $item;
+		$item->name = basename(__FILE__) . ' ' . __LINE__ . ' ' . $resp_obj->reason;					
+		$datafeed->dataFeedElement[] = $item;   
+    }
+	else
+	{				
+		foreach ($resp_obj->rows as $row)
+		{
+			$item = new stdclass;
+			$item->{'@type'} = 'Annotation';
+			
+			$item->name = $row->key[0];
+	
+			$item->selector = $row->key[3];
+	
+			$item->source = new stdclass;
+			$item->source->{'@id'} = "page/" . $row->key[2];
+			
+			$parent = new stdclass;
+			$parent->{'@id'} = 'item/' . $row->key[1];	
+			
+			$parent->datePublished = $row->key[4];		
+			
+			$item->source->isPartOf = array($parent);
+			
+			$datafeed->dataFeedElement[] = $item;
+		}
 	}
-	
-	//print_r($datafeed);
-	
+		
 	return $datafeed;
-	
 }
 
 //----------------------------------------------------------------------------------------

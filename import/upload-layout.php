@@ -632,8 +632,11 @@ $titles=array(
 //3595
 //109981
 //66539
-13353
+//13353
+66550
 );
+
+$force = false;
 
 foreach ($titles as $TitleID)
 {
@@ -642,62 +645,20 @@ foreach ($titles as $TitleID)
 	
 	print_r($identifiers);
 	
-	//$identifiers=array('brimleyana191993');
-	
-	/*
-	
-	//exit();
-	
-	
-	//$identifiers=array('journalofwashing8720wash');
-	
-	//$identifiers=array('mobot31753002350152');
-	//$identifiers=array('mobot31753002347570','mobot31753002347547');
-	//exit();
-	
-	// Curtis, bad
-	//$identifiers=array('mobot31753002721899','mobot31753002721634');
-	
-	
-	
-	$identifiers=array(
-		//'mobot31753002156542',
-//		'mobot31753002156666',
-		//'mobot31753002140777',
-		//'mobot31753002156310',
-//		'mobot31753002158142',
-//		'mobot31753002140843',
-//		'mobot31753002140785',
-//		'mobot31753002140678',
-		//'mobot31753002158134',
-		
-		//'mobot31753002158118',
-		//'mobot31753002156674',
-		//'mobot31753002156641',
-		//'mobot31753002156625',
-		//'mobot31753002156583',
-		
-		//'mobot31753002156641',
-		
-		//'mobot31753002156435',
-		//'mobot31753002156476',
-		//'mobot31753002156450',
-		'mobot31753002140751',
-		
-		);
-		
-	// bad mobot31753002140710 v.40=no.469-480 (1906)
-	// bad mobot31753002156641 v.26:pt.1=no.301-306 (1892)
-	
-	$identifiers = array(
-		//'mobot31753002140710',
-		'mobot31753002156641'
-		
-	);
-	*/
+	//$identifiers=array('bothaliavolume4141unse_1');
+
 	
 	foreach ($identifiers as $ia)
 	{
+		$exists = $couch->exists('layout/' . $ia);
+		
+		if ($exists && !$force)
+		{
+			echo "Have $ia already\n";
+			continue;
+		}
+	
+	
 		echo "Fetching hOCR $ia\n";
 		fetch_ia_hocr($ia);
 		

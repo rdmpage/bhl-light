@@ -901,7 +901,7 @@ function display_search($query)
 {
 
 	// Nouveau search
-	if (0)
+	if (1)
 	{
 		$doc = get_search_results($query);
 		if ($doc)
@@ -946,7 +946,15 @@ function display_search($query)
 				echo '<div class="media-body">';
 				echo '<h3 class="media-title">';
 				
-				echo '<a href="' . $hit->url . '">' . $hit->name . '</a>';
+				if (isset($hit->url))
+				{				
+					echo '<a href="' . $hit->url . '">';
+				}
+				echo $hit->name;
+				if (isset($hit->url))
+				{				
+					echo '</a>';
+				}
 				 
 				echo '</h3>';
 				echo '</div>';
@@ -970,7 +978,8 @@ function display_search($query)
 	}
 	
 	// Simple name search
-	if (1)
+	// requires a view which doesn't work in remote version.
+	if (0)
 	{
 		$doc = get_name_search_results($query);
 		
@@ -1009,26 +1018,35 @@ function display_search($query)
 			foreach ($doc->dataFeedElement as $hit)
 			{
 				$item = new stdclass;
-				$item->data = $hit->selector;
-			
-				if (isset($hit->source))
+				
+				if (isset($hit->selector))
 				{
-					$item->link = $hit->source->{'@id'};
-					if (isset($hit->source->isPartOf))
+					$item->data = $hit->selector;
+				
+					if (isset($hit->source))
 					{
-						$ItemID = $hit->source->isPartOf[0]->{'@id'};
-						$year = $hit->source->isPartOf[0]->datePublished;
-						
-						if (!isset($years[$year]))
+						$item->link = $hit->source->{'@id'};
+						if (isset($hit->source->isPartOf))
 						{
-							$years[$year] = array();
+							$ItemID = $hit->source->isPartOf[0]->{'@id'};
+							$year = $hit->source->isPartOf[0]->datePublished;
+							
+							if (!isset($years[$year]))
+							{
+								$years[$year] = array();
+							}
+							if (!isset($years[$year][$ItemID]))
+							{
+								$years[$year][$ItemID] = array();
+							}
+							$years[$year][$ItemID][] = $item;
 						}
-						if (!isset($years[$year][$ItemID]))
-						{
-							$years[$year][$ItemID] = array();
-						}
-						$years[$year][$ItemID][] = $item;
 					}
+				}
+				else
+				{
+					// occurs if we killed the view
+					echo $hit->name;
 				}
 			}
 			

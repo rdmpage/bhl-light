@@ -388,6 +388,7 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
 				*/
 				
 				// names
+				/*
 				if (isset($annotations->{$i}))
 				{					
 					if (isset($annotations->{$i}->annotations))
@@ -398,6 +399,7 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
 						}
 					}
 				}
+				*/
 				
 				
 				
