@@ -711,7 +711,7 @@ function get_item_manifest($id)
 				$manifest = new stdclass;
 				
 				$manifest->{'@context'} = 'http://iiif.io/api/presentation/3/context.json';
-				$manifest->id = $config['web_server'] . $config['web_root'] . 'item/' . $id . '-manifest.json';
+				$manifest->id = $config['web_server'] . $config['web_root'] . 'item/' . $id . '/manifest.json';
 				$manifest->type = 'Manifest';
 				
 				$label = new stdclass;
@@ -759,6 +759,7 @@ function get_item_manifest($id)
 						$annotation->body->service = array();
 						
 						$service = new stdclass;
+						$service->{'@context'} = 'http://iiif.io/api/image/2/context.json';
 						$service->id = $config['web_server'] . $config['web_root'] . 'page/' . $page->bhl_pageid;
 						$service->type = 'ImageService2';
 						$service->profile = 'http://iiif.io/api/image/2/level1.json';
