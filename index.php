@@ -1105,13 +1105,17 @@ function display_search($query)
 // Dislaying a specific BHL page is simply a redirect to a BHL item and a page offset
 function display_page($page)
 {
+	global $config;
+
 	// IIIF Image API base URI: only HTML browsers get the human reader.
 	// Server-side IIIF fetchers (Accept: */* or absent) and viewers (Accept: ...json)
 	// get a 303 to info.json, per the Image API baseUriRedirect requirement.
+	// Absolute URL — relative Location resolves wrong against /page/{id}.
 	$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
 	if (stripos($accept, 'text/html') === false)
 	{
-		header("Location: page/" . $page . "/info.json", true, 303);
+		$info_url = $config['web_server'] . $config['web_root'] . 'page/' . $page . '/info.json';
+		header("Location: " . $info_url, true, 303);
 		return;
 	}
 
