@@ -30,7 +30,7 @@ RewriteRule item/(\d+)/offset/(\d+)/figures$ ?item=$1&offset=$2&figures [NC,L]
 RewriteRule viewer/([A-Za-z0-9]+)$ viewer.php?id=$1 [NC,L]
 
 # list of titles
-RewriteRule containers$ ?containers[NC,L]
+RewriteRule containers$ ?containers [NC,L]
 RewriteRule containers/(.*)$ ?containers&letter=$1 [NC,L]
 
 # page
