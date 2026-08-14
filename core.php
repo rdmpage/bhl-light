@@ -711,7 +711,7 @@ function get_item_manifest($id)
 				$manifest = new stdclass;
 				
 				$manifest->{'@context'} = 'http://iiif.io/api/presentation/3/context.json';
-				$manifest->id = $config['web_server'] . $config['web_root'] . 'item/' . $id . '/manifest.json';
+				$manifest->id = site_base_url('item/' . $id . '/manifest.json');
 				$manifest->type = 'Manifest';
 				
 				$label = new stdclass;
@@ -729,7 +729,7 @@ function get_item_manifest($id)
 					$actual_height = round($page->image_bbox[3] * $scale);
 
 					$canvas = new stdclass;
-					$canvas->id = $config['web_server'] . $config['web_root'] . $id . '/canvas/p' . $page->page;
+					$canvas->id = site_base_url('item/' . $id . '/canvas/p' . $page->page);
 					$canvas->type = 'Canvas';
 					$canvas->height = $actual_height;
 					$canvas->width = $actual_width;
@@ -742,13 +742,13 @@ function get_item_manifest($id)
 					$item->items = array();
 					
 					$annotation = new stdclass;
-					$annotation->id = $config['web_server'] . $config['web_root'] . 'page/' . $page->bhl_pageid;
+					$annotation->id = site_base_url('page/' . $page->bhl_pageid);
 			
 					$annotation->type = 'Annotation';
 					$annotation->motivation = 'painting';
 					
 					$annotation->body = new stdclass;
-					$annotation->body->id = $config['web_server'] . $config['web_root'] . 'page/' . $page->bhl_pageid . '/full/max/0/default.jpg';
+					$annotation->body->id = site_base_url('page/' . $page->bhl_pageid . '/full/max/0/default.jpg');
 					$annotation->body->type = 'Image';
 					$annotation->body->format = 'image/jpeg';
 					$annotation->body->height = $actual_height;
@@ -760,7 +760,7 @@ function get_item_manifest($id)
 						
 						$service = new stdclass;
 						$service->{'@context'} = 'http://iiif.io/api/image/2/context.json';
-						$service->id = $config['web_server'] . $config['web_root'] . 'page/' . $page->bhl_pageid;
+						$service->id = site_base_url('page/' . $page->bhl_pageid);
 						$service->type = 'ImageService2';
 						$service->profile = 'http://iiif.io/api/image/2/level1.json';
 						

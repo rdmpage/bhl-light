@@ -217,7 +217,7 @@ function display_item_iiif($id)
 	header ("Content-Type: application/json");
 	header('Access-Control-Allow-Origin: *');
 
-	echo json_encode($manifest);
+	echo json_encode($manifest, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
 }
 
@@ -1114,7 +1114,7 @@ function display_page($page)
 	$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
 	if (stripos($accept, 'text/html') === false)
 	{
-		$info_url = $config['web_server'] . $config['web_root'] . 'page/' . $page . '/info.json';
+		$info_url = site_base_url('page/' . $page . '/info.json');
 		header("Location: " . $info_url, true, 303);
 		return;
 	}
@@ -1185,7 +1185,7 @@ function display_page_iiif_info($PageID)
 
 	$info = new stdclass;
 	$info->{'@context'} = 'http://iiif.io/api/image/2/context.json';
-	$info->{'@id'} = $config['web_server'] . $config['web_root'] . 'page/' . $PageID;
+	$info->{'@id'} = site_base_url('page/' . $PageID);
 
 	$info->protocol = 'http://iiif.io/api/image';
 
@@ -1228,7 +1228,7 @@ function display_page_iiif_info($PageID)
 	}
 	header('Access-Control-Allow-Origin: *');
 
-	echo json_encode($info);
+	echo json_encode($info, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 }
 
 //----------------------------------------------------------------------------------------

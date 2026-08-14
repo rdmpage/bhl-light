@@ -8,10 +8,11 @@ global $config;
 date_default_timezone_set('UTC');
 
 $config['platform'] = 'local';
-$config['platform'] = 'cloud';
+//$config['platform'] = 'cloud';
 
 $config['site']		= 'local';
 $config['site']		= 'heroku';
+$config['site']		= 'iphylo';
 
 switch ($config['site'])
 {
@@ -21,12 +22,33 @@ switch ($config['site'])
 		$config['site_name'] 	= 'BHL Light';
 		break;	
 
+	case 'iphylo':
+		$config['web_server']	= 'https://iphylo.org';
+		$config['web_root']		= '/bhl-light/';
+		$config['site_name'] 	= 'BHL Light';
+		break;	
+
 	case 'local':
 	default:
 		$config['web_server']	= 'http://localhost'; 
 		$config['web_root']		= '/bhl-light/'; // trailing "/" is important!
 		$config['site_name'] 	= 'BHL-Light';
 		break;
+}
+
+//----------------------------------------------------------------------------------------
+// Absolute base URL for this site, e.g. "https://iphylo.org/bhl-light/". Single place that
+// joins web_server and web_root, so IIIF ids, redirects, and canonical links can't drift
+// apart. Normalises the scheme separator and the slashes at the join, so a typo such as
+// "https:/iphylo.org" can't leak into a manifest again.
+function site_base_url($path = '')
+{
+	global $config;
+
+	$server = preg_replace('|^(https?):/+|i', '$1://', rtrim($config['web_server'], '/'));
+	$root = rtrim('/' . ltrim($config['web_root'], '/'), '/') . '/';
+
+	return $server . $root . ltrim($path, '/');
 }
 
 // Cache----------------------------------------------------------------------------------

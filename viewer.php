@@ -133,7 +133,7 @@ function layout_to_viewer_html($layout, $block_layout = null, $annotations = nul
     	<base href="' . $config['web_root'] . '" /><!--[if IE]></base><![endif]-->';
     
     $html .= '<!-- canonical link -->';
-	$html .= '<link rel="canonical" href="' .  $config['web_server'] . $config['web_root'] . 'viewer/' .  $layout->internetarchive . '" />';
+	$html .= '<link rel="canonical" href="' .  site_base_url('viewer/' . $layout->internetarchive) . '" />';
 	
 	$html .=  '<link rel="stylesheet" href="root.css.inc.php">';
 	
