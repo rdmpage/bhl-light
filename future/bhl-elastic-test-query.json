@@ -1,0 +1,71 @@
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "match_phrase": {
+            "text": {
+              "query": "Abeille de Perrin E (1894) Diagnoses de coléoptères réputés nouveaux. L'Échange. Revue Linnéenne 10(115): 91–94.",
+              "slop": 3,
+              "boost": 3
+            }
+          }
+        },
+        {
+          "match": {
+            "text": {
+              "query": "Abeille de Perrin E (1894) Diagnoses de coléoptères réputés nouveaux. L'Échange. Revue Linnéenne 10(115): 91–94.",
+              "minimum_should_match": "75%"
+            }
+          }
+        }
+      ],
+      "minimum_should_match": 1
+    }
+  },
+  "aggs": {
+    "by_year": {
+      "terms": {
+        "field": "year",
+        "size": 500,
+        "order": { "_key": "asc" }
+      }
+    },
+    "by_item_id": {
+      "terms": {
+        "field": "itemid",
+        "size": 20,
+        "order": {
+          "max_score.value": "desc"
+        }
+      },
+      "aggs": {
+        "max_score": {
+          "max": {
+            "script": {
+              "lang": "painless",
+              "source": "_score"
+            }
+          }
+        },
+        "top_pages": {
+          "top_hits": {
+            "size": 3,
+            "_source": ["id", "itemid", "name", "volume", "year"],
+            "highlight": {
+              "pre_tags": ["<mark>"],
+              "post_tags": ["</mark>"],
+              "fields": {
+                "text": {
+                  "fragment_size": 200,
+                  "number_of_fragments": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

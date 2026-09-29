@@ -1,0 +1,39 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "folding": {
+          "tokenizer": "standard",
+          "filter": ["lowercase", "asciifolding"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic": true,
+    "properties": {
+      "type":      { "type": "keyword" },
+      "id":        { "type": "keyword" },
+      "itemid":    { "type": "keyword" },
+      "partid":    { "type": "keyword" },
+      "year":      { "type": "integer" },
+      "volume":    { "type": "keyword" },
+      "name":      { "type": "text", "analyzer": "folding", "index_options": "offsets" },
+      "text":      { "type": "text", "analyzer": "folding", "index_options": "offsets" },
+      "tags":      { "type": "keyword" },
+      "thumbnail": { "type": "keyword", "index": false },
+      "entities": {
+        "properties": {
+          "name": {
+            "type": "text",
+            "analyzer": "folding",
+            "fields": { "keyword": { "type": "keyword" } }
+          },
+          "type": { "type": "keyword" }
+        }
+      },
+      "locations":       { "type": "geo_point" },
+      "geo_annotations": { "enabled": false }
+    }
+  }
+}
