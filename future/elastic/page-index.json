@@ -1,0 +1,51 @@
+{
+  "settings": {
+    "number_of_shards": 24,
+    "number_of_replicas": 0,
+    "refresh_interval": "30s",
+    "analysis": {
+      "filter": {
+        "trait_syn": {
+          "type": "synonym_graph",
+          "lenient": true,
+          "synonyms_path": "analysis/trait-synonyms.txt"
+        }
+      },
+      "analyzer": {
+        "folding": {
+          "tokenizer": "standard",
+          "filter": ["lowercase", "asciifolding"]
+        },
+        "folding_syn": {
+          "tokenizer": "standard",
+          "filter": ["lowercase", "asciifolding", "trait_syn"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "page_id":   { "type": "keyword" },
+      "itemid":    { "type": "keyword" },
+      "partid":    { "type": "keyword" },
+      "titleid":   { "type": "keyword" },
+      "ia":        { "type": "keyword" },
+      "seq":       { "type": "integer" },
+      "year":      { "type": "integer" },
+      "volume":    { "type": "keyword" },
+      "text": {
+        "type": "text",
+        "analyzer": "folding",
+        "search_analyzer": "folding_syn",
+        "index_options": "offsets"
+      },
+      "names":     { "type": "keyword" },
+      "entities":  { "type": "keyword" },
+      "tags":      { "type": "keyword" },
+      "locations": { "type": "geo_point" },
+      "geo_annotations": { "type": "object", "enabled": false },
+      "thumbnail": { "type": "keyword", "index": false }
+    }
+  }
+}
