@@ -13,3 +13,6 @@ env.php
 /vendor/
 tagging/uber_h3.db-shm
 tagging/uber_h3.db-wal
+
+# Supplier quotes etc. -- keep locally, not in the public repo
+future/*.pdf
