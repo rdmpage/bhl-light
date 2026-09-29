@@ -1,0 +1,84 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "index": {
+      "max_result_window": 50000
+    },
+    "analysis": {
+      "filter": {
+        "trait_syn": {
+          "type": "synonym_graph",
+          "lenient": true,
+          "synonyms": [
+            "diet, food, foods, feeding, feeds, feed, nourishment, nutrition, nahrung, nourriture, alimentacion, alimentação",
+            "stomach contents, gut contents, crop contents, stomach content, gut content, ingluvies",
+            "prey, preys, quarry, beute, proie, presa",
+            "predator, predators, predation, raubtier, predateur, depredador",
+            "host plant, hostplant, food plant, foodplant, larval host, larval food plant, wirtspflanze, plante hote, futterpflanze",
+            "host, hosts, wirt, hote, hospedero",
+            "parasite, parasites, parasitic, parasitoid, schmarotzer",
+            "habitat, biotope, environment, milieu, lebensraum, habitats",
+            "breeding, breeds, reproduction, nesting, nests, nidification, fortpflanzung, brutzeit, reproducción",
+            "oviposition, egg laying, eggs laid, eiablage, ponte",
+            "nocturnal, night active, nachtaktiv, nocturne",
+            "larva, larvae, caterpillar, grub, maggot, raupe, chenille, larve",
+            "pollinator, pollinated, pollination, bestäubung, pollinisation"
+          ],
+          "_comment": "or use: synonyms_path: analysis/trait-synonyms.txt"
+        }
+      },
+      "analyzer": {
+        "folding": {
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ],
+          "_comment": "INDEX analyser: no synonyms, so the thesaurus stays editable without reindexing"
+        },
+        "folding_syn": {
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "trait_syn"
+          ],
+          "_comment": "SEARCH analyser: synonym_graph MUST come after asciifolding"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "pid": {
+        "type": "keyword"
+      },
+      "page_id": {
+        "type": "keyword"
+      },
+      "ia": {
+        "type": "keyword"
+      },
+      "seq": {
+        "type": "integer"
+      },
+      "year": {
+        "type": "integer"
+      },
+      "partid": {
+        "type": "keyword"
+      },
+      "itemid": {
+        "type": "keyword"
+      },
+      "text": {
+        "type": "text",
+        "analyzer": "folding",
+        "search_analyzer": "folding_syn",
+        "index_options": "offsets"
+      }
+    }
+  }
+}

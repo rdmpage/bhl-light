@@ -1,0 +1,73 @@
+# Trait / ecology synonym thesaurus for BHL page and passage search
+# Solr synonym format: one rule per line, comma-separated equivalents, "#" comments.
+# Load with synonyms_path, or inline as a JSON array (see trait-index-settings.json).
+#
+# AUTHORSHIP: written by Claude (2026-09-28) as a test fixture, NOT by Rod Page and not
+# derived from any published thesaurus. It is a starting point to be replaced or extended
+# by someone with the domain knowledge, not an authority.
+#
+# MUST be used as a *search* analyser, after lowercase + asciifolding. See TRAIT-SEARCH.md.
+
+# =====================================================================
+# SECTION 1 — MEASURED. These 13 rules are exactly what produced
+# nDCG@10 0.868 vs 0.757 for plain BM25 (+0.111), and 0.270 -> 0.588 on
+# the German query, over 242,815 BHL passages. Change them and that
+# number no longer applies. Re-measure with eval/ before editing.
+# =====================================================================
+
+diet, food, foods, feeding, feeds, feed, nourishment, nutrition, nahrung, nourriture, alimentacion, alimentação
+stomach contents, gut contents, crop contents, stomach content, gut content, ingluvies
+prey, preys, quarry, beute, proie, presa
+predator, predators, predation, raubtier, predateur, depredador
+host plant, hostplant, food plant, foodplant, larval host, larval food plant, wirtspflanze, plante hote, futterpflanze
+host, hosts, wirt, hote, hospedero
+parasite, parasites, parasitic, parasitoid, schmarotzer
+habitat, biotope, environment, milieu, lebensraum, habitats
+breeding, breeds, reproduction, nesting, nests, nidification, fortpflanzung, brutzeit, reproducción
+oviposition, egg laying, eggs laid, eiablage, ponte
+nocturnal, night active, nachtaktiv, nocturne
+larva, larvae, caterpillar, grub, maggot, raupe, chenille, larve
+pollinator, pollinated, pollination, bestäubung, pollinisation
+
+# =====================================================================
+# SECTION 2 — UNTESTED CANDIDATES. Plausible, but NOT measured. Every
+# addition can cost precision as well as buy recall (see the "host"
+# warning in TRAIT-SEARCH.md). Add a few at a time and re-run eval/.
+# =====================================================================
+
+# --- feeding, in more specific senses -------------------------------
+carnivorous, insectivorous, piscivorous, fleischfressend, carnivore
+herbivorous, phytophagous, plant feeding, pflanzenfressend, herbivore
+frugivorous, fruit eating, fruit feeding, frugivore
+nectar, nectaries, nektar, nectaire
+wood boring, borer, xylophagous, holzbohrend
+leaf miner, leaf mining, mine, mines, minierer, mineuse
+
+# --- life stages and development ------------------------------------
+pupa, pupae, pupation, chrysalis, puppe, chrysalide
+nymph, nymphs, instar, instars, nymphe, stade
+egg, eggs, ovum, ova, ei, eier, oeuf
+moult, moulting, molt, molting, ecdysis, häutung, mue
+life history, life cycle, lebenszyklus, cycle biologique, biology
+
+# --- behaviour and activity -----------------------------------------
+diurnal, day active, tagaktiv, diurne
+crepuscular, twilight active, dämmerungsaktiv
+gregarious, colonial, colony, social, gesellig
+migration, migratory, migrate, wanderung, zugvogel
+hibernation, aestivation, dormancy, overwintering, winterschlaf, diapause
+song, call, calls, vocalisation, vocalization, gesang, ruf, chant
+
+# --- interactions ----------------------------------------------------
+symbiosis, symbiotic, mutualism, commensal, symbiose
+gall, galls, cecidium, galle, cecidie
+mimicry, mimetic, mimikry, mimetisme
+venom, venomous, poison, poisonous, gift, giftig, venin
+seed dispersal, dispersal, dispersed by, verbreitung, dissemination
+
+# --- habitat qualifiers ----------------------------------------------
+arboreal, tree dwelling, baumbewohnend, arboricole
+fossorial, burrowing, burrow, grabend, fouisseur
+aquatic, freshwater, water dwelling, wasserbewohnend, aquatique
+terrestrial, ground dwelling, bodenbewohnend, terrestre
+altitude, elevation, höhe, altitudinal
