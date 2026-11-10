@@ -64,7 +64,14 @@ Three independent sources, deliberately cross-checked:
 | triples | 771 M | QLever |
 | pages after blank filter | ~60 M | bhl-all-the-images |
 
-BHL-Light is **2,259,502 pages = 3.54% of BHL**, 6,557 items = 2.0%. Scale factor **×28.3**.
+BHL-Light is **2,024,593 pages = 3.17% of BHL**, 6,557 items = 2.0%. Scale factor **×31.5**.
+
+**Correction, 2026-09-30.** That page count is now exact — a full extraction over all 6,507 layout
+documents yielded 2,024,593 pages. An earlier figure of 2,259,502 here came from extrapolating a
+120-document sample and was **10% high** (the sample averaged 347 pages/item against an actual 311).
+Figures in this document that scale from *BHL-Light's* page count are correspondingly ~10% high.
+**Full-BHL figures are unaffected**, because they derive from QLever's exact 63,862,938, not from
+this extrapolation.
 
 ### Per-page measurements from BHL-Light
 
@@ -106,6 +113,9 @@ estimate missed:
 
 - **`offsets` cost 23%** over positions-only (1,560 vs 1,268 B/page). That is the price of fast
   highlighting, and highlighting is the feature that makes page-level search usable. Worth it.
+- **Confirmed at full BHL-Light scale (2026-09-30):** indexing all 1,941,455 pages with OCR text
+  produced a **5.7 GB** index after force-merge = **3,152 B/page**, against the 3,267 B/page
+  predicted from the 8,269-page sample — **96% of prediction**. The extrapolation holds.
 - **The `names` subfield is nearly free — 8 GB, not the ~20 GB I guessed.** At ~8 names/page it is
   noise next to the text. Index it without hesitation.
 
