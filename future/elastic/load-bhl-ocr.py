@@ -81,11 +81,30 @@ def main():
     ap.add_argument('--batch', type=int, default=2000)
     ap.add_argument('--checkpoint', default='load-bhl-ocr.checkpoint')
     ap.add_argument('--limit', type=int, default=0, help='stop after N entries (smoke test)')
+    ap.add_argument('--only', choices=('item', 'part', 'both'), default='both',
+                    help="restrict to item or part entries. NOTE part-* sorts after item-* in "
+                         "the archive, so a --limit run never reaches parts; use --only part "
+                         "to exercise that path (still costs a full decompression pass).")
+    ap.add_argument('--item-meta',
+                    help='JSON map {"itemid": {"year": 1897, "titleid": "10088", '
+                         '"volume": "40", "ia": "..."}} joined onto each page. The OCR archive '
+                         'supplies only page_id/itemid/partid/seq/text, so year -- which by_year '
+                         'and year_range both need -- must come from the BHL TSV export.')
     ap.add_argument('--report-only', action='store_true',
                     help='parse and count without indexing; use this first')
     args = ap.parse_args()
     if not args.stdin and not args.archive:
         ap.error('give --archive or --stdin')
+
+    meta = {}
+    if args.item_meta:
+        meta = json.load(open(args.item_meta))
+        print(f"# joined metadata for {len(meta):,} items", file=sys.stderr)
+
+    meta = {}
+    if args.item_meta:
+        meta = json.load(open(args.item_meta))
+        print(f"# joined metadata for {len(meta):,} items", file=sys.stderr)
 
     resume = None
     if os.path.exists(args.checkpoint):
@@ -124,6 +143,9 @@ def main():
             n["unparsed"] += 1
             continue
         kind, ident, page_id, seq = parsed
+        if args.only != 'both' and kind != args.only:
+            n["skipped"] += 1
+            continue
         raw = tf.extractfile(member).read().decode('utf-8', 'replace')
         text, illus = normalise(raw)
         if not text:
@@ -135,6 +157,9 @@ def main():
             doc = {"page_id": str(page_id), "itemid": str(ident), "seq": seq, "text": text}
             if illus:
                 doc["illustration"] = illus
+            extra = meta.get(str(ident))
+            if extra:
+                doc.update({k: v for k, v in extra.items() if v not in (None, '')})
             buf.append(json.dumps({"index": {"_id": str(page_id)}}))
             buf.append(json.dumps(doc, ensure_ascii=False))
         else:
