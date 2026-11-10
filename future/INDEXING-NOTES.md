@@ -216,6 +216,52 @@ none (scores 16.93 vs 16.2).
 Tune `boost` against the judged query set (`trait-search/eval/`) — a static prior that overrides
 textual relevance is worse than none, and the harness will show it.
 
+### 26. The `bhl-elastic-test` search query, benchmarked whole [M]
+
+Earlier notes benchmarked the `by_item_id` aggregation in isolation. The real query in
+`search.php` runs **four** aggregations in one request — `by_year`, a **`global`**
+`year_range`, `by_item_id` and `by_partid`, the last two each with a scripted `max(_score)`,
+`top_hits` and highlighting. Measured on 2,043,200 real BHL page documents, 4 shards:
+
+| variant | narrow (360 hits) | broad (532,680 hits) |
+|---|---|---|
+| query only, `size: 0` | 4 ms | 4 ms |
+| **full `search.php` query** | **74 ms** | **215 ms** |
+| same, without the `global` `year_range` | 38 ms | 102 ms |
+| items only, no `by_partid` | 20 ms | 80 ms |
+| `global` `year_range` **alone** | 34 ms | 24 ms |
+
+**The `global` aggregation is roughly half the total cost and returns a constant.** By
+definition `global` ignores the query — it exists to give the year chart a full-corpus x-axis —
+so it does the same work on every search to produce the same two numbers.
+
+Measured against index size, it scales at about **n^0.77**:
+
+| docs | `global` agg |
+|---|---|
+| 250,000 | 5 ms |
+| 1,000,000 | 11 ms |
+| 2,043,200 | 19 ms |
+
+Extrapolating to 63.9M gives **~270 ms per search** (less with more shards, but the same order).
+**Compute the corpus year range once at startup or after a reindex and cache it.** It is the
+single cheapest performance win available, and it costs nothing in functionality.
+
+`by_partid` adds a modest ~20 ms over items-only, which is reasonable for the feature — bearing
+in mind item 13, that it can only ever bucket the 7.4% of pages belonging to a part.
+
+Projecting the rest to 63.9M across ~24 shards: a broad query with the full aggregation set lands
+near **1 s**, dropping to roughly **0.5 s** once the `global` agg is cached. Both usable; the
+difference is free.
+
+**What the design gets right**, and should not be changed: both grouping aggregations run in a
+*single* request rather than two round trips; part metadata is fetched with `_mget` rather than a
+second search; and the `geotile_grid` map aggregation is bounded by tile count rather than page
+count, which with geo data on only 0.5% of pages (item 12) makes the map view effectively free.
+
+Note the query filters on `term: {type: page}`, confirming the polymorphic index — see item 7 for
+why pages, items and parts in one index distort BM25 length normalisation.
+
 ---
 
 ## Image embedding index (pgvector)
