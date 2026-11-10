@@ -317,6 +317,66 @@ Caveat on the figure: the ported patterns matched 2.02% of pages against the 0.5
 BHL-Light's `geotagged/` documents (item 12), so the port is looser than the original. It is a
 timing proxy, not a replacement for the tuned patterns in `geotag.php`.
 
+### 28. A second OCR version belongs in a second FIELD, not a second document [M]
+
+Newer OCR (Mistral-style JSON or Markdown) kept alongside the existing IA text, rather than
+replacing it. Three designs, measured on 20,000 real pages with the alternative version present on
+half of them.
+
+**Scoring of the original `text` field:**
+
+| design | *Natural* | *revision* | *Muscidae* |
+|---|---|---|---|
+| one field, one doc per page | 6.0909, 5.9089 | 8.2336, 8.1194 | 8.9352 |
+| **second FIELD (`text_v2`) on the same doc** | **identical** | **identical** | **identical** |
+| second DOCUMENT per page, both using `text` | 6.0781, 5.8964 | 8.1044, 7.9927 | 9.3138 |
+
+Same mechanism as item 7: statistics are per-field, so a new field is invisible to the old one,
+while a second document shifts document frequency for everyone. Filtering on an `ocr` discriminator
+does not help — the hit counts were identical and the *scores* still moved.
+
+**And the second document silently corrupts your grouping counts.** Querying *revision* on the
+two-docs-per-page index:
+
+```
+raw hit count (what a terms agg doc_count reports) : 224
+distinct pages actually matching                   : 138
+one-doc-per-page index reports                     : 138
+```
+
+**62% inflation.** Every `doc_count` in `by_item_id` and `by_partid` would be wrong, by however
+many pages happen to carry a second OCR version — a bias that varies by item, so not even a
+constant you could correct for.
+
+### 28a. Searching both versions: `best_fields`, never `most_fields` [M]
+
+With both fields on one document, a `multi_match` across them behaves very differently by type:
+
+| type | top score for *revision* |
+|---|---|
+| `best_fields` (the default) | 8.23 |
+| `cross_fields` | 8.23 |
+| **`most_fields`** | **16.10** |
+
+`best_fields` takes the **max** across fields, so a page holding both versions gets no unfair
+advantage. `most_fields` **sums** them, which systematically promotes pages that happen to have been
+re-OCR'd — a ranking artefact of coverage, not of relevance. Since coverage will be partial and
+uneven for a long time, that matters.
+
+**Storage.** With the second version on half the pages, the index went 43.6 MB → 56.8 MB (+30%);
+`text` cost 16.1 MB and `text_v2` 8.8 MB. At full coverage across BHL, expect the index to roughly
+double, **~180 GB → ~360 GB** — still only 9% of a 4 TB disk.
+
+**Adding it later.** New fields can be added to an existing mapping without a reindex, then
+populated by bulk `update`. Note that Elasticsearch implements a partial update as a delete plus
+re-index internally, so each update rewrites the whole document including the original `text`; at
+64M pages a full backfill is comparable in cost to a reindex. For a partial rollout that is fine.
+
+**Worth doing while you are there:** Markdown OCR carries the structure that item 1b and the
+reranking result (`../BENCHMARK.md`) kept running into. Headings, paragraphs and reference blocks
+could populate separate fields, which is what would let you down-weight running heads and
+back-of-book indexes — the thing that currently puts index pages at the top of a `Muscidae` search.
+
 ---
 
 ## Image embedding index (pgvector)
