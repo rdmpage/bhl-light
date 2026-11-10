@@ -82,11 +82,31 @@ docs** (8 children + 1 parent), i.e. ~**575 M** for 63.9 M pages.
 **Encode the type into a single keyword value** — `taxon:Ansonia anotis`, `place:Borneo`. Exact
 correlation, no doc inflation, still prefix-filterable. Verified in `elastic/page-index.json`.
 
-### 7. Don't mix pages, items and parts in one index [D]
+### 7. Mixing pages, items and parts in one index is FINE — with one rule [M]
 
-A `type` keyword discriminating page/item/part documents means BM25 computes IDF and field-length
-norms across documents whose `text` differs by orders of magnitude, distorting length normalisation
-for all of them. Separate indexes behind an alias score better and cost the same.
+**Correction.** Earlier drafts said to split the polymorphic index because BM25 would compute IDF
+across heterogeneous documents. Measured, that only happens under a condition the existing design
+already avoids.
+
+Three indexes over the same 20,000 real BHL pages, querying `text` with `filter: {type: page}`:
+
+| index | page scores, *Natural* | *revision* |
+|---|---|---|
+| A — pages only | 6.0909, 5.9089 | 8.2336, 8.1194 |
+| B — + 4,500 metadata docs in a **separate** `name` field | **identical** | **identical** |
+| C — + 4,500 metadata docs sharing the **`text`** field | 4.1918, 4.0371 | 4.1063, 4.0425 |
+
+**The rule: metadata documents must not populate the same analysed field as page OCR.** Put
+title/item/part metadata in `name`, `csl` and friends and keep `text` for page content only. Then a
+single polymorphic index scores exactly like a pages-only one, and `_mget` by document id plus
+single-request aggregation over both still work.
+
+`bhl-elastic-test` already does this — `go.php` gives part documents `csl`, `name`, `provider` and
+`thumbnail`, never `text`.
+
+**The subtlety worth stating:** `filter: {term: {type: page}}` does *not* protect you. A filter
+restricts which documents match; IDF is computed over the whole index regardless. In variant C
+every page score shifted even though the filter excluded every metadata document.
 
 ### 8. The scripted `max(_score)` aggregation is fine — my concern was wrong [M]
 
@@ -261,6 +281,41 @@ count, which with geo data on only 0.5% of pages (item 12) makes the map view ef
 
 Note the query filters on `term: {type: page}`, confirming the polymorphic index — see item 7 for
 why pages, items and parts in one index distort BM25 length normalisation.
+
+### 27. Geotag during ingest, not afterwards [M]
+
+All five coordinate patterns from `bhl-elastic-test/geotag.php`, ported and run over **29,813 real
+BHL pages** (mean 2,209 B):
+
+| | |
+|---|---|
+| cost | **120 µs/page** |
+| 63.9M pages, single-threaded | 127 min |
+| 63.9M pages, 16 cores | **8 min** |
+
+Eight minutes against the *tens of minutes* it takes merely to decompress the 40 GB archive. The
+regex is noise next to the I/O, so run it inline in the load pass.
+
+**Doing it afterwards costs far more**, because there is no cheap way to find candidate pages. The
+obvious idea — ask Elasticsearch for pages containing `°` — does not work; the standard tokenizer
+strips it:
+
+```
+"collected at 29° 36' N, 101° 18' E in Texas"
+  -> [collected, at, 29, 36, n, 101, 18, e, in, texas]
+```
+
+`°` and `'` are gone, and `n`/`e` match nearly every page. A later pass therefore has to re-read all
+64M pages, either scrolling ~180 GB of `_source` out of Elasticsearch or decompressing the archive
+again. Both dwarf 8 minutes.
+
+**To keep the option of retuning the patterns**, write the extracted text to disk as the load runs.
+At ~134 GB on a 4 TB volume that is cheap insurance, and it turns a refinement pass into a local
+file scan rather than a re-decompression.
+
+Caveat on the figure: the ported patterns matched 2.02% of pages against the 0.514% measured from
+BHL-Light's `geotagged/` documents (item 12), so the port is looser than the original. It is a
+timing proxy, not a replacement for the tuned patterns in `geotag.php`.
 
 ---
 
